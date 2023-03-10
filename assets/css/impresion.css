@@ -1,0 +1,152 @@
+@media print{
+    #boletas{
+        display: none;
+    }
+    #cuerpo{
+        border: none; 
+    }
+       
+	#mostrar{
+		border:0px;
+		text-align: center;
+	}
+	#incapacidad{
+		margin-right: 0%;
+	}
+	#vacaciones{
+		margin-right: 0%;
+	}
+	@page { 
+		size: auto; margin: 0mm; 
+	} 
+	#firma_auto{
+		float: left;
+		padding-left: 20%;
+	}
+	#jefe_inme{
+		display: inline-block;
+	}
+	#btn_permiso{
+		display: none;
+	}
+	#logo_permiso{
+		width: 150px;
+		height: 50px;
+	}
+	#logo_planilla{
+		width: 130px;
+		height: 30px;
+	}
+
+	/*ESTILO PARA QUE SALGA EL RECIBO DE LAS DEUDAS DE LA LIQUIDACION*/
+	#invicible2{
+		display: none;
+	}
+
+	#tabla_incapacidad{
+		width: 10000px;
+	}
+
+	/*ESTILO PARA LOS RECIBOS DE PRESTAMOS INTERNOS*/
+	.imagen_pres{
+        margin-top: 5%;
+        margin-left: 3%;
+    }
+    .hr1_pres{
+        margin-top: 25%;
+        display: block;
+        border-color: #872222;
+        border-width:5px;
+    }
+    .hr2_pres{
+        display: block;
+        border-color: #872222;
+        margin-top: -4%;
+        border-width:2px;
+    }
+    .negrita_pres{
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .pie_pag_pres{
+        margin-top: -3%;
+        font-size: 15px;
+    }
+    .firmas_pres{
+        font-size: 12px;
+    }
+}
+
+#vacaciones{
+	margin-left: -11%;
+}
+#incapacidad{
+	margin-left: -21%;
+}
+.check_imprimir{
+	transform: scale(1.5);
+}
+#logo_permiso{
+	width: 25%;
+	height: 15%;
+}
+#logo_planilla{
+	width: 20%;
+	height: 10%;
+}
+
+/*ESTILO PARA LOS RECIBOS DE LAS LIQUIDACIONES*/
+.texto_recibo_liq{
+	margin-left: 20%; 
+  	margin-right:20%;
+}
+
+.hr1_liq{
+  	height: 5px;
+	background-color: #872222;
+}
+.hr2_liq{
+  	height: 2px;
+	background-color: #872222;
+	margin-top: -2%;
+}
+.pie_pag_liq{
+  	margin-top: -2%;
+  	font-size: 12px;
+}
+
+/*ESTILO PARA LOS RECIBOS DE PRESTAMOS INTERNOS*/
+.texto_pres{
+  	margin-left: 10%; 
+  	margin-right:10%;
+}
+.imagen_pres{
+  	float: left;
+  	margin-top: 10px;
+  	margin-left: 10%;
+}
+.constancia_pres{
+  	margin: 10px;
+  	text-align: right;
+}
+.logoC_pres{
+  	width: 170px;
+  	height: 70px;
+}
+.titulo_pres{
+  	font-weight: bold;
+}
+.hr1_pres{
+    height: 5px;
+    background-color: #872222;
+}
+.hr2_pres{
+    height: 2px;
+    background-color: #872222;
+    margin-top: -2%;
+}
+.hr_div{
+    border: 0 ; 
+    border-top: 4px double #337AB7; 
+    width: 90%;
+}

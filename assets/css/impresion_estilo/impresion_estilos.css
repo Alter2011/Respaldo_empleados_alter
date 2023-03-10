@@ -1,0 +1,172 @@
+
+@media all {
+
+  * { -webkit-print-color-adjust: exact; }
+  /*.resalta{
+  background-color:black; 
+  color:white; 
+  }*/
+  .principal {
+    width: auto;
+    height: auto;
+    text-align: justify;
+    font-size: 15px;
+    margin: 25px;
+  }
+  .marcoscreen{
+    margin-top: 50px;
+    margin: auto;
+    width: 900px;
+  }
+
+    .principal > #margen > #fecha{
+    text-align: right;
+  }
+  .principal > div > .linea {
+      border-top: double; 
+      text-align: center;
+      font-size: 16px;
+    }
+  .principal > #margen{
+    width: auto;
+    height: auto;
+    margin: 10px;
+    text-align: justify;
+  }
+    .principal > #margen > #centrado {
+    width: auto;
+    height: auto;
+    margin: 0px;
+    text-align: center;
+  }
+  #centrado {text-align: center;}
+
+  .principal > #margen > p > label{
+      text-decoration: underline;
+  }
+  .principal > #margen > ol> li > #subrayado{
+      text-decoration: underline;
+  } 
+  p > #subrayado{
+      text-decoration: underline;
+  }
+  p > .subrayado_tamaño{
+      text-decoration: underline;
+  }
+  #pie_pagina{
+    margin: 25px;
+  }
+  #firma{
+    display: inline-table;
+  }
+  #linea{border-top: double;}
+
+  .caji{
+    width: auto;
+    height: auto;
+  }
+  .marco{
+    margin: 20px;
+    font-size: 18px;
+     border: double;
+     border-radius: 10px;
+     position: relative;
+  }
+
+  .principal > #centrado{
+    margin: 15px;
+    text-align: center;
+  }
+  .tabla_garantia{
+    width: auto;height: auto; margin: 20px;
+  }
+  .titulo{
+    font-size: 18px;
+  }
+    .letra{
+    font-size: 18px;
+  }
+}
+
+@media print{
+   .letra{
+    font-size: 12px;
+  }
+    #centrado {text-align: center;}
+  .titulo{
+    font-size: 15px;
+  }
+  #btn_bienes{
+    display: none;
+  }
+
+  .principal > #margen > p > label{
+    font-size: 15px;
+  }
+  .principal > #margen > h4> p{
+    font-size: 15px;
+  }
+  .principal > #margen > #margen > p > label{
+    font-size: 15px;
+  }
+  .principal > #margen > #margen > p {
+    font-size: 15px;
+  }
+  .principal > #margen > ol> li> p {  
+    font-size: 15px;
+  }
+  .principal > #margen > ol> li {  
+    font-size: 15px;
+  }
+  .principal > #margen > .linea > p {
+  font-size: 15px;
+    }
+  .principal > #margen > p {
+    font-size: 15px;
+  } 
+  .principal > #margen > #fecha > p{
+     font-size: 15px;
+    }
+    .principal > #margen > #fecha > p{
+     font-size: 15px;
+    }
+     b,p{
+     font-size: 11px;
+    }
+    /*garantia*/
+    thead,label,#centrado{
+    font-size: 13px;
+    }
+      #pie_pagina{
+    margin: 30px;
+  }
+
+  .principal2 {
+    width: auto;
+    height: auto;
+    text-align: justify;
+    font-size: 15px;
+    margin: 25px;
+  }
+  .marco{
+    width: auto;
+    height: auto;
+    bottom: 15px;
+    margin: 15px;
+    border: double;
+    border-radius: 10px;
+    position: relative;
+  }
+  .img{
+    margin-left: 25px;
+  }
+  .principrint{
+    width: auto;
+    height: auto;
+    margin: 10px;
+    border: double;
+    border-radius: 10px;
+    position: relative;
+  }
+    
+}
