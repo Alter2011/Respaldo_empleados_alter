@@ -184,6 +184,21 @@
         </a>          
     </div>
     <?php } ?>
+    <!-- FALTA PERMISO NO25042023 -->
+    <?php if(isset($this->data["seccion_1"]) or isset($this->data["seccion_2"]) or isset($this->data["seccion_3"]) or isset($this->data["seccion_4"])){  ?>
+         <div class="panel-group col-sm-4">
+                <a href="<?= base_url();?>index.php/Mantenimiento/test_prospectos">
+                    <div class="panel-info" role="button">
+                        <div class="panel-heading print-blue text-center" >
+                            <span class="glyphicon glyphicon-book fa-5x text-center"></span><br/>
+                        </div>
+                        <div class="panel-footer text-center">
+                        <label>Test para prospectos</label>
+                        </div>
+                    </div> 
+                </a>          
+            </div>
+    <?php } ?>
 
     </div>
     </div>

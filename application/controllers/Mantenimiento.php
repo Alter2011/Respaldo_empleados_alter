@@ -8,6 +8,7 @@ class Mantenimiento extends Base {
         $this->load->model('academico_model');
         $this->load->model('conteos_model');
 		$this->load->model('contrato_model');
+        $this->load->model('empleado_model');
 		$this->load->library('grocery_CRUD');
 		$this->load->model('empleado_model');
         $this->load->library('grocery_CRUD');
@@ -26,7 +27,63 @@ class Mantenimiento extends Base {
         $this->load->view('Mantenimiento/mantenimientos');
     }
 
+    //NO25042023 funcion para registrar a una potencial empleado para que realice sus test de personalidad
+    public function test_prospectos(){
+       // echo "hola mundo";
+       //Hay que traer a los prospectos
+       $data['candidatos'] = $this->empleado_model->get_candidatos();
+        $data['activo'] = 'Mantenimientos';
+        $this->load->view('dashboard/header');
+        $this->load->view('dashboard/menus',$data);
+        $this->load->view('Mantenimiento/tests',$data);
+    }
+    public function guardarTest(){
+        $DUI = $this->input->post("DUI");
+        $nombre_prospecto = $this->input->post('nombreProspecto');
+        $conversion = $this->unidad_letras($DUI);
+        $DUI_arr = explode(' ', $conversion);
+        $verificacion = $this->empleado_model->get_candidatos($DUI);
+        
+        if((count($DUI_arr)-1) != 10 || !empty($verificacion)){
+            echo json_encode("DUI invalido");
+        }else{
+            $data = array(
+                "DUI" => $DUI,
+                "nombre_prospecto" => $nombre_prospecto,
+                "fecha_ingreso" => date('Y-m-d'),
+                "estado_test1"=> 0,
+                "estado_test2" => 0,
+                "estado" => 1
+            );
+            //$insert = $this->empleado_model->save_test($data);
+            if($insert == null){
+                echo json_encode(null);
+            }else{
+                echo json_encode($insert);
+            }
+            
+        }
+      
+    }
+    public function resultados_tetra(){
+        $id = $this->uri->segment(3);
+        $verificacion = $this->empleado_model->get_candidatos(null, $id);
+        $dui = $verificacion[0]->DUI;
+        $data['resultados_tetra'] = $this->empleado_model->get_resultados_tetra($dui);
+        $data['propspecto'] = $verificacion[0];
+        $this->load->view('dashboard/header');
+        $data['activo'] = 'Mantenimientos';
+
+        $this->load->view('dashboard/menus',$data);
+    
+        $this->load->view('Mantenimiento/resultados_tetra',$data);
+       
+    }
+   
+
+
     public function rrhh(){
+       
         $this->load->view('dashboard/header');
         $data['activo'] = 'Mantenimientos';
 

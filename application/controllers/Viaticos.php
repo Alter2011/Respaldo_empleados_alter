@@ -480,6 +480,7 @@ class Viaticos extends Base {
         $data['aprobar']= $this->validar_secciones($this->seccion_actual2["aprobar"]);
         $data['rechazar']= $this->validar_secciones($this->seccion_actual2["rechazar"]);
         $data['revisar']= $this->validar_secciones($this->seccion_actual2["revisar"]);
+
         //carteras de SIGA
         $cartera = $this->viaticos_model->all_carteras();
         //datos de la moto de trabajo reconocida
@@ -544,9 +545,10 @@ class Viaticos extends Base {
                     $llanta_tra = ($item[1]->mesual/2)*$porcentaje;
                     $mont_gral = ($item[2]->mesual/2)*$porcentaje;
                     $aceite = ($item[3]->mesual/2)*$porcentaje;
-                    $total = $consumo_ruta+$depreciacion+$llanta_del+$llanta_tra+$mont_gral+$aceite;
-                //la cartera no posee se le asignara $15 
-                }else if($cartera[$i]->vehiculo == 0){
+                    $total = $consumo_ruta+$depreciacion+$llanta_del+$llanta_tra+$mont_gral+$aceite;               
+                    
+                     //la cartera no posee se le asignara $15 
+                     }else if($cartera[$i]->vehiculo == 0){
                     //se valida si el empleado tiene un viatico compartido
                     $dias_usado = $this->viaticos_model->dias_uso($empleado[0]->id_empleado,$data['quincena'],date('Y-m'),9);
                     $dias_viatico = 15; 
@@ -644,7 +646,11 @@ class Viaticos extends Base {
             //se busca si el empleado posee un viatico extra
             $viaticos = $this->viaticos_model->viaticos_temp($data['empleados'][$i]->id_empleado,date('Y-m'),$data['quincena']);
 
+            //WM28042023 trae los viaticos de los empleados si poseen cartera
+            $empleadosCartera = $this->viaticos_model->empleados_cartera_viatico($data['empleados'][$i]->id_empleado);     
+
             if(!empty($viaticos)){
+                
                 $data['empleados'][$i]->consumo_ruta = $viaticos[0]->consumo_ruta;
                 $data['empleados'][$i]->depreciacion = $viaticos[0]->depreciacion;
                 $data['empleados'][$i]->llanta_del = $viaticos[0]->llanta_del;
@@ -652,6 +658,13 @@ class Viaticos extends Base {
                 $data['empleados'][$i]->mant_gral = $viaticos[0]->mant_gral;
                 $data['empleados'][$i]->aceite = $viaticos[0]->aceite;
                 $data['empleados'][$i]->total = $viaticos[0]->total;
+
+                //WM28042023 se hizo el if para conocer los viticos el uso lo hara contro de viaticos
+                if(!empty($empleadosCartera)){
+                $data['empleados'][$i]->totalViaticos = $empleadosCartera[0]->total;
+                }else{
+                    $data['empleados'][$i]->totalViaticos = 0;
+                }
             }else{
                 $data['empleados'][$i]->consumo_ruta = 0;
                 $data['empleados'][$i]->depreciacion = 0;
@@ -662,6 +675,8 @@ class Viaticos extends Base {
                 $data['empleados'][$i]->total = 0;
             }
         }
+
+        
         //viatico efectivos 
         $data['efectivos'] = $this->viaticos_model->viaticos_efectivos($data['agencias_ex'][0]->id_agencia,$data['quincena'],date('Y-m'));
         //empleados inactivos
@@ -691,6 +706,7 @@ class Viaticos extends Base {
         $mes=$this->input->post('mes');
         $quincena=$this->input->post('quincena');
         
+
         if($empresa == 'todas'){
             $empresa = null;
         }
@@ -700,6 +716,8 @@ class Viaticos extends Base {
         }
         //careteras de la empresa y agencia seleccionada
         $cartera = $this->viaticos_model->all_carteras($agencia,$empresa);
+
+
          //datos de la moto de trabajo reconocida
         $moto = $this->viaticos_model->moto_base();
         //datos de la depreciacion de la motocicleta
@@ -735,6 +753,10 @@ class Viaticos extends Base {
                 $mont_gral = 0;
                 $aceite = 0;
                 $total = 0;
+
+
+
+
                 //se verifica si la cartera posee vehiculos y si tiene kilimetraje
                 if($cartera[$i]->vehiculo == 1 && $cartera[$i]->KM > 0){
                     //precios de la gasolina segun la agencia de la cartera
@@ -786,6 +808,9 @@ class Viaticos extends Base {
                     $aceite = 0;
                     $total = $dias_viatico;
                 }
+
+                
+
                 //si el consumo de la ruta es mayor a cero entrara para mostrarlo en vista
                 if($consumo_ruta > 0){
                     $contratos = $this->viaticos_model->login_contrato($empleado[0]->id_empleado);
@@ -806,7 +831,8 @@ class Viaticos extends Base {
                     $data2['quincena'] = $quincena;
                     $data2['mes'] = $mes;
                     $data2['guardado'] = 0;
-
+                    $data2['cargo'] = $cartera[$i]->cargo;
+                    
                     $data['viaticos'][$j] = $data2;
                     $data['guardar'][$m] = $data2;
                     $j++;$m++;
@@ -829,7 +855,9 @@ class Viaticos extends Base {
                 $data2['total'] = $verificar_viaticos[0]->total;
                 $data2['quincena'] = $verificar_viaticos[0]->quincena;
                 $data2['mes'] = $verificar_viaticos[0]->mes;
+                $data2['cargo'] = $verificar_viaticos[0]->cargo;
                 $data2['guardado'] = 1;
+
 
                 $data['viaticos'][$j] = $data2;
                 $data['id_rehazo'][$n] = $verificar_viaticos[0]->id_viaticos_cartera;
@@ -851,6 +879,7 @@ class Viaticos extends Base {
         echo json_encode($data);
     }
     //metodo para guardar los viaticos
+
     function viaticos_guardar(){
         //estos registros se ingresan a la bdd de tableros
         //viaticos que se guardaran
@@ -987,6 +1016,7 @@ class Viaticos extends Base {
                 $data[$i]->mant_gral = $viaticos[0]->mant_gral;
                 $data[$i]->aceite = $viaticos[0]->aceite;
                 $data[$i]->total = $viaticos[0]->total;
+
             }else{
                 $data[$i]->consumo_ruta = 0;
                 $data[$i]->depreciacion = 0;
@@ -995,6 +1025,7 @@ class Viaticos extends Base {
                 $data[$i]->mant_gral = 0;
                 $data[$i]->aceite = 0;
                 $data[$i]->total = 0;
+                $data[$i]->totalViaticos = 0;
             }
         }
 
@@ -1470,6 +1501,7 @@ class Viaticos extends Base {
         if(!empty($ultimo)){
             $data['viaticos'] = $this->viaticos_model->viaticos_empleado($id_empleado,$ultimo[0]->mes,null,2);
             $data['mes'] = $ultimo[0]->mes;
+            print_r($data['viaticos']);
         }
 
         $this->load->view('dashboard/header');
@@ -2035,4 +2067,145 @@ class Viaticos extends Base {
         }
     }
 
+    //WM08052023 funcion de campo control de viatico
+    function viaticos_control(){
+        $agencia=$this->input->post('agencia');
+        $mes=$this->input->post('mes');
+        $quincena=$this->input->post('quincena');
+
+        // empleados por agencia
+        $empleados = $this->viaticos_model->empleados_get($agencia);
+        //datos de la moto de trabajo reconocida
+        $moto = $this->viaticos_model->moto_base();
+        //datos de la depreciacion de la motocicleta
+        $item = $this->viaticos_model->depreciacion_motocicleta();
+        //es el tiempo de vida que tiene la motocicleta
+        $tiempo_vida = $moto[0]->tiempo_vida*24;
+        
+
+
+        for($i=0; $i < count($empleados); $i++){
+            $data[$i]['agencia']=$empleados[$i]->agencia;
+            $data[$i]['nombre'] = $empleados[$i]->nombre;
+            $data[$i]['cargo'] = $empleados[$i]->cargo;
+            $data[$i]['totalCartera'] = 0;
+            $data[$i]['totalPermanentes'] = 0;
+            $data[$i]['totalParciales'] = 0;
+            $data[$i]['totalXtra'] = 0;
+
+            // verifica si tiene cartera asignada
+            $verificarCartera = $this->viaticos_model->verificar_cartera_empleados($empleados[$i]->id_empleado);
+
+            if(!empty($verificarCartera)){
+                //se verifica si ya esta ingresados los viaticos
+            $verifica_ruta = $this->viaticos_model->verificar_ruta($verificarCartera[0]->id_cartera,$quincena,$mes,2);
+            $verificar_viaticos = $this->viaticos_model->get_viaticos($verificarCartera[0]->id_cartera,$quincena,$mes,1);
+                if(empty($verifica_ruta) && empty($verificar_viaticos)){
+                    //datos del empleado en turno
+                    $dias_lan = 13;
+                    $consumo_ruta = 0;
+                    $depreciacion = 0;
+                    $llanta_del = 0;
+                    $llanta_tra = 0;
+                    $mont_gral = 0;
+                    $aceite = 0;
+                    $total = 0;
+
+                    //se verifica si la cartera posee vehiculos y si tiene kilimetraje
+                if($verificarCartera[0]->vehiculo == 1 && $verificarCartera[0]->KM > 0){
+                    //precios de la gasolina segun la agencia de la cartera
+                    $precios = $this->viaticos_model->precios_zona($verificarCartera[0]->id_agencia);
+                    //se valida si el empleado tiene un viatico compartido
+                    $dias_usado = $this->viaticos_model->dias_uso($empleados[$i]->id_empleado,$quincena,$mes,9);
+                    //si tiene, ingresara y se va hacer la operacion necesaria
+                    if(!empty($dias_usado[0]->dias)){
+                        $dias_lan = $dias_lan - $dias_usado[0]->dias;
+                    }
+                    //se valida si la cartera tiene un viatico compartido
+                    $dias_cartera = $this->viaticos_model->dias_cartera($verificarCartera[0]->id_cartera,$quincena,$mes,9);
+                    //si tiene, ingresara y se va hacer la operacion necesaria
+                    if(!empty($dias_cartera[0]->dias)){
+                        $dias_lan = $dias_lan - $dias_cartera[0]->dias;
+                    }
+
+                    //calculos para los viaticos
+                    $km_mes = $dias_lan*$verificarCartera[0]->KM;
+                    $gal_consumidos = $km_mes/$moto[0]->consumo_gal;
+                    $consumo_ruta = $gal_consumidos*$precios[0]->precio;
+                    $porcentaje = $km_mes/(($moto[0]->km_uso/$moto[0]->tiempo_vida)/24);
+                    $depreciacion = ($moto[0]->precio/$tiempo_vida)*$porcentaje;
+                    $llanta_del = ($item[0]->mesual/2)*$porcentaje;
+                    $llanta_tra = ($item[1]->mesual/2)*$porcentaje;
+                    $mont_gral = ($item[2]->mesual/2)*$porcentaje;
+                    $aceite = ($item[3]->mesual/2)*$porcentaje;
+                    $total = $consumo_ruta+$depreciacion+$llanta_del+$llanta_tra+$mont_gral+$aceite;
+                //la cartera no posee se le asignara $15 
+                }else if($verificarCartera[0]->vehiculo == 0){
+                    //se valida si el empleado tiene un viatico compartido
+                    $dias_usado = $this->viaticos_model->dias_uso($empleados[$i]->id_empleado,$quincena,$mes,9);
+                    $dias_viatico = 15; 
+                    //si tiene, ingresara y se va hacer la operacion necesaria
+                    if(!empty($dias_usado[0]->dias)){
+                        $dias_viatico = $dias_viatico - $dias_usado[0]->dias;
+                    }
+                    //se valida si la cartera tiene un viatico compartido
+                    $dias_cartera = $this->viaticos_model->dias_cartera($verificarCartera[0]->id_cartera,$quincena,$mes,9);
+                    if(!empty($dias_cartera[0]->dias)){
+                        //si tiene, ingresara y se va hacer la operacion necesaria
+                        $dias_lan = $dias_lan - $dias_cartera[0]->dias;
+                    }
+                    $consumo_ruta = $dias_viatico;
+                    $depreciacion = 0;
+                    $llanta_del = 0;
+                    $llanta_tra = 0;
+                    $mont_gral = 0;
+                    $aceite = 0;
+                    $total = $dias_viatico;
+                }
+                // asigna al arreglo el total de los viaticos por cartera
+                if($consumo_ruta > 0){
+                    $data[$i]['totalCartera'] = $total;
+                }
+                }
+                
+            }
+
+            // tipo de viaticos
+                // viaticos permanente
+                $ultimoValidar = $this->viaticos_model->viaticos_empleado($empleados[$i]->id_empleado,null,null,1);
+                
+                if(!empty($ultimoValidar)){
+
+                    // viaticos permanente
+                    $permanente = $this->viaticos_model->viaticos_empleado($empleados[$i]->id_empleado,$ultimoValidar[0]->mes,null,2);
+                    // print_r($permanente);
+                    if($permanente[0]->cartera == "Viatico permanente"){
+                        $data[$i]['totalPermanentes'] = $permanente[0]->total;
+                    }else{
+                        $data[$i]['totalPermanentes'] = 0;
+                    }
+
+                    // viatico parciales
+                    if($permanente[0]->estado == 3){
+                        $data[$i]['totalParciales'] = $permanente[0]->total;
+                    }
+
+                    // viaticos extras
+                    $extras = $this->viaticos_model->viaticos_empleado($empleados[$i]->id_empleado,$mes,$quincena,2);
+                    // print_r($extras);
+                    if(!empty($extras)){
+                        if($extras[0]->cartera == "Viatico extra"){
+                            $data[$i]['totalXtra'] = $extras[0]->total;
+                        }else{
+                           $data[$i]['totalXtra'] = 0; 
+                        }
+                    }else{
+                        $data[$i]['totalXtra'] = 0; 
+                    }
+                    
+
+                }     
+        }
+        echo json_encode($data);
+    }
 }

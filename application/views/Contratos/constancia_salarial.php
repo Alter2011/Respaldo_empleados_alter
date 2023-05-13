@@ -25,6 +25,15 @@
       width:200px; 
       height: 150px
     }
+    .sello{
+  		width:140px; 
+  		height: 85px;
+		align-self: center;
+  	}
+    .sello_container{
+      float: right; border: black 2px solid; width:200px; 
+  		height: 200px;  display: flex;justify-content: center;text-align:center;
+    }
     .pie_pag{
       margin-top: -2%;
       font-size: 15px;
@@ -60,6 +69,11 @@
 	  		width: 220px;
 	  		height: 130px;
 	  	}
+      .sello_container{
+      float: right; border: black 2px solid; width:150px; 
+  		height: 150px;  display: flex;justify-content: center;text-align:center;
+    }
+      
 	  	.constancia{
 	  		margin-top: 10%;
 	  		text-align: center;
@@ -71,18 +85,18 @@
           position: fixed;
           bottom: 15%;
           width: 75%;
-
+          left:10%;
            text-align: center;
       }
       .hr2{
         display: block;
       border-color: #872222;
-      margin-top: -4%;
+     margin-top: -4%; 
       border-width:2px;
           position: fixed;
           bottom: 15%;
           width: 75%;
-
+          left:10%;
            text-align: center;
       }
       .pie_pag{
@@ -91,7 +105,7 @@
         position: fixed;
         bottom: 10%;
         width: 75%;
-
+        left:10%;
            text-align: center;
       }
 	  	.logoC{
@@ -211,8 +225,25 @@
         		Y para los usos que estime conveniente se extiende la siguiente constancia en la ciudad de Santa Ana a los <?php echo $fecha_actual ?>. <br><br>
 
         		<div style="text-align: center;">
-        			<img class="firma" src="<?= $firma;?>" id="img_vacacion"><br>
-              <h4><?= $nombre_auto; ?><br><?= $cargo_auto;?></h4>
+            <div class="sello_container">
+        <?php if($empleado[0]->id_empresa == 1){?>
+            <img class="sello" src="<?= $selloAlter;?>" id="img_vacacion"><br>
+        <?php }else if($empleado[0]->id_empresa == 2){ ?>
+            <img class="sello" src="<?= $selloOcci;?>" id="img_vacacion"><br>
+        <?php }else{?>
+            <img class="sello" src="<?= $selloSECOFI;?>" id="img_vacacion"><br>
+        <?php } ?> 
+		
+		
+		
+    </div>
+    <div style="float: left;">
+        <img class="firma" src="<?= $firma;?>" id="img_vacacion">
+		<h4><?= $nombre_auto; ?><br><?= $cargo_auto;?></h4>
+    </div>
+    <div style="clear: both;"></div>
+   
+	</div>
         		</div>
         	</h4>
         	<br>

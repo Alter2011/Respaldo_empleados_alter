@@ -3007,7 +3007,7 @@ class Planillas extends Base
                                 //NO10012023 se modifico total a pagar para sumar las gratificaciones
                                 $total_pagar = ($sueldoDescuentos - $renta) + ($viaticosSuma + $horasExt) + (-$interno - $personal - $anticipoSum - $ordenes - $descuentoHer - $horaDescuento + $bonoSum);
                                 if ($total_pagar > 0 && $dias > 0) {
-
+                                    
                                     //arreglo para mostrar la planilla
                                     $objeto = new stdclass;
                                     $objeto->nombre_empresa = $empleados[$i]->nombre_empresa;

@@ -23,7 +23,14 @@
   	}
   	.firma{
   		width:200px; 
-  		height: 150px
+  		height: 150px;
+		 
+  	}
+	
+	  .sello{
+  		width:140px; 
+  		height: 85px;
+		align-self: center;
   	}
   	.pie_pag{
   		margin-top: -2%;
@@ -108,6 +115,7 @@
     </div>
 
     <a class="btn btn-success crear ocultar" id="btn_permiso"><span class="glyphicon glyphicon-print"></span> Imprimir</a>
+	<a class="btn btn-success" id="sello_mostrar" onclick="handleSello()"><span class="glyphicon glyphicon-ok-circle"></span> Sellar</a>
     <div class="col-sm-12">
         <?php if($empleado[0]->id_empresa == 1){ ?>
         	<div class="imagen">
@@ -141,11 +149,30 @@
         		Y para los usos que estime conveniente se extiende la siguiente constancia en la ciudad de <?php if($empleado[0]->id_agencia == 00){echo 'San Salvador';}else{echo $empleado[0]->agencia;} ?> a los <?php echo $fecha_actual ?>. <br><br>
 
 
-        		<div style="text-align: center;">
-        			<img class="firma" src="<?= $firma;?>" id="img_vacacion"><br>
-        			<h4><?= $nombre_auto; ?><br><?= $cargo_auto;?></h4>
-        		</div>
-        	</h4>
+	<div style="text-align: center;">
+					
+    <div style="float: right; border: black 2px solid; width:200px; 
+  		height: 200px;  display: none;justify-content: center;text-align:center;" id="sello" class="oculto">
+        <?php if($empleado[0]->id_empresa == 1){?>
+            <img class="sello" src="<?= $selloAlter;?>" id="img_vacacion"><br>
+        <?php }else if($empleado[0]->id_empresa == 2){ ?>
+            <img class="sello" src="<?= $selloOcci;?>" id="img_vacacion"><br>
+        <?php }else{?>
+            <img class="sello" src="<?= $selloSECOFI;?>" id="img_vacacion"><br>
+        <?php } ?> 
+		
+		
+		
+    </div>
+    <div style="float: left;">
+        <img class="firma" src="<?= $firma;?>" id="img_vacacion">
+		<h4><?= $nombre_auto; ?><br><?= $cargo_auto;?></h4>
+    </div>
+    <div style="clear: both;"></div>
+   
+	</div>
+				
+        	
         	<hr class="hr1"><hr class="hr2">
         	<p class="pie_pag"><?= $empleado[0]->casa_matriz ?><br>
 			Oficinas centrales: <?= $empleado[0]->telefono ?><br>Recursos Humanos: <?= $empleado[0]->celular ?></p>
@@ -158,7 +185,12 @@ $(document).ready(function(){
 	$('.crear').click(function(){
         window.print();
     });
+
     
 });//Fin jQuery
-	
+function handleSello(){
+	console.log("click")
+	let sello = document.getElementById("sello");
+	sello.style.display = (sello.style.display === "none") ? "flex" : "none";
+}	
 </script>

@@ -700,9 +700,13 @@ class Contratacion extends Base{
         $img2 = base_url().'assets/images/'.$id_empleado.'.jpeg';
         $images = @get_headers($img2);
         if($images[0] == 'HTTP/1.1 404 Not Found'){
-            $data['firma'] = base_url().'assets/images/rrhh.jpg';
-            $data['nombre_auto'] = 'Katherine Isabel Molina Sanchez';
-            $data['cargo_auto'] = 'Jefe de RRHH';
+           
+            $data['firma'] = base_url().'assets/images/bark.jpeg';
+            $data['nombre_auto'] = 'Bryan Alexander Rosales Iraheta';
+            $data['cargo_auto'] = 'Coordinador de RRHH';
+            $data['selloAlter'] = base_url().'assets/images/selloAlter.jpeg';
+            $data['selloOcci'] = base_url().'assets/images/selloOcci.jpeg';
+            $data['selloSECOFI'] = base_url().'assets/images/selloSECOFI.jpeg';
         }else{
             $datos = $this->liquidacion_model->datos_auto($id_empleado);
             $data['firma'] = $img2;
@@ -721,6 +725,7 @@ class Contratacion extends Base{
         $this->verificar_acceso($this->seccion_actual2["aprobar"]);
         $code = $this->uri->segment(3);
         $data['empleado'] = $this->contrato_model->datosLaboral($code);
+        
         $data['prestamoI'] = 0;
         $data['prestamoP'] = 0;
         $data['renta'] = 0;
@@ -856,10 +861,14 @@ class Contratacion extends Base{
 
         $img2 = base_url().'assets/images/'.$id_empleado.'.jpeg';
         $images = @get_headers($img2);
+        //NO29042023
         if($images[0] == 'HTTP/1.1 404 Not Found'){
-            $data['firma'] = base_url().'assets/images/rrhh.jpg';
-            $data['nombre_auto'] = 'Katherine Isabel Molina Sanchez';
-            $data['cargo_auto'] = 'Jefe de RRHH';
+            $data['firma'] = base_url().'assets/images/bark.jpeg';
+            $data['nombre_auto'] = 'Bryan Alexander Rosales Iraheta';
+            $data['cargo_auto'] = 'Coordinador de RRHH';
+            $data['selloAlter'] = base_url().'assets/images/selloAlter.jpeg';
+            $data['selloOcci'] = base_url().'assets/images/selloOcci.jpeg';
+            $data['selloSECOFI'] = base_url().'assets/images/selloSECOFI.jpeg';
         }else{
             $datos = $this->liquidacion_model->datos_auto($id_empleado);
             $data['firma'] = $img2;

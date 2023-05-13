@@ -629,11 +629,11 @@ Luego comienza a mostrar el contenido de la pagina
                         foreach($categorias as $a){
                             if($actual[0]->id_categoria==$categorias[$i]->id_categoria){
                                 ?>
-                                    <option selected id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria);?></option>
+                                    <option selected id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria." $". $categorias[$i]->Sbase)?></option>
                                 <?php
                             }else{
                                 ?>
-                                <option id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria);?></option>
+                                <option id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria." $". $categorias[$i]->Sbase)?></option>
                                 <?php
                             }
                             $i++;
@@ -836,11 +836,11 @@ Luego comienza a mostrar el contenido de la pagina
                         foreach($categorias as $a){
                             if($actual[0]->id_categoria==$categorias[$i]->id_categoria){
                                 ?>
-                                    <option selected id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria);?></option>
+                                    <option selected id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->Sbase." $". $categorias[$i]->Sbase);?></option>
                                 <?php
                             }else{
                                 ?>
-                                <option id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"><?php echo($categorias[$i]->categoria);?></option>
+                                <option id="<?= ($categorias[$i]->id_categoria);?>" value="<?= ($categorias[$i]->id_categoria);?>"> <?php echo("prueba".$categorias[$i]->Sbase." $". $categorias[$i]->Sbase)?></option>
                                 <?php
                             }
                             $i++;
@@ -1347,6 +1347,7 @@ i = 0;
                 dataType : "JSON",
                 data : {contrato_cargo:contrato_cargo},
                 success: function(data){
+                    console.log(data)
                     $("#contrato_categoria").empty();
                     $.each(data.categoria,function(key, registro) {
 
@@ -1603,8 +1604,8 @@ i = 0;
                 success: function(data){
                     $("#cambio_categoria").empty();
                     $.each(data.categoria,function(key, registro) {
-
-                         $("#cambio_categoria").append('<option value='+registro.id_categoria+'>'+registro.categoria+'</option>');
+                        console.log(data.categoria)
+                         $("#cambio_categoria").append('<option value='+registro.id_categoria+'>'+registro.categoria+" $ "+registro.Sbase+'</option>');
                     });
                    $("#cambio_categoria option[value='"+categoria+"']").attr("selected",true);
                 },  

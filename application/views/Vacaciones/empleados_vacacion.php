@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" integrity="sha384-b6lVK+yci+bfDmaY1u0zE8YYJt0TZxLEAFyYSLHId4xoVvsrQu3INevFKo+Xir8e" crossorigin="anonymous">
 <style type="text/css">
     div > .linea {
       border-top: double; 
@@ -14,36 +16,44 @@
 <?php 
     if(!empty($vacacion_guardar)){
         $vacaciones1=json_encode($vacacion_guardar);
+        print_r($vacaciones1);
     }else{
+        
         $vacaciones1="";
     }
     if(!empty($prestamo_interno)){
         $prestamo_interno1=json_encode($prestamo_interno);
+        print_r($prestamo_interno1);
     }else{
         $prestamo_interno1="";
     }
     if(!empty($prestamo_per)){
         $prestamo_per1=json_encode($prestamo_per);
+        print_r($prestamo_per1);
     }else{
         $prestamo_per1="";
     }
     if(!empty($anticipo)){
         $anticipo1=json_encode($anticipo);
+         print_r($anticipo1);
     }else{
         $anticipo1="";
     }
     if(!empty($descuenta_herramienta)){
         $descuenta_herramienta1=json_encode($descuenta_herramienta);
+         print_r($descuenta_herramienta1);
     }else{
         $descuenta_herramienta1="";
     }
     if(!empty($orden_descuento)){
         $orden_descuento1=json_encode($orden_descuento);
+        print_r($orden_descuento1);
     }else{
         $orden_descuento1="";
     }
     if(!empty($prestamos_siga)){
         $prestamos_siga1=json_encode($prestamos_siga);
+         print_r($prestamos_siga1);
     }else{
         $prestamos_siga1="";
     }
@@ -61,25 +71,25 @@
             <div class="col-sm-6" style="text-align: center;">
                 <h4><?=$titulo?>.</h4>
             </div>
-            <?php if($validar_aprobar == 1 && !empty($vacacion_guardar)){ ?>
+            <!-- <?php if($validar_aprobar == 1 && !empty($vacacion_guardar)){ ?>
             <div class="col-sm-3" style="text-align: center;">
-                <a class="btn btn-success" id="btn_bienes" data-toggle="modal" data-target="#Modal_aprobar_vaca"><span class="glyphicon glyphicon-check"></span> Aprobar</a><br><br>
+                <a class="btn btn-success" id="btn_bienes" data-toggle="modal" ><span class="glyphicon glyphicon-check"></span> Aprobar</a><br><br>
             </div>
-            <?php } ?>
+            <?php } ?> -->
         </div>
     </div>
 
     <div id="linea"></div><br><br>
 
     <div class=" col-sm-12 col-md-12 ">
-        <table class="table table-striped table-dark" style="font-size: 82%">
+        <table class="table table-striped table-dark"  style="font-size: 82%" >
             <thead>
                 <tr>
                     <th colspan="6" style="text-align: center; border-right:1px solid #969793;">Datos generales</th>
                     <th colspan="4" style="text-align: center; border-right:1px solid #969793;">Devengado</th>
                     <th colspan="3" style="text-align: center; border-right:1px solid #969793;">Descuentos ley</th>
                     <th colspan="4" style="text-align: center; border-right:1px solid #969793;">Otros descuentos</th>
-                    <th rowspan="2" style="text-align:center;vertical-align: middle;">Total pagar<br>($)</th>
+                    <th rowspan="4" style="text-align:center;border-right:1px solid #969793;">Total pagar<br>($)</th>
                 </tr>
 
                 <tr>
@@ -100,6 +110,7 @@
                   <th style="text-align:center;">P. Personal<br>($)</th>
                   <th style="text-align:center;">O. Descuento<br>($)</th>
                   <th style="text-align:center; border-right:1px solid #969793;">Anticipo<br>($)</th>
+                  
                   <!--<th style="text-align:center; border-right:1px solid #969793;">Faltante<br>($)</th>-->
                 </tr>
                 
@@ -119,48 +130,64 @@
                 $total_anticipo=0;
                 $total_faltante=0;
                 $total_a_pagar=0;
-
-                foreach($vacaciones as $vacacion){
-                    if($vacacion->guardado == 1){
+                  
+                   for($i=0; $i < count($vacaciones); $i++){                      
+                    if($vacaciones[$i]->guardado == 1){
                         $guardado = 'Si';
                     }else{
                         $guardado = 'No';
                     }
                     echo "<tr>";
                     echo "<td style='text-align: left'>".$guardado."</td>";
-                    echo "<td style='text-align: left'>".$vacacion->agencia."</td>";
-                    echo "<td style='text-align: left'>".$vacacion->nombre_empresa."</td>";
-                    echo "<td style='text-align: left;'>".$vacacion->empleado."</td>";
-                    echo "<td style='text-align: left;'>".date_format(date_create($vacacion->fecha_aplicar),"Y/m/d")."</td>";
-                    echo "<td style='text-align: left; border-right:1px solid #969793;'>".date_format(date_create($vacacion->fecha_final),"Y/m/d")."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->sueldo_quin,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->comisiones,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->prima,2)."</td>";
-                    echo "<td style='text-align: right;  border-right:1px solid #969793;'>".number_format($vacacion->total_pagar,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->isss,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->afp,2)."</td>";
-                    echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacacion->renta,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->interno,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->personal,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->orden_descuento,2)."</td>";;
-                    echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacacion->anticipos,2)."</td>";
-                    //echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacacion->descuentos_faltantes,2)."</td>";
-                    echo "<td style='text-align: right'>".number_format($vacacion->a_pagar,2)."</td>";
+                    echo "<td style='text-align: left'>".$vacaciones[$i]->agencia."</td>";
+                    echo "<td style='text-align: left'>".$vacaciones[$i]->nombre_empresa."</td>";
+                    echo "<td style='text-align: left;'>".$vacaciones[$i]->empleado."</td>";
+                    echo "<td style='text-align: left;'>".date_format(date_create($vacaciones[$i]->fecha_aplicar),"Y/m/d")."</td>";
+                    echo "<td style='text-align: left; border-right:1px solid #969793;'>".date_format(date_create($vacaciones[$i]->fecha_final),"Y/m/d")."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->sueldo_quin,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->comisiones,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->prima,2)."</td>";
+                    echo "<td style='text-align: right;  border-right:1px solid #969793;'>".number_format($vacaciones[$i]->total_pagar,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->isss,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->afp,2)."</td>";
+                    echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacaciones[$i]->renta,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->interno,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->personal,2)."</td>";
+                    echo "<td style='text-align: right'>".number_format($vacaciones[$i]->orden_descuento,2)."</td>";;
+                    echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacaciones[$i]->anticipos,2)."</td>";
+                    echo "<td style='text-align: right; border-right:1px solid #969793;'>".number_format($vacaciones[$i]->a_pagar,2)."</td>";
+
+                    // WM21032023 se agrego boton individual para ingresar la vacacion del empleado solo si no tiene las vacaciones guardadas
+                    if($vacaciones[$i]->guardado == 0){
+                        echo "<td style='text-align: right'><a class='btn btn-success' id='btn_guardar_uno' href='#' onclick='guardar(this)'><span class='glyphicon glyphicon-check'></span></a></td>";   
+                    }else{
+                        echo "<td style='text-align: right'><a class='btn btn-danger' id='btn_revertir' href='#' onclick='revertir(this)'><i class='bi bi-person-fill-x'></i></a></td>";  
+                    }
+                   echo "<td><input type='hidden' id='id_contrato' value='".$vacaciones[$i]->id_contrato."'></input>";
+                    
+                    //WM21032023 se agregaron los td para obtener los datos a ocupar en guardar 
+                    if($vacaciones[$i]->guardado == 0){
+                        echo "<td><input type='hidden' id='comision' value='".$vacaciones[$i]->comisiones."'></input><input type='hidden' id='cumple' value='".$vacaciones[$i]->fecha_cumple."'></input><input type='hidden' id='id_empleado' value='".$vacaciones[$i]->id_empleado."'></input><input type='hidden' id='id_agencia' value='".$vacaciones[$i]->id_agencia."'></input></td>";
+                    }
+                    
+                   
                     echo "</tr>";
 
-                    $total_sueldo_quin+=$vacacion->sueldo_quin;
-                    $total_comision+=$vacacion->comisiones;
-                    $total_prima+=$vacacion->prima;
-                    $total_pagar+=$vacacion->total_pagar;
-                    $total_isss+=$vacacion->isss;
-                    $total_afp+=$vacacion->afp;
-                    $total_isr+=$vacacion->renta;
-                    $total_interno+=$vacacion->interno;
-                    $total_personal+=$vacacion->personal;
-                    $total_orden_desc+=$vacacion->orden_descuento;
-                    $total_anticipo+=$vacacion->anticipos;
+                    $total_sueldo_quin+=$vacaciones[$i]->sueldo_quin;
+                    $total_comision+=$vacaciones[$i]->comisiones;
+                    $total_prima+=$vacaciones[$i]->prima;
+                    $total_pagar+=$vacaciones[$i]->total_pagar;
+                    $total_isss+=$vacaciones[$i]->isss;
+                    $total_afp+=$vacaciones[$i]->afp;
+                    $total_isr+=$vacaciones[$i]->renta;
+                    $total_interno+=$vacaciones[$i]->interno;
+                    $total_personal+=$vacaciones[$i]->personal;
+                    $total_orden_desc+=$vacaciones[$i]->orden_descuento;
+                    $total_anticipo+=$vacaciones[$i]->anticipos;
                     //$total_faltante+=$vacacion->descuentos_faltantes;
-                    $total_a_pagar+=$vacacion->a_pagar;
+                    $total_a_pagar+=$vacaciones[$i]->a_pagar;
+                    
+                 
                 }
                 ?>
             </tbody>
@@ -179,7 +206,7 @@
                    <td style='text-align: right;'><strong><?= number_format($total_orden_desc, 2, '.', ',') ?></strong></td>
                    <td style='text-align: right;border-right:1px solid #969793;'><strong><?= number_format($total_anticipo, 2, '.', ',') ?></strong></td>
                    <!--<td style='text-align: right;border-right:1px solid #969793;'><strong><?= number_format($total_faltante, 2, '.', ',') ?></strong></td>-->
-                   <td style='text-align: right;'><strong><?= number_format($total_a_pagar, 2, '.', ',') ?></strong></td>
+                   <td style='text-align: right;border-right:1px solid #969793;'><strong><?= number_format($total_a_pagar, 2, '.', ',') ?></strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -206,6 +233,8 @@
                     <input type='hidden' name='faltantes' id='faltantes' value='<?php echo $faltante1 ?>' class="form-control" readonly>
                     <input type='hidden' name='orden' id='orden' value='<?php echo $orden_descuento1 ?>' class="form-control" readonly>
                     <input type='hidden' name='siga' id='siga' value='<?php echo $prestamos_siga1 ?>' class="form-control" readonly>
+                    <input type='hidden' name='checked' id='cheked' value='<?php echo $prestamos_siga1 ?>' class="form-control" readonly>
+
 
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     <button type="submit" id="btn_aprobar" class="btn btn-primary" onclick="modal_gif()">Aceptar</button>
@@ -236,4 +265,154 @@
         $("#Modal_aprobar_vaca").modal('toggle');
         $('#modalGif').modal('show')
     }
+
+    // WM23032023 funcion para guardar individualmente las vacaciones 
+    function guardar(btn){
+        // obteniendo datos de la fila de la tabla y los hidden
+        var fila = btn.closest("tr");
+        var id_contrato = fila.querySelector("#id_contrato").value;
+        var comision = fila.querySelector("#comision").value;
+        var cumple = fila.querySelector("#cumple").value;
+        var id_empleado = fila.querySelector("#id_empleado").value;
+        var id_agencia = fila.querySelector("#id_agencia").value;
+
+        // llenando arreglo para enviar datos de vacaciones
+        var datos_fila_vacacion = {
+            "id_contrato": id_contrato,
+            "comision": comision,
+            "cumple": cumple,
+            "fecha_aplicar": fila.cells[4].textContent.trim(),
+            "bono": fila.cells[7].textContent.trim(),
+            "prima": fila.cells[8].textContent.trim(),
+            "isss": fila.cells[10].textContent.trim(),
+            "afp": fila.cells[11].textContent.trim(),
+            "isr": fila.cells[12].textContent.trim(),
+            "prestamo_interno": fila.cells[13].textContent.trim(),
+            "prestamo_personal": fila.cells[14].textContent.trim(),
+            "Orden_descuento": fila.cells[15].textContent.trim(),
+            "anticipo": fila.cells[16].textContent.trim(),
+            "cantidad_pagar": fila.cells[17].textContent.trim(),
+            "id_empleado": id_empleado,
+            "id_agencia": id_agencia,
+            "fecha_fin": fila.cells[5].textContent.trim(),
+        };
+        console.log(datos_fila_vacacion)
+
+         // traendo data de arreglos para asociarlo con el id_empleado
+         var prestamo_interno = <?php echo json_encode($prestamo_interno) ?>;
+         var prestamo_personal = <?php echo json_encode($prestamo_per) ?>;
+         var anticipo = <?php echo json_encode($anticipo) ?>;
+         var descuenta_herramienta = <?php echo json_encode($descuenta_herramienta) ?>;
+         var orden_descuento = <?php echo json_encode($orden_descuento) ?>;
+         var prestamo_siga = <?php echo json_encode($prestamos_siga) ?>;
+         
+         // inicio de if para comprobar si hay prestamos interno
+         if(prestamo_interno !=  null){
+            var dato_prestamo_interno = prestamo_interno.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_prestamo_interno = 0; 
+         }
+         // fin de if
+
+         // inicio de if para comprobar si hay prestamos personales
+         if(prestamo_personal !=  null){
+            var dato_prestamo_personal = prestamo_personal.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_prestamo_personal = 0; 
+         }
+         // fin del if
+
+         // inicio de if para comprobar si hay anticipo
+         if(anticipo !=  null){
+            var dato_anticipo = anticipo.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_anticipo = 0; 
+         }
+         // fin del if
+
+         // inicio de if para comprobar si hay descuento de herramientas
+         if(descuenta_herramienta !=  null){
+            var dato_descuenta_herramienta = descuenta_herramienta.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_descuenta_herramienta = 0; 
+         }
+         // fin del if
+
+         // inicio de if para comprobar si tiene ordenes de descuento
+         if(orden_descuento !=  null){
+            var dato_orden_descuento = orden_descuento.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_orden_descuento = 0; 
+         }
+         // fin del if
+
+         // inicio de if para comprobar si hay prestamos del siga
+         if(prestamo_siga != null){
+            var dato_prestamo_siga = prestamo_siga.find(item => item.id_empleado === id_empleado);
+         }else{
+            var dato_prestamo_siga = 0;
+         }
+         // fin del if
+
+         $.ajax({
+                    type : "POST",
+                    url  : "<?php echo site_url('Vacaciones/guardar_vacaciones_uno')?>",
+                    dataType : "JSON",
+                    data : {datos_fila_vacacion:datos_fila_vacacion,dato_prestamo_interno:dato_prestamo_interno,dato_prestamo_personal:dato_prestamo_personal,dato_anticipo:dato_anticipo,dato_descuenta_herramienta:dato_descuenta_herramienta,dato_orden_descuento:dato_orden_descuento,dato_prestamo_siga:dato_prestamo_siga},
+                    success: function(data){
+                        console.log(data)
+                         if(data == null){
+                            Swal.fire("Error!", data, "error");
+                         }else{
+                            Swal.fire(data,'','success')
+                            .then(() => {
+                                // Aquí se recarga la pagina
+                                location.reload();
+                            });  
+                    }
+                }
+         });
+
+
+    }
+
+    // WM23032023 funcion para reversion de las vacaciones
+    function revertir(btn){
+        // obteniendo datos de la fila de la tabla y los hidden
+        var fila = btn.closest("tr");    
+        var id_contrato = fila.querySelector("#id_contrato").value;
+        var fecha_aplicar = fila.cells[4].textContent.trim();
+
+        // traendo array para saber si tiene descuento de herrramientas 
+        var descuenta_herramienta = <?php echo json_encode($descuenta_herramienta) ?>;
+        var dato_hermaniemtas = 0;
+
+        // inicio de if para comprobar si hay descuento de herramientas
+         if(descuenta_herramienta !=  null){
+            var dato_descuenta_herramienta = descuenta_herramienta.find(item => item.id_empleado === id_empleado);
+            dato_hermaniemtas = 1;
+         }
+         // fin del if
+
+        
+        $.ajax({
+                    type : "POST",
+                    url  : "<?php echo site_url('Vacaciones/revertir_vacaciones')?>",
+                    dataType : "JSON",
+                    data : {id_contrato:id_contrato, fecha_aplicar:fecha_aplicar,dato_hermaniemtas:dato_hermaniemtas},
+                    success: function(data){
+                        if(data.length != null){
+                            Swal.fire("Error!", data, "error");
+                        }else{
+                            Swal.fire("Revertido correctamente",'','error')
+                            .then(() => {
+                                // Aquí se recarga la pagina
+                                location.reload();
+                            });
+                        }  
+                    
+                    }
+        });
+    }
+
 </script>

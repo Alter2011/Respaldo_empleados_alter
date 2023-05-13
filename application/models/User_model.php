@@ -1,5 +1,6 @@
 <?php
 class User_model extends CI_Model{
+  
   public function getUser($user=null,$password=null){
     $this -> db -> select('id_login,usuario,contrasena,id_empleado,login.id_perfil as id_perfil,nombre, usuarioP, codigo');
     $this -> db -> from('login'); 

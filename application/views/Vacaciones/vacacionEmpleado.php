@@ -17,7 +17,7 @@
             <div class="row" id="row">
                 <div class="col-sm-12">
                     <div class="panel panel-default">
-                        <?php if($aprobar == 1 || $reporte == 1){ ?>
+                        <?php if($aprobar == 1 || $reporte == 1 ){ ?>
                         <?php if(isset($_SESSION['mensaje_exito'])){ ?>
                             <div id="validacion" class="alert alert-success" role="alert" style="text-align:center;">
                                 <?php echo $_SESSION['mensaje_exito'];?>     
@@ -57,7 +57,7 @@
                         <?php } ?>
 
                         <div class="panel-body">
-                          <?php if($reporte == 1 || $control == 1){ ?>
+                          <?php if($reporte == 1 || $control == 1 || $agendar == 1)   { ?>
                           <ul class="nav nav-tabs">
                             <li class="active"><a data-toggle="tab" href="#home" id="pag1">Empleados</a></li>
                             <?php if($reporte == 1){?>
@@ -66,6 +66,15 @@
                             <?php if($control == 1){ ?>
                                 <li><a data-toggle="tab" href="#menu2" id="pag3">Control vacaciones</a></li>
                             <?php } ?>
+
+                            <!-- NO27042023 -->
+                            <?php if($agendar == 1){ ?>
+                                <li><a data-toggle="tab" href="#menu3" id="pag4">Agendar vacaciones</a></li>
+                            <?php } ?>
+                            <?php if($guardar_vacaciones == 1){ ?>
+                                <li><a data-toggle="tab" href="#menu4" id="pag5">Aprobar vacaciones</a></li>
+                            <?php } ?>
+                              <!-- NO27042023 -->
 
                           </ul>  
                           <?php } ?>
@@ -264,6 +273,133 @@
                             </table>
                             </div><!--Fin menu2-->
 
+
+
+<div id="menu3" class="tab-pane fade"><br>
+<div class="form-row" id="reporte_vacacion">
+
+</div>
+
+<div class="form-row" id="reporte_agencia">
+<div class="form-group col-md-3">
+        <label for="inputState">Agencia</label>
+        <?php if($ver){ ?>
+            <select class="form-control" name="agencia_agendar" id="agencia_agendar" class="form-control">
+            <?php
+            $i=0;
+            foreach($agencia as $a){
+            ?>
+            <option id="<?= ($agencia[$i]->id_agencia);?>" value="<?= ($agencia[$i]->id_agencia);?>"><?php echo($agencia[$i]->agencia);?></option>
+            <?php
+            $i++;
+            }
+            ?>
+            </select>
+            <?php }else{ ?>
+                <input type="hidden" name="agencia_agendar" id="agencia_agendar" value="<?php echo ($_SESSION['login']['agencia']); ?>" readonly>
+
+            <?php }?>                
+                                       
+</div>
+</div>
+
+<div class="form-row" id="año">
+<div class="form-group col-md-2">
+    <label for="inputState">Año</label>
+
+    <?php $cont = date('Y'); ?>
+    <select class="form-control" name="anio_agendar" id="anio_agendar" class="form-control">
+    <?php while ($cont >= 2010) { ?>
+        <option value="<?php echo($cont); ?>"><?php echo($cont); ?></option>
+    <?php $cont = ($cont-1); } ?>
+    </select>                   
+    
+</div>
+</div>
+
+<div class="form-row" id="btn_aceptar">
+<div class="form-group col-md-2">
+    <center><a id="filtro_vacacion" class="btn btn-primary btn-sm item_filtrar_dia" style="margin-top: 23px;" onclick="setData()">Aceptar</a></center>
+</div>
+</div>
+<table class="table table-striped table-bordered" id="agendar_vacacion">
+<thead>
+    <tr class="success">
+         <th style="text-align:center;">Nombre</th> 
+         <th style="text-align:center;">Apellido</th>  
+         <th style="text-align:center;">Accion</th>  
+
+    </tr>
+</thead>
+<tbody class="tablaagendar">
+                    
+</tbody> 
+</table>
+</div><!--Fin menu3-->
+
+<div id="menu4" class="tab-pane fade"><br>
+<div class="form-row" id="reporte_vacacion">
+
+</div>
+
+<div class="form-row" id="reporte_agencia">
+<div class="form-group col-md-3">
+        <label for="inputState">Agencia</label>
+            <select class="form-control" name="agencia_guardar" id="agencia_guardar" class="form-control">
+            <?php
+            $i=0;
+            foreach($agencia as $a){
+            ?>
+            <option id="<?= ($agencia[$i]->id_agencia);?>" value="<?= ($agencia[$i]->id_agencia);?>"><?php echo($agencia[$i]->agencia);?></option>
+            <?php
+            $i++;
+            }
+            ?>
+            </select>
+                                        
+                                       
+</div>
+</div>
+
+<div class="form-row" id="año">
+<div class="form-group col-md-2">
+    <label for="inputState">Año</label>
+
+    <?php $cont = date('Y'); ?>
+    <select class="form-control" name="anio_vaca_guardar" id="anio_vaca_guardar" class="form-control">
+    <?php while ($cont >= 2010) { ?>
+        <option value="<?php echo($cont); ?>"><?php echo($cont); ?></option>
+    <?php $cont = ($cont-1); } ?>
+    </select>                   
+    
+</div>
+</div>
+
+<div class="form-row" id="btn_aceptar">
+<div class="form-group col-md-2">
+    <center><a id="filtro_vacacion" class="btn btn-primary btn-sm item_filtrar_dia" style="margin-top: 23px;" onclick="showAceptar()">Aceptar</a></center>
+</div>
+</div>
+<table class="table table-striped table-bordered" id="guardar_vacacion">
+<thead>
+    <tr class="success">
+    <th style="text-align:center;">Nombre</th> 
+    <th style="text-align:center;">Apellido</th>  
+    <th style="text-align:center;">Fecha de aplicacion</th>  
+    <th style="text-align:center;">Accion</th>  
+
+    </tr>
+</thead>
+<tbody class="tabla_guardar">
+                    
+</tbody> 
+</table>
+</div><!--Fin menu4-->
+
+
+
+
+
                           </div>
 
                         </div>
@@ -276,12 +412,329 @@
         </div>
     </div>
 </div>
+<!-- INICIO MODAL AGREGAR VACACION -->
+<div class="modal fade" id="modal_agendar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Agendar vacaciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
 
+                <div class="form-group">
+                        <label for="horas">Fecha aplicacion:</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+                        <input type="hidden" name="id_contrato" id="id_contrato">
+                        <input type="hidden" name="id_empleado" id="id_empleado">
+                        <input type="hidden" name="fecha_inicio_empleado" id="fecha_inicio_empleado">
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                <input type="hidden" name="aprobacion_code" id="aprobacion_code" class="form-control" readonly>
+                <input type="hidden" name="aprobacion_empleado" id="aprobacion_empleado" class="form-control" readonly>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" type="submit" id="btn_aprobar" class="btn btn-primary" onclick="send_agendar()">Agendar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- FIN MODAL AGREGAR VACACION -->
+
+
+<!-- INICIO MODAL APROBAR VACACION -->
+<div class="modal fade" id="modal_aprobar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Aprobar vacaciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                <div class="form-group">
+                <strong>¿Seguro que desea aprobar estas vacaciones?</strong>
+                <input type="hidden" name="id_vacacion" id="id_vacacion">
+                </div>
+                <div class="modal-footer">
+               
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" type="submit" id="btn_aprobar" class="btn btn-primary" onclick="send_aprobar()">Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- FIN MODAL APROBAR VACACION -->
+    </div>
+    <!-- INICIO MODAL Eliminar VACACION -->
+<div class="modal fade" id="modal_eliminar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Eliminar vacaciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                <div class="form-group">
+                <strong>¿Seguro que desea eliminar estas vacaciones?</strong>
+                <input type="hidden" name="id_vacacion" id="id_vacacion_eliminar">
+                </div>
+                <div class="modal-footer">
+               
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" type="submit" id="btn_aprobar" class="btn btn-primary" onclick="cancelar_vacacion()">Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- FIN MODAL Eliminar VACACION -->
 
 <!-- Llamar JavaScript -->
 
 <script type="text/javascript">
+    //NO27042023
+    function eliminar_vacacion(id_vacacion){
+        console.log(id_vacacion)
+        $("#id_vacacion_eliminar").val(id_vacacion)
+        $("#modal_eliminar").modal('show')
+    }
+    function cancelar_vacacion(){
+        let id_vacacion = $("#id_vacacion_eliminar").val()
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/cancelar_vacacion')?>',
+                dataType : 'JSON',
+                data : {id_vacacion:id_vacacion},
+                success : function(data){
+                   console.log(data)
+                   if(data == null){
+                    alert('ingresado')
+                        location.reload()
+                    }else{
+                        alert('fallo')
+                    
+                   }                
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+    }
+
+
+
+    function send_aprobar(){
+        let id_vacacion = $("#id_vacacion").val()
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/save_vacacion')?>',
+                dataType : 'JSON',
+                data : {id_vacacion:id_vacacion},
+                success : function(data){
+                   console.log(data)
+                   if(data == null){
+                    alert('ingresado')
+                        location.reload()
+                    }else{
+                        alert('fallo')
+                    
+                   }                
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+    }
+    function aprobar_vacacion(id_vacacion){
+        console.log(id_vacacion)
+        $("#id_vacacion").val(id_vacacion)
+        $("#modal_aprobar").modal('show')
+        
+    }
+    function showAceptar(){
+        $('#guardar_vacacion').dataTable().fnDestroy();
+        $('.tabla_guardar').empty()
+        let agencia = $("#agencia_guardar").val()
+        let anio = $("#anio_vaca_guardar").val()
+        let accion = ""
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/get_empleados_vacacion_inactiva')?>',
+                dataType : 'JSON',
+                data : {agencia:agencia, anio:anio},
+                success : function(data){
+                   console.log(data)
+                    $.each(data,function(key, registro){
+                        if(registro.aprobado == 0){
+                                accion = "<td ><a class='btn btn-danger' style='margin-right:5px' onclick='eliminar_vacacion("+registro.id_vacacion+")'>Eliminar vacacion</a><a class='btn btn-success' onclick='aprobar_vacacion("+registro.id_vacacion+")'>Aprobar vacacion</a></td>"
+                            }else{
+                                accion = "<td><p class='success'>Vacacion agendada</p></td>"
+                            }
+                        
+                        $('.tabla_guardar').append(
+                           
+                        '<tr>'+
+                                '<td>'+registro.nombre+'</td>'+
+                                '<td>'+registro.apellido+'</td>'+
+                                '<td>'+registro.fecha_aplicacion+'</td>'+
+                                
+                                  accion+
+                               
+                                '</tr>'
+                        );
+                   });
+                //Se genera la paguinacion cada ves que se ejeucuta la funcion
+                   $('#guardar_vacacion').dataTable({
+                "dom": "<'row'<'col-sm-9'l><'col-sm-3'f>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                "aLengthMenu": [[3, 5, 10, -1], [3, 5, 10, "All"]],
+                "iDisplayLength": 10,
+                "oLanguage": {
+                    "sLengthMenu": "Your words here _MENU_ and/or here",
+                },
+                "bAutoWidth": false,
+                "oLanguage": {
+                    "sSearch": "Buscador: "
+                }
+                });
+                
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+    }
+    function showAgendar(e){
+        console.log(e)
+        let id_contrato = e.dataset.id_contrato
+        let id_empleado = e.dataset.id_empleado
+        let fecha_inicio_empleado = e.dataset.id_empleado
+        $("#id_empleado").val(id_empleado)
+        $("#id_contrato").val(id_contrato)
+        $("#fecha_inicio_empleado").val(fecha_inicio_empleado)
+        $("#modal_agendar").modal('show')
+       
+
+    }
+    function send_agendar(){
+        let id_empleado = $("#id_empleado").val()
+        let id_contrato =   $("#id_contrato").val()
+        let fecha_inicio = $("#fecha_inicio").val()
+        let fecha_inicio_empleado = $("#fecha_inicio_empleado").val()
+        let agencia = $("#agencia_agendar").val()
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/agendar_vacacion')?>',
+                dataType : 'JSON',
+                data : {id_contrato:id_contrato, fecha_inicio:fecha_inicio, id_empleado:id_empleado, fecha_inicio_empleado:fecha_inicio_empleado, agencia:agencia},
+                success : function(data){
+                    console.log(data)
+                    if(data == null){
+                        alert('ingresado')
+                        location.reload()
+                    }else{
+                        alert('fallo')
+                    }
+                
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+    }
+    function setTodayDate(){
+    // obtener el elemento de entrada de fecha
+    const inputStart = document.getElementById("fecha_inicio");
+    const inputEnd = document.getElementById("fecha_fin");
+    
+    // crear una fecha actual
+    const today = new Date();
+    
+    // formatear la fecha en formato yyyy-MM-dd
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, "0");
+    const day = today.getDate().toString().padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    // establecer el valor mínimo en la entrada de fecha para evitar fechas anteriores
+    inputStart.setAttribute("min", formattedDate);
+   
+    
+    // establecer el valor de la entrada de fecha como la fecha actual
+    inputStart.value = formattedDate;
+    
+}
+
+    function setData(){
+        $('#agendar_vacacion').dataTable().fnDestroy();
+        $('.tablaagendar').empty()
+        let agencia = $("#agencia_agendar").val()
+        let anio = $("#anio_agendar").val()
+       
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/get_empleados_vacacion')?>',
+                dataType : 'JSON',
+                data : {agencia:agencia, anio:anio},
+                success : function(data){
+                   console.log(data.empleados_disponibles)
+                    $.each(data.empleados_disponibles,function(key, registro){
+                        $('.tabla5').empty()
+                        $('.tablaagendar').append(
+                        '<tr>'+
+                                '<td>'+registro.nombre+'</td>'+
+                                '<td>'+registro.apellido+'</td>'+
+                                
+                                '<td style="text-align:center;">'+
+                                   '<a  class="btn btn-success btn-sm" data-id_contrato = '+registro.id_contrato+' data-id_empleado='+registro.id_empleado+' data-fecha_inicio = '+registro.fecha_inicio+' onclick="showAgendar(this)">Agendar vacacion</a>'+                                   
+                                '</td>'+
+                                '</tr>'
+                        );
+                   });
+                //Se genera la paguinacion cada ves que se ejeucuta la funcion
+                   $('#agendar_vacacion').dataTable({
+                "dom": "<'row'<'col-sm-9'l><'col-sm-3'f>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                "aLengthMenu": [[3, 5, 10, -1], [3, 5, 10, "All"]],
+                "iDisplayLength": 10,
+                "oLanguage": {
+                    "sLengthMenu": "Your words here _MENU_ and/or here",
+                },
+                "bAutoWidth": false,
+                "oLanguage": {
+                    "sSearch": "Buscador: "
+                }
+                });
+                
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+        
+        
+       
+    }
+
+
     $(document).ready(function(){
+        //NO27042023
+        setTodayDate()
+
+
        var permiso = $('#permiso').val();
         //se usa para cambiar la tabla cada vez que se selecciona una agencia
         show_data();    
@@ -376,6 +829,12 @@
 
         $('#pag3').on('click',function(){
             controlVacaciones();
+        });
+        $('#pag4').on('click',function(){
+            setData();
+        });
+        $('#pag5').on('click',function(){
+            showAceptar();
         });
 
         

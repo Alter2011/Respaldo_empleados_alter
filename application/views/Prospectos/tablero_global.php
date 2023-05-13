@@ -216,7 +216,7 @@
                                 </div>
                             </div>
                             <!--Efectividad-->
-                            <!--<label>Efectividad Cartera Efectiva:<span  <?= 'id="efectividad_efectiva_'.($i+1).'"';  ?>>%</span></label><br>-->
+                            <label>Efectividad Cartera Efectiva:<span  <?= 'id="efectividad_efectiva_'.($i+1).'"';  ?>>%</span></label><br>
                             <label>Cartera Efectiva</label>
                             <div class="progress">
                                 <div class="progress-bar progress-bar-green progress-bar-striped active" role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="10" <?= 'id="barra_cartera_efectiva_'.($i+1).'"';  ?>>
@@ -676,8 +676,8 @@ $( function() {
                             efectividad_efectiva=number_format(Math.round((parseFloat(data[i].efectividad_efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
                             cartera_efectiva=number_format(Math.round((parseFloat(data[i].efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
 
-                           // document.getElementById("efectividad_efectiva_"+i).className = 'label label-'+data[i].color_efectividad_efectiva+'';
-                           //$('#efectividad_efectiva_'+i).html(efectividad_efectiva+'%')
+                           document.getElementById("efectividad_efectiva_"+i).className = 'label label-'+data[i].color_efectividad_efectiva+'';
+                           $('#efectividad_efectiva_'+i).html(efectividad_efectiva+'%')
                             b_global = document.getElementById('barra_cartera_efectiva_'+i);
                             b_global.style.width  = efectividad_efectiva+'%';
                             b_global.style.color  = 'black';
@@ -686,12 +686,16 @@ $( function() {
 
                             //barra presupuesto global
                             presupuesto_efectiva=number_format(Math.round((parseFloat(data[i].presu_cartera_efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
+                            
+
                            $('#presupuesto_efectiva_'+i).html('$'+presupuesto_efectiva)
                             indice_efec= ((parseFloat(data[i].efectiva))/(parseFloat(data[i].cartera_act)))*100
                             valores=[]
                             valores[0]=indice_efec;
                             valores[1]='chart_div_'+i;
                             drawCurveTypes(null,valores);
+
+                            
                            }
                         }
 

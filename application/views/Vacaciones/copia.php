@@ -62,7 +62,7 @@
                     <div class="form-group">
                         <label for="horas">horas:</label>
                         <input type="number" class="form-control" id="horas" name="horas">
-                      </div>
+                    </div>
                       <div class="form-group">
                         <label for="munitos">Minutos:</label>
                         <input type="number" class="form-control" id="minutos" name="minutos">

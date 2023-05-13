@@ -252,7 +252,7 @@ class Viaticos_model extends CI_Model{
 
   function all_carteras($agencia=null,$empresa=null){
     $this->db->db_select('Operaciones');
-    $this->db->select('carteras.id_cartera, carteras.cartera, carteras.KM, carteras.vehiculo, concat(usuarios.nombre," ",usuarios.apellido) as nombre, usuarios.id_usuarios, carteras.id_agencia, agencias.agencia');
+    $this->db->select('carteras.id_cartera, carteras.cartera, carteras.KM, carteras.vehiculo, concat(usuarios.nombre," ",usuarios.apellido) as nombre, usuarios.id_usuarios, carteras.id_agencia, agencias.agencia,cargos.cargo');
     $this->db->from('carteras');
     $this->db->join('usuario_cartera', 'usuario_cartera.id_cartera=carteras.id_cartera');
     $this->db->join('usuarios', 'usuarios.id_usuarios=usuario_cartera.id_usuarios');
@@ -260,6 +260,7 @@ class Viaticos_model extends CI_Model{
     $this->db->join('tablero.login as login', 'login.id_login=usuarios.id_usuarios');
     $this->db->join('tablero.empleados as empleados', 'empleados.id_empleado=login.id_empleado');
     $this->db->join('tablero.contrato as contrato', 'contrato.id_empleado=empleados.id_empleado');
+    $this->db->join('cargos', 'cargos.id_cargo=usuarios.id_cargo');
 
     $this->db->where('carteras.activo = 1 and carteras.id_agencia != 24');
     if($agencia != null){
@@ -320,10 +321,14 @@ class Viaticos_model extends CI_Model{
   }
 
   function get_viaticos($cartera,$quincena,$mes,$estado=null){
-    $this->db->select('agencias.agencia,concat(empleados.nombre," ",empleados.apellido) as nombre,viaticos_carteras.*');
+    $this->db->select('agencias.agencia,concat(empleados.nombre," ",empleados.apellido) as nombre,viaticos_carteras.*,cargos.cargo');
     $this->db->from('viaticos_carteras');
     $this->db->join('agencias', 'agencias.id_agencia=viaticos_carteras.id_agencia');
     $this->db->join('empleados', 'empleados.id_empleado=viaticos_carteras.id_empleado');
+    $this->db->join('login','login.id_empleado=empleados.id_empleado');
+    $this->db->join('Operaciones.usuarios as usuarios','usuarios.id_usuarios=login.id_login');
+    $this->db->join('Operaciones.cargos as cargos','cargos.id_cargo=usuarios.id_cargo');
+
     if($cartera != null){
       $this->db->where('viaticos_carteras.id_cartera = ',$cartera);
     }
@@ -378,21 +383,22 @@ class Viaticos_model extends CI_Model{
       return $result->result();
   }
 
+  //WM08052023 se cambio query ya que salian duplicados los empleados
   function empleados_get($id_agencia){
-    $this->db->select('empleados.id_empleado, agencias.agencia, empresa.nombre_empresa,concat(empleados.nombre," ",empleados.apellido) as nombre, cargos.cargo');
+    $this->db->select('empleados.id_empleado, agencias.agencia, empresa.nombre_empresa, concat(empleados.nombre," ",empleados.apellido) as nombre, GROUP_CONCAT(DISTINCT cargos.cargo ORDER BY cargos.cargo ASC SEPARATOR ", ") as cargo');
     $this->db->from('empleados');
     $this->db->join('contrato', 'contrato.id_empleado=empleados.id_empleado');
     $this->db->join('agencias', 'agencias.id_agencia=contrato.id_agencia');
     $this->db->join('empresa', 'empresa.id_empresa=contrato.id_empresa');
     $this->db->join('cargos', 'cargos.id_cargo=contrato.id_cargo');
-
     $this->db->where('(contrato.estado = 1 or contrato.estado = 3)');
     $this->db->where('contrato.id_agencia', $id_agencia);
+    $this->db->group_by('empleados.id_empleado, agencias.agencia, empresa.nombre_empresa, CONCAT(empleados.nombre, " ", empleados.apellido)');
     $this->db->order_by('empleados.nombre','ASC');
-
     $result = $this->db->get();
     return $result->result();
-  }
+}
+
 
   function viaticos_temp($id_empleado,$mes,$quincena){
     $this->db->select('sum(consumo_ruta) as consumo_ruta, sum(depreciacion) as depreciacion, sum(llanta_del) as llanta_del, sum(llanta_tra) as llanta_tra, sum(mant_gral) as mant_gral, sum(aceite) as aceite, sum(total) as total');
@@ -756,5 +762,36 @@ class Viaticos_model extends CI_Model{
     $result = $this->db->get();
     return $result->result();
   }
+
+  // funcion para traer empleados en precarga
+  function empleados_cartera_viatico($id_empleado){
+    $this->db->select('viatico.*');
+    $this->db->from('tablero.viaticos_carteras as viatico');
+    $this->db->join('Operaciones.usuario_cartera as cartera', 'cartera.id_cartera=viatico.id_cartera');
+    $this->db->join('tablero.login as login', 'login.id_login=cartera.id_usuarios');
+    $this->db->where('login.id_empleado', $id_empleado);
+
+    $result = $this->db->get();
+    return $result->result();
+  }
+
+  //WM08052023 funcion para traer viaticos de cartera por id_empleado
+  function verificar_cartera_empleados($id_empleado){
+    $this->db->db_select('Operaciones');
+    $this->db->select('carteras.*, usuarios.id_usuarios');
+    $this->db->from('carteras');
+    $this->db->join('usuario_cartera', 'usuario_cartera.id_cartera=carteras.id_cartera');
+    $this->db->join('usuarios', 'usuarios.id_usuarios=usuario_cartera.id_usuarios');
+    $this->db->join('agencias', 'agencias.id_agencia=usuarios.id_agencia');
+    $this->db->join('tablero.login as login', 'login.id_login=usuarios.id_usuarios');
+    $this->db->join('tablero.empleados as empleados', 'empleados.id_empleado=login.id_empleado');
+    $this->db->where('empleados.id_empleado', $id_empleado);
+
+    $query = $this->db->get();
+    $this->db->db_select('tablero');
+    return $query->result();
+  }
+
+
 
 }

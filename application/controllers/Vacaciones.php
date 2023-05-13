@@ -23,6 +23,8 @@ class Vacaciones extends Base {
         $this->seccion_actual2 = $this->APP["permisos"]["vacacion"];//array(1, 2, 3, 4);//crear,editar,eliminar,ver 
         $this->seccion_actual3 = $this->APP["permisos"]["agencia_empleados"];
         $this->seccion_actual4 = $this->APP["permisos"]["control_vacacion"];
+        $this->seccion_actual5 = $this->APP['permisos']["agendar_vacaciones"];
+
 
      }
   
@@ -41,6 +43,546 @@ class Vacaciones extends Base {
         $this->load->view('dashboard/menus',$data);
         $this->load->view('Vacaciones/index',$data);
 
+    }
+    //NO28042023
+    public function save_vacacion(){
+        $id_vacacion = $this->input->post('id_vacacion');
+        $actualizar_vacacion = $this->Vacacion_model->actualizar_vacacion($id_vacacion);
+        echo json_encode($actualizar_vacacion);
+    }
+    public function cancelar_vacacion(){
+        $id_vacacion = $this->input->post('id_vacacion');
+        $cancelar_vacacion = $this->Vacacion_model->cancelar_vacacion($id_vacacion);
+        echo json_encode($cancelar_vacacion);
+    }
+    public function get_empleados_vacacion_inactiva(){
+        $agencia = $this->input->post('agencia');
+        $anio = $this->input->post('anio');
+        // $anio = '2023';
+        // $agencia = '00';
+        $date = date('m-d');
+        $date_formate = date_create_from_format('Y-m-d', "$anio-$date")->format('Y-m-d');
+        $date_formate = '2023-04-27';
+        $diaUno = $anio.'-01-01';
+        $diaUltimo = $anio.'-12-31';
+        $inicio_dia = new DateTime($date_formate);
+        
+        
+        $data['empleados_disponibles'] = array();
+        $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,null,$agencia, null);
+       
+       echo json_encode($vacacion);
+
+
+    }
+
+    //NO27042023 function para traer a todos los empleados que tengan disponible vacacion
+    function get_empleados_vacacion(){
+        $agencia = $this->input->post('agencia');
+        $anio = $this->input->post('anio');
+        // $anio = '2023';
+        // $agencia = '00';
+        $date = date('m-d');
+        $date_formate = date_create_from_format('Y-m-d', "$anio-$date")->format('Y-m-d');
+        $date_formate = '2023-04-27';
+        $diaUno = $anio.'-01-01';
+        $diaUltimo = $anio.'-12-31';
+        $inicio_dia = new DateTime($date_formate);
+        
+        
+        $data['empleados_disponibles'] = array();
+        $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,null,$agencia, null, null);
+       
+        $empleados = $this->prestamo_model->empleadosvaca($agencia);
+
+        for($i = 0; $i<count($empleados); $i++){
+            $flag = false;
+            $previosCont = $this->liquidacion_model->contratosMenores($empleados[$i]->id_empleado,$empleados[$i]->id_contrato);
+            
+            if($previosCont != null){
+                $m=0;
+                $bandera = true;
+                while($bandera != false){
+                    if($m < count($previosCont)){
+                        if($m < 1 && $previosCont[$m]->estado != 0 && $previosCont[$m]->estado != 4){
+                            $fechaInicio = $previosCont[$m]->fecha_inicio;
+                        }else if($m < 1){
+                            $fechaInicio = $empleados[$i]->fecha_inicio;
+                        }
+                        if($previosCont[$m]->estado == 0 || $previosCont[$m]->estado == 4){
+                            $bandera = false;
+                        }
+                        if($bandera){
+                            $fechaInicio = $previosCont[$m]->fecha_inicio;
+
+                        }
+                    }else{
+                        $bandera = false;
+                    }
+                    $m++;
+                } 
+            }else{
+                $fechaInicio = $empleados[$i]->fecha_inicio;
+            }
+            if($vacacion != null){
+                $m = 0;
+                $bandera = true;
+                while($bandera != false){
+                    if($m < count($vacacion)){
+                        if($vacacion[$m]->id_empleado == $empleados[$i]->id_empleado){
+                            $flag = true;
+                        }
+                    $m += 1;
+                    }else{
+                        $bandera = false;
+                    }
+                }
+            }
+            $empleados[$i]->fecha_inicio =  $fechaInicio;
+            $anios = $anio - substr($fechaInicio, 0,4);
+            $fecha_inicio = new DateTime($fechaInicio);
+            $intervalo = $fecha_inicio->diff($inicio_dia)->format('%y');
+           
+            
+            
+            if($intervalo > 0 && $flag != true){
+               
+               
+                array_push($data['empleados_disponibles'], $empleados[$i]);
+            }
+        }
+        
+        echo json_encode($data);
+    }
+    //NO28042023 funcion para agendar vacacion
+    public function agendar_vacacion(){
+        $id_empleado = $this->input->post('id_empleado');
+        $id_contrato = $this->input->post('id_contrato');
+        $fecha_inicio = $this->input->post('fecha_inicio');
+        $agencia = $this->input->post('agencia');
+        $anio=substr($fecha_inicio, 0,4);
+        $mes1=substr($fecha_inicio, 5,2);
+        $mes=substr($fecha_inicio, 0,8);
+        $mes_comision = date("Y-m",strtotime($mes."- 6 month"));
+        $tiempoFecha = strtotime($fecha_inicio);
+        $dia = date('d', $tiempoFecha);
+       
+        $quincena = '';
+        if($dia <= 15){
+            $quincena = 1;
+            $primer_dia = $mes.'01';
+            $fin_dia = date('Y-m-d',mktime(0, 0, 0, $mes1+1, 0 , $anio));
+           
+        }else{
+            $quincena = 2;
+            $primer_dia = $mes.'16';
+            $fin_dia = date('Y-m-d',mktime(0, 0, 0, $mes1+1, 0 , $anio));
+        }
+
+        $empleados = $this->Vacacion_model->get_all_empleado($agencia, $id_empleado);
+        $data['vacaciones'] = array();
+        $data['vacacion_guardar'] = array();
+        $data['validar_aprobar'] = 0;
+        $data['prestamo_interno'] = array();
+        $data['prestamo_per'] = array();
+        $data['anticipo'] = array();
+        $data['descuenta_herramienta'] = array();
+        //$data['faltante'] = array();
+        $data['orden_descuento'] = array();
+        $data['prestamos_siga'] = array();
+        $contrato = $this->Planillas_model->datos_autorizante($_SESSION['login']['id_empleado']);
+             for($i=0; $i < count($empleados); $i++){
+            $previosCont = $this->liquidacion_model->contratosMenores($empleados[$i]->id_empleado,$empleados[$i]->id_contrato);
+            if($previosCont != null){
+                $m=0;
+                $bandera = true;
+                while($bandera != false){
+                    if($m < count($previosCont)){
+                        if($m < 1 && $previosCont[$m]->estado != 0 && $previosCont[$m]->estado != 4){
+                            $fechaInicio = $previosCont[$m]->fecha_inicio;
+                        }else if($m < 1){
+                            $fechaInicio = $empleados[$i]->fecha_inicio;
+                        }
+                        if($previosCont[$m]->estado == 0 || $previosCont[$m]->estado == 4){
+                            $bandera = false;
+                        }
+                        if($bandera){
+                            $fechaInicio = $previosCont[$m]->fecha_inicio;
+
+                        }
+                    }else{
+                        $bandera = false;
+                    }
+                    $m++;
+                } 
+            }else{
+                $fechaInicio = $empleados[$i]->fecha_inicio;
+            }
+            //se hace una resta de años
+            $anios = $anio - substr($fechaInicio, 0,4);
+
+                $verificar = $this->Vacacion_model->vacaciones_aprobadas($empleados[$i]->id_empleado,$primer_dia,$fin_dia);
+                // print_r($verificar);
+                if(empty($verificar)){
+                    //variables necesarias para los calculos que se mostraran
+                    $afp=0;$isss=0;$renta=0;$comisiones=0;
+                    $interno=0;$personal=0;
+                    $anticipoSum=0;$descuentoHer=0;
+                    $ordenes=0;
+
+                    //se verificara si es domingo la fecha de aplicacion de las vacaciones
+                    //recordar que una vacacion no se puede empezar ni domingo ni asueto
+                    $fecha_aplicar = $primer_dia;
+                    $date = new DateTime($fecha_aplicar);
+                    if(date('l', strtotime($date->format("Y-m-d"))) == 'Sunday'){
+                        //si es domingo se le sumara un dia
+                        $fecha_aplicar = date("Y-m-d",strtotime($fecha_aplicar."+ 1 days"));
+                    }
+
+                    //Quien lea esto que sepa que ahora solo Dios sabe lo que hice aqui, suerte
+                    do{
+                        $bandera = true;
+                        $asueto = $this->Vacacion_model->verifica_asuetos($empleados[$i]->id_agencia,$fecha_aplicar,$anio);
+                        if(!empty($asueto)){
+                            $bandera = false;
+                            $m=0;
+                            //se busca al ultima fecha de asuetos
+                            while($m < count($asueto)){
+                                if($m == 0 && substr($asueto[$m]->fecha_fin,5,5) >= substr($fecha_aplicar,5,5)){
+                                    $fin_asueto = $anio.'-'.substr($asueto[$m]->fecha_fin,5,5);
+                                }else if(substr($asueto[$m]->fecha_fin,5,5) >= substr($fin_asueto,5,5)){
+                                    $fin_asueto = $anio.'-'.substr($asueto[$m]->fecha_fin,5,5);
+                                }
+                                $m++;
+                            }
+                            //fecha aplicar despues de los asuetos
+                            $fecha_aplicar = date("Y-m-d",strtotime($fin_asueto."+ 1 days"));
+                        }
+                        
+                    }while($bandera != true);
+                    //nuevamente se verifica si es domingo la fecha a aplicar
+                    $date = new DateTime($fecha_aplicar);
+                    if(date('l', strtotime($date->format("Y-m-d"))) == 'Sunday'){
+                        //si es domingo se le sumara un dia
+                        $fecha_aplicar = date("Y-m-d",strtotime($fecha_aplicar."+ 1 days"));
+                    }
+
+                    $sueldo_quin = $empleados[$i]->Sbase/2;
+                    $comision = $this->Vacacion_model->comision_empleados($mes_comision,$empleados[$i]->id_empleado);
+                    if(count($comision) >= 6){
+                        //Se hace un contador para que saque el total de las comisiones 
+                        //en quincenas tienen que ser 6 o mayores
+                        for($k=0; $k < count($comision); $k++){
+                            $comisiones += $comision[$k]->cantidad/2;
+                        }
+                        //Sueldo Quincenal del empleado
+                        $comisiones = $comisiones/6;
+                        $sueldo_quin = $sueldo_quin + $comisiones;
+                    }
+
+                    //Se trae la tasa que se le aplicara a las vacaciones
+                    $prima_por= $this->Vacacion_model->primaVacaciones();
+                    //Prima que se le dara al empleado
+                    $prima = $sueldo_quin*$prima_por[0]->tasa;
+                    //Total a pagar sin descuentos del isss y afp
+                    $total_pagar = $sueldo_quin + $prima;
+
+                    //Se buscan los porcentajes del isss, afp y ipsfa
+                    $porcentajes = $this->Vacacion_model->descuentos();
+                    //For para saber que descuento de ley tiene el empleado
+                    for($k=0; $k < count($porcentajes); $k++){
+                        //Se busca el afp si tiene y se realiza
+                        if($empleados[$i]->afp != null && $porcentajes[$k]->nombre_descuento == 'AFP'){
+                            //Se valida el techo del afp
+                            if($porcentajes[$k]->techo < $total_pagar){
+                                $afp = $porcentajes[$k]->techo * $porcentajes[$k]->porcentaje;
+                            }else{
+                                $afp = $porcentajes[$k]->porcentaje*$total_pagar;
+                            }
+                            //echo ' Afp->'.$afp;
+                            //Se busca el ipsfa si tiene y se realiza
+                        }else if($empleados[$i]->ipsfa !=null && $porcentajes[$k]->nombre_descuento == 'IPSFA'){
+                            //Se valida el techo del ipsfa
+                            if($porcentajes[$k]->techo <= $total_pagar){
+                                $afp = $porcentajes[$k]->techo * $porcentajes[$k]->porcentaje;
+                            }else{
+                                $afp = $porcentajes[$k]->porcentaje*$total_pagar;
+                            }
+                        }
+                        //Se hace el isss
+                        if($empleados[$i]->isss != null && $porcentajes[$k]->nombre_descuento == 'ISSS'){
+                            //Se valida el techo del isss
+                            if($porcentajes[$k]->techo <= $total_pagar){
+                                $isss = ($porcentajes[$k]->techo * $porcentajes[$k]->porcentaje)/2;
+                            }else{
+                                $isss = $porcentajes[$k]->porcentaje*$total_pagar;
+                            }
+
+                            //echo ' ISSS->'.$isss;
+                        }
+                    }//Fin for count($porcentajes)
+
+                    $sueldo_descuento = $total_pagar - $afp - $isss;
+                    //Se busca los tramos de renta de forma quincenal
+                    $renta_tramos = $this->Vacacion_model->renta();
+                    //Se busca el tramo de renta al que pertenece
+                    $renta = 0;
+                    for($k = 0; $k < count($renta_tramos); $k++){
+                        if($sueldo_descuento >= $renta_tramos[$k]->desde   && $sueldo_descuento <= $renta_tramos[$k]->hasta){
+                            $renta = (($sueldo_descuento - $renta_tramos[$k]->sobre)*$renta_tramos[$k]->porcentaje)+$renta_tramos[$k]->cuota;
+                        }
+                    }
+
+                    //Se verifica si el empleado tiene prestamos internos 
+                    $prestamoInterno = $this->Planillas_model->prestamosInternos($empleados[$i]->id_empleado,$fin_dia);
+                    //si tiene ingresara para hacer los calculos necsarios
+                    for($k=0; $k < count($prestamoInterno); $k++){
+                        //traemos los datos del prestamo de los pagos de la tabla de amortizacion_internos
+                        $verifica = $this->Planillas_model->verificaInternos($prestamoInterno[$k]->id_prestamo,$fin_dia);
+
+                        //si no hay datos se realizaran los datos de la tabla prestamos internos
+                        //para realizar los calculos
+                        if($verifica == null && $prestamoInterno[$k]->estado == 1){
+                            $pagoTotal = $prestamoInterno[$k]->cuota;
+
+                        }else if($verifica != null && $prestamoInterno[$k]->estado == 1){
+                            //Si ya tiene datos tomaremos el ultimo registro para realizar los 
+                            //calculos del siguiente pago
+                            $diferencia = date_diff(date_create($verifica[0]->fecha_abono),date_create($fin_dia));
+                            $total_dias = $diferencia->format('%a');
+
+                            if($verifica[0]->saldo_actual < $prestamoInterno[$k]->cuota){
+                                $saldoAnterior = $verifica[0]->saldo_actual;
+                                $interes = ((($saldoAnterior)*($prestamoInterno[$k]->tasa))/30)*$total_dias;
+                                $pagoTotal = round($verifica[0]->saldo_actual + $interes,2);
+
+                            }else{
+                                $pagoTotal = $prestamoInterno[$k]->cuota;
+                            }
+                        }else{
+                            $pagoTotal = 0;
+                        }
+
+                        //se hace una suma de las cuotas por si tiene mas de uno
+                        $interno += $pagoTotal;
+                        $prestamoInterno[$k]->id_empleado = $empleados[$i]->id_empleado;
+                        $prestamoInterno[$k]->fecha_aplicar = $fin_dia;
+                        $prestamoInterno[$k]->fecha_vacacion = $fecha_aplicar;
+
+                        array_push($data['prestamo_interno'],$prestamoInterno[$k]);
+                    }//Fin for count($prestamoInterno)
+
+                    //Se verifica si el empleado tiene prestamos personales
+                    $prestamoPersonal = $this->Planillas_model->prestamosPersonales($empleados[$i]->id_empleado,$fin_dia);
+                    for($k=0; $k < count($prestamoPersonal); $k++){
+                        //se trae los datos del prestamo personal de los pagos de la tabla de amortizacion_personales
+                        $verificaPersonal = $this->Planillas_model->verificaPersonales($prestamoPersonal[$k]->id_prestamo_personal,$fin_dia);
+
+                        //si no hay datos se realizaran los datos de la tabla prestamos personales
+                        //para realizar los calculos
+                        if($verificaPersonal == null && $prestamoPersonal[$k]->estado == 1){
+                            $pago_total = $prestamoPersonal[$k]->cuota;
+                        }else if($verificaPersonal != null && $prestamoPersonal[$k]->estado == 1){
+                            //Si ya tiene datos tomaremos el ultimo registro para realizar los 
+                            //calculos del siguiente pago
+                            $diferencia = date_diff(date_create($verificaPersonal[0]->fecha_abono),date_create($fin_dia));
+                            $total_dias = $diferencia->format('%a');
+
+                            $saldo_anterior = $verificaPersonal[0]->saldo_actual;
+                            $interes_devengado = ((($saldo_anterior)*($prestamoPersonal[$k]->porcentaje))/30)*$total_dias;
+                            $all_interes = $interes_devengado + $verificaPersonal[0]->interes_pendiente;
+
+                            if($verificaPersonal[0]->saldo_actual < $prestamoPersonal[$k]->cuota && $verificaPersonal[0]->interes_pendiente == 0){
+                                $pago_total = round($verificaPersonal[0]->saldo_actual + $all_interes,2);
+                            }else{
+                                $pago_total = $prestamoPersonal[$k]->cuota;
+                            }
+
+                        }else{
+                            $pago_total = 0; 
+                        }
+                        $personal += $pago_total;
+                        $prestamoPersonal[$k]->id_empleado = $empleados[$i]->id_empleado;
+                        $prestamoPersonal[$k]->fecha_aplicar = $fin_dia;
+                        $prestamoPersonal[$k]->fecha_vacacion = $fecha_aplicar;
+                        array_push($data['prestamo_per'],$prestamoPersonal[$k]);                 
+                    }//fin for count($prestamoPersonal)
+
+                    //Busca si el empleado tiene anticipos para esa quincena
+                    $anticipoActual = $this->Planillas_model->anticiposActuales($primer_dia,$fin_dia,$empleados[$i]->id_empleado);
+                    for($k=0; $k < count($anticipoActual); $k++){
+                        $anticipoSum += $anticipoActual[$k]->monto_otorgado;
+                        $anticipoActual[$k]->id_empleado = $empleados[$i]->id_empleado;
+                        $anticipoActual[$k]->fecha_aplicar = $fin_dia;
+                        $anticipoActual[$k]->fecha_vacacion = $fecha_aplicar;
+                        array_push($data['anticipo'],$anticipoActual[$k]);
+                        //$this->Planillas_model->cancelarAnticipo($anticipoActual[$k]->id_anticipos,$planilla);
+                    }
+
+                    //Verificar si el empleado tiene descuentos de herramientas
+                    $descuentoH = $this->Planillas_model->descuentoHerramienta($empleados[$i]->id_empleado,$fin_dia);
+                    for($k=0; $k < count($descuentoH); $k++){
+                        $verificaHerramienta = $this->Planillas_model->verificarHerramienta($descuentoH[$k]->id_descuento_herramienta);
+
+                        if($verificaHerramienta == null){    
+                            $coutaH = $descuentoH[$k]->couta;
+                        }else{
+                            if($verificaHerramienta[0]->saldo_actual < $descuentoH[$k]->couta){
+                                $coutaH = $verificaHerramienta[0]->saldo_actual;
+                            }else{
+                                $coutaH = $descuentoH[$k]->couta;
+                            }
+                        }
+
+                        $descuentoH[$k]->id_empleado = $empleados[$i]->id_empleado;
+                        $descuentoH[$k]->fecha_aplicar = $fin_dia;
+                        $descuentoH[$k]->fecha_vacacion = $fecha_aplicar;
+                        array_push($data['descuenta_herramienta'],$descuentoH[$k]);
+                        $anticipoSum += $coutaH;
+                    }
+
+                    /*$faltante = $this->Planillas_model->faltante($empleados[$i]->id_empleado,$primer_dia,$fin_dia);
+                    for($k=0; $k < count($faltante); $k++){
+                        $descuentoHer += $faltante[$k]->couta;
+                        $faltante[$k]->id_empleado = $empleados[$i]->id_empleado;
+                        $faltante[$k]->fecha_aplicar = $fin_dia;
+                        $faltante[$k]->fecha_vacacion = $fecha_aplicar;
+                        array_push($data['faltante'],$faltante[$k]);
+                    }*/
+
+                    //Se busca si tiene ordes de descuentos activas
+                    $ordenDescuento = $this->Planillas_model->ordenesDescuento($empleados[$i]->id_empleado,$fin_dia);
+                    for($k = 0; $k < count($ordenDescuento); $k++){
+                        //se verifica si la orden ya existe en la tabla de orden_descuento_abono
+                        $verificaOrden = $this->Planillas_model->verificaOrden($ordenDescuento[$k]->id_orden_descuento);
+
+                        //Si no existe se haran los calculos con los datos de la tabla orden_descuento
+                        if($verificaOrden == null){
+                            $cuotaOrden = $ordenDescuento[$k]->cuota;
+                            $saldoOrden = $ordenDescuento[$k]->monto_total - $cuotaOrden;
+                        }else{
+                            //si existe se haran con el ultimo dato de de la tabla de orden_descuento_abono
+                            $cuotaOrden = $ordenDescuento[$k]->cuota;
+                            $saldoOrden = $verificaOrden[0]->saldo - $cuotaOrden;
+                        }
+                        $ordenes += $cuotaOrden;
+                        $ord = array(
+                            'id_orden_descuento'    => $ordenDescuento[$k]->id_orden_descuento,  
+                            'fecha_abono'           => $fin_dia,  
+                            'cantidad_abonada'      => $cuotaOrden,  
+                            'saldo'                 => $saldoOrden,  
+                            'planilla'              => 2,          
+                            'id_empleado'           => $empleados[$i]->id_empleado,          
+                            'fecha_aplicar'         => $fin_dia,          
+                            'fecha_vacacion'        => $fecha_aplicar,          
+                        );
+                        array_push($data['orden_descuento'],$ord);
+                    }//fin for count($ordenDescuento)
+
+                    //buscar creditos del empleado en SIGA
+                    $buscar_credito = $this->Planillas_model->desembolos_creditos($empleados[$i]->id_empleado,$fin_dia,$quincena);
+                    for($k=0; $k < count($buscar_credito); $k++){ 
+                        $ultimo_pago = $this->Planillas_model->ultimo_pago($buscar_credito[$k]->codigo);
+                        if(empty($ultimo_pago)){
+                            $pago_siga = $buscar_credito[$k]->cuota_diaria;
+                        }else{
+                            $diferencia = date_diff(date_create(substr($ultimo_pago[0]->fecha_pago, 0,10)),date_create($fin_dia));
+                            $total_dias = $diferencia->format('%a');
+                            $interes_devengado = ((($ultimo_pago[0]->saldo)*($buscar_credito[$k]->interes_total))/$buscar_credito[$k]->dias_interes)*$total_dias;
+                            $all_interes = $interes_devengado + $ultimo_pago[0]->interes_pendiente;
+
+                            if($all_interes > $buscar_credito[$k]->cuota_diaria){
+                                $pago_siga = $buscar_credito[$k]->cuota_diaria;
+                            }else if($ultimo_pago[0]->saldo < $buscar_credito[$k]->cuota_diaria && $ultimo_pago[0]->interes_pendiente == 0){
+                                $pago_siga = $ultimo_pago[0]->saldo+$all_interes;
+                            }else{
+                                $pago_siga = $buscar_credito[$k]->cuota_diaria;
+                            }
+                        }
+                        $ordenes += round($pago_siga,2);
+                        //datos de los prestamos
+                        $prestamos_siga = array(
+                            'agencia'           => $empleados[$i]->id_agencia, 
+                            'codigo'            => $buscar_credito[$k]->codigo, 
+                            'cuota_diaria'      => round($buscar_credito[$k]->cuota_diaria,2),
+                            'cuota_seguro_vida'      => round($buscar_credito[$k]->cuota_seguro_vida,2), 
+                            'cuota_seguro_deuda'      => round($buscar_credito[$k]->cuota_seguro_deuda,2), 
+                            'cuota_vehicular'      => round($buscar_credito[$k]->cuota_vehicular,2), 
+                            'interes_total'     => $buscar_credito[$k]->interes_total, 
+                            'interes_alter'     => $buscar_credito[$k]->interes_alter, 
+                            'fecha_desembolso'  => $buscar_credito[$k]->fecha_desembolso, 
+                            'dias_interes'      => $buscar_credito[$k]->dias_interes, 
+                            'monto'             => $buscar_credito[$k]->monto, 
+                            'monto_pagar'       => $buscar_credito[$k]->monto_pagar, 
+                            'fecha_aplicar'     => $fin_dia, 
+                            'fecha_vacacion'    => $fecha_aplicar,
+                            'id_empleado'       => $empleados[$i]->id_empleado, 
+                        );
+                        array_push($data['prestamos_siga'],$prestamos_siga);
+                    }
+
+                    $a_pagar = $sueldo_descuento-$renta-$interno-$personal-$anticipoSum-$ordenes;
+
+                    $objeto = new stdclass;
+                    $objeto->guardado = '0';
+                    $objeto->id_contrato = $empleados[$i]->id_contrato;
+                    $objeto->id_agencia = $empleados[$i]->id_agencia;
+                    $objeto->agencia = $empleados[$i]->agencia;
+                    $objeto->id_empleado = $empleados[$i]->id_empleado;
+                    $objeto->nombre_empresa = $empleados[$i]->nombre_empresa;
+                    $objeto->empleado = $empleados[$i]->empleado;
+                    $objeto->sueldo_quin = $empleados[$i]->Sbase/2;;
+                    $objeto->comisiones = $comisiones;
+                    $objeto->prima = $prima;
+                    $objeto->total_pagar = $total_pagar;
+                    $objeto->afp = $afp;
+                    $objeto->isss = $isss;
+                    $objeto->renta = $renta;
+                    $objeto->interno = $interno;
+                    $objeto->personal = $personal;
+                    $objeto->anticipos = $anticipoSum;
+                    //$objeto->descuentos_faltantes = $descuentoHer;
+                    $objeto->orden_descuento = $ordenes;
+                    $objeto->a_pagar = $a_pagar;
+                    $objeto->fecha_aplicar = $fecha_aplicar;
+                    $objeto->fecha_final = date("Y-m-d",strtotime($fecha_aplicar."+ 14 days"));;
+                    $objeto->fecha_fin = $fin_dia;
+                    $objeto->fecha_cumple = $fechaInicio;
+
+                    $vacacion = array(
+                        'id_contrato'       => $empleados[$i]->id_contrato,
+                        'cantidad_apagar'   => $total_pagar,
+                        'afp_ipsfa'         => $afp,
+                        'isss'              => $isss,
+                        'isr'               => $renta,
+                        'prima'             => $prima,
+                        'comision'          => 0,
+                        'prestamo_interno'  => $interno,
+                        'bono'              => $comisiones,
+                        'anticipos'         => $anticipoSum,
+                        'prestamos_personal'=> $personal,
+                        'orden_descuento'   => $ordenes,
+                        'contrato_revision' => $contrato[0]->id_contrato,
+                        'fecha_ingreso'     => date('Y-m-d'),
+                        'fecha_aprobado'    => null,
+                        'fecha_aplicacion'  => $fecha_aplicar,
+                        'fecha_cumple'      => $fechaInicio,
+                        'aprobado'          => 0,
+                        'estado'            => 1,
+                        'ingresado'         => 1,
+                    );
+                 $id_vacacion = $this->Vacacion_model->save_vacacion($vacacion);
+
+                   echo json_encode(null);
+                }else{//fin if(empty($verificar))
+                   echo json_encode('error');
+                }
+           
+        }//Fin for($i=0; $i < count($empleados); $i++)
+                
+         
+        
+       
     }
 
     function notiVacacion(){
@@ -381,6 +923,10 @@ class Vacaciones extends Base {
         $data['control']=$this->validar_secciones($this->seccion_actual4["control"]);
         $data['aprobar']= $this->validar_secciones($this->seccion_actual2["aprobar"]);
 
+        $data['agendar'] = $this->validar_secciones($this->seccion_actual5['agendar_vacaciones']);
+
+   
+        $data['guardar_vacaciones'] = $this->validar_secciones($this->seccion_actual5['aprobar_vacaciones']);
         $data['admin']=$this->validar_secciones($this->seccion_actual4["administracion"]);
 
         $this->load->view('dashboard/header');
@@ -946,9 +1492,9 @@ class Vacaciones extends Base {
             $images = @get_headers($img2);
             //se verifica la img si existe, sino se le asignara la img del la jefa de rrhh
             if($images[0] == 'HTTP/1.1 404 Not Found'){
-                $data['firma'] = base_url().'assets/images/rrhh.jpg';
-                $data['nombre_auto'] = 'Katherine Isabel Molina Sanchez';
-                $data['cargo_auto'] = 'Jefe de RRHH';
+                $data['firma'] = base_url().'assets/images/bark.jpeg';
+                $data['nombre_auto'] = 'Bryan Alexander Rosales Iraheta';
+                $data['cargo_auto'] = 'Coordinador de RRHH';
             }else{
                 //si tiene se traer los datos necesarios
                 $datos = $this->liquidacion_model->datos_auto($id_empleado);
@@ -996,6 +1542,7 @@ class Vacaciones extends Base {
         $tdias = 7200;
 
         $verificacion = $this->Vacacion_model->verificacionVaca($code);
+
         //si hay vacaciones el estado sera 1 y sino tiene el estado sera 1
         if($verificacion != null){
             $data['estado'] = 1;
@@ -2504,10 +3051,10 @@ class Vacaciones extends Base {
         $this->verificar_acceso($this->seccion_actual1);
         $data['administracion']=$this->validar_secciones($this->seccion_actual4["administracion"]);
 
-        $ag_admon = 1;
+        $ag_admon = null;
 
         if($data['administracion'] != 1){
-            $ag_admon = null;
+            $ag_admon = 1;
         }
 
         $empresa = $this->input->post('empresa');
@@ -2525,7 +3072,8 @@ class Vacaciones extends Base {
      
         $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
         $anticipadas = $this->Vacacion_model->controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
-        
+        // echo "<pre>";
+        // print_r($vacacion);
         //echo "<pre>";
         //print_r($anticipadas);
 
@@ -2745,6 +3293,7 @@ class Vacaciones extends Base {
             //substr($fechaInicio, 5,5) >= $inicio_dia && substr($fechaInicio, 5,5) <= $ultimo_dia es para saber si es de la quincena en curso  o que se quiere sacar
             if($anios > 0 && substr($fechaInicio, 5,5) >= $inicio_dia && substr($fechaInicio, 5,5) <= $ultimo_dia){
                 $verificar = $this->Vacacion_model->vacaciones_aprobadas($empleados[$i]->id_empleado,$primer_dia,$fin_dia);
+                // print_r($verificar);
                 if(empty($verificar)){
                     //variables necesarias para los calculos que se mostraran
                     $afp=0;$isss=0;$renta=0;$comisiones=0;
@@ -3079,8 +3628,7 @@ class Vacaciones extends Base {
             }//fin if($anios > 0 && substr($fechaInicio, 5,5) >= $inicio_dia && substr($fechaInicio, 5,5) <= $ultimo_dia)
         }//Fin for($i=0; $i < count($empleados); $i++)
         
-        //echo '<pre>';
-        //print_r($data);
+         
         $this->load->view('dashboard/header');
         $this->load->view('Vacaciones/empleados_vacacion',$data);
     }//fin empleados_vacacion()
@@ -3635,5 +4183,567 @@ class Vacaciones extends Base {
         $data2['mensaje_exito'] = '<b>Vacaciones aprobadas con éxito</b><br>';
         $this->session->set_flashdata('mensaje_exito', $data2['mensaje_exito']);
         redirect(base_url()."index.php/Vacaciones/empleadosVacacion");
+    }
+
+    // WM23032023 funcion para guardar las vaciones separadas
+    function guardar_vacaciones_uno(){
+        $vacaciones = $this->input->post("datos_fila_vacacion");
+        $internos = $this->input->post("dato_prestamo_interno");
+        $personales = $this->input->post("dato_prestamo_personal");
+        $anticipo = $this->input->post("dato_anticipo");
+        $herramientas = $this->input->post("dato_descuenta_herramienta");
+        $orden = $this->input->post("dato_orden_descuento");
+        $prestamos_siga = $this->input->post("dato_prestamo_siga");
+        $fecha_actual = date('Y-m-d H:i:s');
+
+        if(!empty($vacaciones)){
+            //variables que se utilizaran para los insert
+            $diaUltimo = $vacaciones['fecha_fin'];
+            $contrato = $this->Planillas_model->datos_autorizante($_SESSION['login']['id_empleado']);
+            
+            $agencia = $vacaciones['id_agencia'];
+            $verifica_empleado = $this->Vacacion_model->verifica_vacacion($vacaciones['id_empleado'],$vacaciones['fecha_aplicar']);
+
+            if (empty($verifica_empleado)) {
+             
+                //se verificara si el empleado tiene una vacacion activa 
+                $vacacion_activa = $this->Vacacion_model->get_vacacion_activa($vacaciones['id_empleado']);
+                if(!empty($vacacion_activa)){
+                    $this->Vacacion_model->cancelVacaciones($vacacion_activa[0]->id_vacacion);
+                }
+
+                $vacacion = array(
+                        'id_contrato'       => $vacaciones['id_contrato'],
+                        'cantidad_apagar'   => $vacaciones['cantidad_pagar'],
+                        'afp_ipsfa'         => $vacaciones['afp'],
+                        'isss'              => $vacaciones['isss'],
+                        'isr'               => $vacaciones['isr'],
+                        'prima'             => $vacaciones['prima'],
+                        'comision'          => $vacaciones['comision'],
+                        'prestamo_interno'  => $vacaciones['prestamo_interno'],
+                        'bono'              => $vacaciones['bono'],
+                        'anticipos'         => $vacaciones['anticipo'],
+                        'prestamos_personal'=> $vacaciones['prestamo_personal'],
+                        'orden_descuento'   => $vacaciones['Orden_descuento'],
+                        'contrato_revision' => $contrato[0]->id_contrato,
+                        'fecha_ingreso'     => $fecha_actual,
+                        'fecha_aprobado'    => $fecha_actual,
+                        'fecha_aplicacion'  => $vacaciones['fecha_aplicar'],
+                        'fecha_cumple'      => $vacaciones['cumple'],
+                        'aprobado'          => 1,
+                        'estado'            => 1,
+                        'ingresado'         => 1,
+                    );
+                 $id_vacacion = $this->Vacacion_model->save_vacacion($vacacion);
+
+                //se buscan las vacaciones anticipadas que tiene el empleado
+                $anticipadas = $this->Vacacion_model->allAnticipadas($vacaciones['id_empleado']);
+                if($anticipadas != null){
+                        $horas=0;
+                        $minutos=0;
+                        //total de minutos que se tienen en las vacaciones
+                        $tdias = 7200;
+
+                         for($j = 0; $j < count($anticipadas); $j++){
+                            //se van a ingresar las vacaciones anticiapadas a la tabla control_vacacion
+                            //el estado 2 es para que se difercie las vacaciones normales con las anticipadas
+                            $this->Vacacion_model->ingresoDias($id_vacacion, $anticipadas[$j]->fecha_ingreso, $anticipadas[$j]->fechas_vacacion, $anticipadas[$j]->horas, $anticipadas[$j]->minutos, $anticipadas[$j]->id_auto,2);
+                            //se cancelan las vacaciones anticipadas de la tabla vacacion_anticipada
+                            $this->Vacacion_model->cancelarVacacionAnt($anticipadas[$j]->id_anticipada);
+                            //se van haciendo una suma de las horas y minutos de las vacaciones anticipadas
+                            $horas += $anticipadas[$j]->horas;
+                            $minutos += $anticipadas[$j]->minutos;
+                        }//fin for($i = 0; $i < count($anticipadas); $i++)
+
+                        //conversion de horas a minutos
+                        $horas = $horas * 60;
+                        //total de minutos
+                        $minutos = $minutos + $horas;
+
+                        //si los minutos de la vacaciones anticipadas son mayores al total de minutos
+                        //ingresara para cancelar de una sola ves las vacaciones normales
+                        if($minutos >= $tdias){
+                            //se manda codigo para que se cancelen las vacaciones
+                           $this->Vacacion_model->cancelVacaciones($id_vacacion);
+                        }
+
+                } // fin de vacaciones anticipadas
+            } // fin de verificar empleado
+
+            //calculos de los prestamos internos, este odigo ya no se tiene que estar usando
+            //porque ya todos los prestamos vienen de SIGA
+            if(!empty($internos)){
+
+                $verificar = $this->Vacacion_model->verifica_vacacion($internos['id_empleado'],$internos['fecha_vacacion']);
+                if($verifica == null && $internos['estado'] == 1){
+                            $diferencia = date_diff(date_create($internos['fecha_otorgado']),date_create($internos['fecha_aplicar']));
+                            //Se encuentran el total de dias que hay entre las dos fechas 
+                            $total_dias = $diferencia->format('%a');
+
+                            $saldoAnterior = $internos['monto_otorgado'];
+                            $interes = ((($saldoAnterior)*($internos['tasa']))/30)*$total_dias;
+                            $abonoCapital = $internos['cuota'] - $interes;
+                            $saldo = $saldoAnterior - $abonoCapital;
+                            $pagoTotal = $internos['cuota'];
+                            $estadoInterno=1;
+
+                        }else if($verifica != null && $internos['estado'] == 1){
+                            //Si ya tiene datos tomaremos el ultimo registro para realizar los 
+                            //calculos del siguiente pago
+                            $diferencia = date_diff(date_create($verifica['fecha_abono']),date_create($internos['fecha_aplicar']));
+                            $total_dias = $diferencia->format('%a');
+
+                            if($verifica['saldo_actual'] < $internos['cuota']){
+                                $saldoAnterior = $verifica['saldo_actual'];
+                                $interes = ((($saldoAnterior)*($internos['tasa']))/30)*$total_dias;
+                                $pagoTotal = round($verifica['saldo_actual'] + $interes,2);
+                                $abonoCapital = $verifica['saldo_actual'];
+                                $saldo = $saldoAnterior - $abonoCapital;
+                                $estadoInterno = 1;
+
+                            }else{
+                                $saldoAnterior = $verifica['saldo_actual'];
+                                $interes = ((($saldoAnterior)*($internos['tasa']))/30)*$total_dias;
+                                $abonoCapital = $internos['cuota'] - $interes;
+                                $saldo = $saldoAnterior - $abonoCapital;
+                                $pagoTotal = $internos['cuota'];
+                                $estadoInterno=1;
+                            }
+
+                            if($saldo < 0){
+                                $saldo = 0;
+                            }
+                        }else{
+                            if($verifica == null){
+                                $diferencia = date_diff(date_create($internos['fecha_otorgado']),date_create($internos['fecha_aplicar']));
+                                //Se encuentran el total de dias que hay entre las dos fechas 
+                                $total_dias = $diferencia->format('%a');
+
+                                $saldoAnterior = $internos['monto_otorgado'];
+                                $interes = 0;
+                                $abonoCapital = 0;
+                                $saldo = $saldoAnterior;
+                                $pagoTotal = 0;
+                                $estadoInterno=2;
+                            }else{
+                                $diferencia = date_diff(date_create($verifica['fecha_abono']),date_create($internos['fecha_aplicar']));
+                                $total_dias = $diferencia->format('%a');
+                                $saldoAnterior = $verifica['saldo_actual'];
+                                $interes = 0;
+                                $abonoCapital = 0;
+                                $saldo = $saldoAnterior;
+                                $pagoTotal = 0;
+                                $estadoInterno=2;
+                            }
+                        }
+
+                        $pago_int = array(
+                            'saldo_anterior'        => $saldoAnterior,  
+                            'abono_capital'         => $abonoCapital,  
+                            'interes_devengado'     => $interes,  
+                            'abono_interes'         => $interes,  
+                            'saldo_actual'          => $saldo,  
+                            'interes_pendiente'     => 0,  
+                            'fecha_abono'           => $internos['fecha_aplicar'],  
+                            'fecha_ingreso'         => $fecha_actual,  
+                            'dias'                  => $total_dias,  
+                            'pago_total'            => $pagoTotal,  
+                            'id_contrato'           => $contrato['id_contrato,'],  
+                            'id_prestamo_interno'   => $internos['id_prestamo'],  
+                            'estado'                => $estadoInterno,  
+                            'planilla'              => 2,  
+                        );
+                        //se Ingresan los pagos en la tabla de amortizacion_internos
+                         $this->Planillas_model->saveAmortizacionInter($pago_int);
+
+                        if($saldo == 0){         
+                            $this->Planillas_model->cancelarInterno($internos['id_prestamo'],2);
+                        }
+
+            } //fin de if internos
+
+            //Calculos para los prestamos personales, este codigo ya no tendria que usarse
+            //ya que todos los prestamos vienen de SIGA
+            if(!empty($personales)){
+                $verificar = $this->Vacacion_model->verifica_vacacion($personales['id_empleado'],$personales['fecha_vacacion']);
+                    if(count($verificar) == 1){
+                        $estadoPersonal = 1;
+                        //se trae los datos del prestamo personal de los pagos de la tabla de amortizacion_personales
+                        $verificaPersonal = $this->Planillas_model->verificaPersonales($personales['id_prestamo_personal'],$personales['fecha_aplicar']);
+
+                        //si no hay datos se realizaran los datos de la tabla prestamos personales
+                        //para realizar los calculos
+                        if($verificaPersonal == null && $personales['estado'] == 1){
+
+                            $diferencia = date_diff(date_create($personales['fecha_otorgado']),date_create($personales['fecha_aplicar']));
+                            //Se encuentran el total de dias que hay entre las dos fechas 
+                            $total_dias = $diferencia->format('%a');
+
+                            $saldo_anterior = $personales['monto_otorgado'];
+                            $interes_devengado = ((($saldo_anterior)*($personales['porcentaje']))/30)*$total_dias;
+
+                            if($interes_devengado > $personales['cuota']){
+                                $abono_capital = 0;
+                                $abono_interes = $personales['cuota'];
+                                $saldo_actual = $saldo_anterior;
+                                $interes_pendiente = $interes_devengado - $personales['cuota'];
+                            }else{
+                                $abono_capital = $personales['cuota'] - $interes_devengado;
+                                $abono_interes = $interes_devengado;
+                                $saldo_actual = $saldo_anterior - $abono_capital;
+                                $interes_pendiente = 0;
+                            }
+                            $pago_total = $personales['cuota'];
+
+                        }else if($verificaPersonal != null && $personales['estado'] == 1){
+                            //Si ya tiene datos tomaremos el ultimo registro para realizar los 
+                            //calculos del siguiente pago
+                            $diferencia = date_diff(date_create($verificaPersonal['fecha_abono']),date_create($personales['fecha_aplicar']));
+                            $total_dias = $diferencia->format('%a');
+
+                            $saldo_anterior = $verificaPersonal['saldo_actual'];
+                            $interes_devengado = ((($saldo_anterior)*($personales['porcentaje']))/30)*$total_dias;
+                            $all_interes = $interes_devengado + $verificaPersonal['interes_pendiente'];
+
+                            if($all_interes > $personales['cuota']){
+                                $abono_capital = 0;
+                                $abono_interes =$personales['cuota'];
+                                $saldo_actual = $saldo_anterior;
+                                $interes_pendiente = $interes_devengado - $personales['cuota'] + $verificaPersonal['interes_pendiente'];
+                                $pago_total = $personales['cuota'];
+
+                            }else if($all_interes <= $personales['cuota'] && $all_interes > 0 && $verificaPersonal[0]->saldo_actual > $personales['cuota']){
+                                $abono_capital = $personales['cuota'] - $all_interes;
+                                $abono_interes = $all_interes;
+                                $saldo_actual = $saldo_anterior - $abono_capital;
+                                $interes_pendiente = 0;
+                                $pago_total = $personales['cuota'];
+
+                            }else if($verificaPersonal['saldo_actual'] < $personales['cuota'] && $verificaPersonal['interes_pendiente'] == 0){
+                                $abono_capital = $verificaPersonal['saldo_actual'];
+                                $abono_interes = $all_interes;
+                                $saldo_actual = $saldo_anterior - $abono_capital;
+                                $interes_pendiente = 0;
+                                $pago_total = round($verificaPersonal['saldo_actual'] + $all_interes,2);
+
+                            }else{
+                                $abono_capital = $personales['cuota'] - $interes_devengado;
+                                $abono_interes = $interes_devengado;
+                                $saldo_actual = $saldo_anterior - $abono_capital;
+                                $interes_pendiente = 0;
+                                $pago_total = $personales['cuota'];
+                            }
+
+
+                            if($saldo_actual < 0){
+                                $saldo = 0;
+                            }
+
+                        }else{
+                            if($verificaPersonal == null){
+                                $diferencia = date_diff(date_create($personales['fecha_otorgado']),date_create($personales['fecha_aplicar']));
+                                //Se encuentran el total de dias que hay entre las dos fechas 
+                                $total_dias = $diferencia->format('%a');
+
+                                $saldo_anterior = $personales['monto_otorgado'];
+                                $interes_devengado = 0;
+                                $abono_capital = 0;
+                                $abono_interes = 0;
+                                $saldo_actual = $saldo_anterior;
+                                $interes_pendiente = 0;
+                                $pago_total = 0;
+                                $estadoPersonal = 2;
+
+                            }else{
+                                $diferencia = date_diff(date_create($verificaPersonal['fecha_abono']),date_create($personales['fecha_aplicar']));
+                                $total_dias = $diferencia->format('%a');
+                                $saldo_anterior = $verificaPersonal['saldo_actual'];
+                                $interes_devengado = 0;
+                                $abono_capital = 0;
+                                $abono_interes = 0;
+                                $saldo_actual = $saldo_anterior;
+                                $interes_pendiente = 0;
+                                $pago_total = 0;
+                                $estadoPersonal = 2;
+                            }
+                        }
+
+                        $pago_per = array(
+                            'saldo_anterior'        => $saldo_anterior,  
+                            'abono_capital'         => $abono_capital,  
+                            'interes_devengado'     => $interes_devengado,  
+                            'abono_interes'         => $abono_interes,  
+                            'saldo_actual'          => $saldo_actual,  
+                            'interes_pendiente'     => $interes_pendiente,  
+                            'fecha_abono'           => $personales['fecha_aplicar'],  
+                            'fecha_ingreso'         => $fecha_actual,  
+                            'dias'                  => $total_dias,  
+                            'pago_total'            => $pago_total,  
+                            'id_contrato'           => $contrato['id_contrato'],  
+                            'id_prestamo_personal'  => $personales['id_prestamo_personal'],  
+                            'estado'                => $estadoPersonal,  
+                            'planilla'              => 2,                                    
+                        );
+                        $this->Planillas_model->saveAmortizacionPerso($pago_per);
+
+                        //si la deuda llaga a cero el prestamo se cancela
+                        if($saldo_actual == 0){
+                            $this->Planillas_model->cancelarPersonal($personales['id_prestamo_personal'],2);
+                        }
+
+                    }//fin if(count($verificar) == 1)
+            } //fin de if personales
+
+            //se cancelan los anticipos que se han ingresados
+            if(!empty($anticipo)){
+                
+                    //se verifica si ya esta el empleado ingresdo en las vacaciones
+                    $verificar = $this->Vacacion_model->verifica_vacacion($anticipo['id_empleado'],$anticipo['fecha_vacacion']);
+                    //si solo esta ingresado una vez, cancalera los anticipos
+                    if(count($verificar) == 1){
+                        unset($anticipo['fecha_vacacion']);
+                        $this->Planillas_model->cancelarAnticipo($anticipo['id_anticipos'],2);
+                    }
+                
+            } // fin de if anticipos
+
+            //ingreso de los pagos de las herramientas
+            if(!empty($herramientas)){
+                    //se verifica si ya esta ingresado el empleado a las vacaciones
+                    $verificar = $this->Vacacion_model->verifica_vacacion($herramientas['id_empleado'],$herramientas['fecha_vacacion']);
+                    //debe de estar ingresado solo una vez
+                    if(count($verificar) == 1){
+                        //se trae el ultio pago
+                        $verificaHerramienta = $this->Planillas_model->verificarHerramienta($herramientas['id_descuento_herramienta']);
+                        //sino hay pago se va hacer los calculos con el monto original
+                        if($verificaHerramienta == null){    
+                            $coutaH = $herramientas['couta'];
+                            $saldoH = $herramientas['cantidad'] - $coutaH;
+                            $saldoAntH = $herramientas['cantidad'];
+                            $saldoAnterior = $herramientas['cantidad'];
+                        }else{
+                            //si hay pagos se verifica si el suelda es menor a la couta
+                            //de lo contrario van hacer los calculos de normales
+                            if($verificaHerramienta[0]->saldo_actual < $herramientas['couta']){
+                                $coutaH = $verificaHerramienta[0]->saldo_actual;
+                                $saldoH =  $verificaHerramienta[0]->saldo_actual - $coutaH;
+                                $saldoAntH = $verificaHerramienta[0]->saldo_actual;
+                            }else{
+                                $coutaH = $herramientas['couta'];
+                                $saldoH =  $verificaHerramienta[0]->saldo_actual - $coutaH;
+                                $saldoAntH = $verificaHerramienta[0]->saldo_actual;
+                                $saldoAnterior = $verificaHerramienta[0]->saldo_actual;
+                            }
+                        }
+                        //se valida por si el saldo es menor a cero
+                        if($saldoH < 0){
+                            $saldoH = 0;
+                        }
+                        $anticipo_her = array(
+                            'id_descuento_herramienta'        => $herramientas['id_descuento_herramienta'], 
+                            'pago'                            => $coutaH, 
+                            'saldo_actual'                    => $saldoH, 
+                            'saldo_anterior'                  => $saldoAnterior, 
+                            'fecha_ingreso'                   => $herramientas['fecha_aplicar'], 
+                            'fecha_real'                      => $fecha_actual, 
+                            'estado'                          => 1, 
+                            'planilla'                        => 2,
+                        );
+
+                        $this->Planillas_model->savePagoHer($anticipo_her);
+                        //si el saldo es cero se cancela el descuento
+                        if($saldoH <= 0){
+                         $this->Planillas_model->cancelarDesHer($herramientas['id_descuento_herramienta'],2,$herramientas['fecha_aplicar']);
+                        }
+                    }
+                
+            }//fin de if herramientas
+
+            //ordenes de descuento
+            if(!empty($orden)){
+            
+                    //se verifica si ya esta ingresado el empleado a las vacaciones
+                    $verificar = $this->Vacacion_model->verifica_vacacion($orden['id_empleado'],$orden['fecha_vacacion']);
+                    //debe de estar ingresado solo una vez
+                    if(count($verificar) == 1){
+                        //se eliminan los datos imnecesrios del arreglo
+                        unset($orden['id_empleado'],$orden['fecha_aplicar'],$orden['fecha_vacacion']);
+                        $this->Planillas_model->saveOrdenDes($orden);
+
+                        if($orden['saldo'] <= 0){
+                            //si el saldo de la orden es igual o menor a cero se cancela la orden
+                            $this->Planillas_model->cancelarOrden($orden['id_orden_descuento'],$orden['fecha_aplicar'],2);
+                        }
+                    }
+                
+            } // fin de if ordenes de descuento
+
+            //prestamos de SIGA
+            if(!empty($prestamos_siga)){
+                // print_r($prestamos_siga);
+                    $verificar = $this->Vacacion_model->verifica_vacacion($prestamos_siga['id_empleado'],$prestamos_siga['fecha_vacacion']);
+                    if(count($verificar) == 1){
+                        $ultimo_pago = $this->Planillas_model->ultimo_pago($prestamos_siga['codigo']);
+                        $numero_pagos=$this->Planillas_model->numero_pagos($agencia);//numero de pagos en toda la agencia (utilizado para hacer el codigo)
+                        $numero=$numero_pagos+1;
+                        $bandera = true;
+                        $m=1;
+                        //Creacion de comprobante valido
+                         while($bandera != false){
+                            if($m > 1){
+                                $numero=$numero_pagos+$m;
+                            }
+                            //$numero_pago=$this->pagos_model->pago_existente($credito)+1;
+                            $conteo= base_convert(($numero), 10, 16);
+                            //$conteo= dechex(count($desembolsos_cliente)+10);
+                            if (strlen($conteo)==1){
+                                $codigo=$agencia.'0'.'0'.'0'.'0'.'0'.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else if (strlen($conteo)==2){
+                                $codigo=$agencia.'0'.'0'.'0'.'0'.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else if (strlen($conteo)==3){
+                                $codigo=$agencia.'0'.'0'.'0'.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else if (strlen($conteo)==4){
+                                $codigo=$agencia.'0'.'0'.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else if (strlen($conteo)==5){
+                                $codigo=$agencia.'0'.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else if (strlen($conteo)==6){
+                                $codigo=$agencia.'0'.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }else{
+                                $codigo=$agencia.$conteo;
+                                $codigo=strtoupper($codigo);
+                            }
+                            $verificar = $this->Planillas_model->verificar_comprobante($codigo);
+                            if(!empty($verificar)){
+                                $m++;
+                            }else{
+                                $bandera = false;
+                            }
+                        }
+                        $monto_pagar=$prestamos_siga['monto_pagar']-$prestamos_siga['cuota_diaria'];
+                        $prestamos_siga['comprobante'] = $codigo;
+                        $interes_secofi=$prestamos_siga['interes_total']-$prestamos_siga['interes_alter'];
+                        $interes_alter_distr=$prestamos_siga['interes_alter']/$prestamos_siga['interes_total'];
+                        $interes_secofi_distr=$interes_secofi/$prestamos_siga['interes_total'];
+                        $pago_siga = 0;
+
+                        if(empty($ultimo_pago)){
+                            print_r($ultimo_pago);
+                            $diferencia = date_diff(date_create($prestamos_siga['fecha_desembolso']),date_create($prestamos_siga['fecha_aplicar']));
+                            $total_dias = $diferencia->format('%a');
+                            $interes_devengado = ((($prestamos_siga['monto'])*($prestamos_siga['interes_total']))/$prestamos_siga['dias_interes'])*$total_dias;
+
+                            if($interes_devengado > $prestamos_siga['cuota_diaria']){
+                                $amortizacion_pagar = 0;
+                                $abono_interes = $prestamos_siga['cuota_diaria'];
+                                $saldo_pagar = $prestamos_siga['monto'];
+                                $interes_pendiente = $interes_devengado - $prestamos_siga['cuota_diaria'];
+                                //se debe dividir la cuota para poder pagar el interes
+                                $monto_pagar+=$interes_pendiente+$prestamos_siga['cuota_diaria'];//se aumenta la deuda por el interes pendiente
+                                
+                            }else{
+                                $amortizacion_pagar = $prestamos_siga['cuota_diaria'] - $interes_devengado -  $prestamos_siga['cuota_seguro_vida']- $prestamos_siga['cuota_seguro_deuda']- $prestamos_siga['cuota_vehicular'];
+                                $abono_interes = $interes_devengado;
+                                $saldo_pagar = $prestamos_siga['monto'] - $amortizacion_pagar;
+                                $interes_pendiente = 0;
+                            }
+                            $pago_siga = $prestamos_siga['cuota_diaria'];
+
+                        }else{
+                            $diferencia = date_diff(date_create(substr($ultimo_pago[0]->fecha_pago, 0,10)),date_create($prestamos_siga['fecha_aplicar']));
+                            $total_dias = $diferencia->format('%a');
+                            $interes_devengado = ((($ultimo_pago[0]->saldo)*($prestamos_siga['interes_total']))/$prestamos_siga['dias_interes'])*$total_dias;
+                            $all_interes = $interes_devengado + $ultimo_pago[0]->interes_pendiente;
+                            
+
+                            if($all_interes > $prestamos_siga['cuota_diaria']){
+                                $amortizacion_pagar = 0;
+                                // $abono_interes =$cuota;
+                                $saldo_pagar = $ultimo_pago['saldo'];
+                                $interes_pendiente = $interes_devengado - $prestamos_siga['cuota_diaria'] + $ultimo_pago['interes_pendiente'];
+                                //$pago_total = $cuota;
+                                $monto_pagar+=$interes_pendiente;//se aumenta la deuda por el interes pendiente
+                                //$interes_pagar = $prestamos_siga[$'cuota_diaria']*$interes_alter_distr;
+                                //$cuota_secofi = $prestamos_siga[$'cuota_diaria']*$interes_secofi_distr;
+                                $pago_siga = $prestamos_siga['cuota_diaria'];
+
+                            }else if($ultimo_pago[0]->saldo < $prestamos_siga['cuota_diaria'] && $ultimo_pago[0]->interes_pendiente == 0){
+                                $amortizacion_pagar = $ultimo_pago[0]->saldo;
+                                $saldo_pagar = $ultimo_pago[0]->saldo - $amortizacion_pagar;
+                                $interes_pendiente = 0;
+                                $pago_siga = $ultimo_pago[0]->saldo+$all_interes;
+
+                            }else{
+                                $amortizacion_pagar = $prestamos_siga['cuota_diaria'] - $interes_devengado -  $prestamos_siga['cuota_seguro_vida']- $prestamos_siga['cuota_seguro_deuda']- $prestamos_siga['cuota_vehicular'];
+                                $saldo_pagar = $ultimo_pago[0]->saldo - $amortizacion_pagar;
+                                $interes_pendiente = 0;
+                                $pago_siga = $prestamos_siga['cuota_diaria'];
+                            }
+                        }
+                        $pagos = array(
+                            'comprobante'        => $codigo, 
+                            'monto_ingresado'    => $pago_siga, 
+                            'pago'               => $pago_siga, 
+                            'pago_secofi'        => 0, 
+                            'fecha_pago'         => $prestamos_siga['fecha_aplicar'], 
+                            'fecha_real'         => $fecha_actual, 
+                            'cobranza'           => 0, 
+                            'saldo'              => $saldo_pagar, 
+                            'amortizacion'       => $amortizacion_pagar, 
+                            'interes'            => $interes_devengado, 
+                            'interes_pendiente'  => $interes_pendiente, 
+                            'cuota_vida'=> $prestamos_siga['cuota_seguro_vida'],
+                            'cuota_deuda'=> $prestamos_siga['cuota_seguro_deuda'],
+                            'cuota_vehicular'=> $prestamos_siga['cuota_vehicular'], 
+                            'credito'            => $prestamos_siga['codigo'], 
+                            'puntaje_real'       => 2, 
+                            'puntaje_teorico'    => 2, 
+                            'usuario'            => $_SESSION['login']['id_login'], 
+                            'caja'               => null, 
+                            'atraso_dias'        => 0, 
+                            'estado'             => 6, 
+                        );
+                        // print_r($pagos);
+                         $this->Planillas_model->insert_pago_siga($pagos); 
+                        if ($saldo_pagar <= 0) {
+                            $data_credito = array('estado' => 0);
+                            $this->Planillas_model->actualizar_credito($prestamos_siga['codigo'],$data_credito); 
+                        }
+
+                    }//fin if(!empty($verificar))
+                
+
+            }//fin if(!empty($prestamos_siga))
+
+
+         } //fin de $vacaciones
+
+         $data="Vacaciones aprobadas con exito";
+         echo json_encode($data);
+
+    }
+
+    // WM23032023 funcion de actualizacion de estado para hacer reversion de vacaciones
+    function revertir_vacaciones(){
+        $id_contrato = $this->input->post("id_contrato");
+        $fecha_aplicar = $this->input->post("fecha_aplicar");
+        $dato_herrmamienta = $this->input->post("dato_hermaniemtas");
+
+        $id = $this->Vacacion_model->empleado_id($id_contrato);
+        $id_empleado = $id[0]->id_empleado;
+        
+        if($dato_herrmamienta = 1){
+        $this->Vacacion_model->revertir_pago_herramienta_vacaciones($id_contrato);
+        }
+
+        $this->Vacacion_model->revertir_pago_siga($id_empleado);
+
+        $data = $this->Vacacion_model->revertir_vacaciones($id_contrato,$fecha_aplicar);
+        echo json_encode($data);
     }
 }

@@ -432,7 +432,7 @@ where vacaciones.id_vacacion=211
   }
 
   function verificacionVaca($code){
-    //se trae el id de la vacacion de la vacacion que esta activa
+    //se trae el id  de la vacacion que esta activa
      $this->db->select('va.id_vacacion');
       $this->db->from('vacaciones va');
       $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
@@ -813,30 +813,47 @@ where vacaciones.id_vacacion=211
       $query = $this->db->get();
       return $query->result();
   }
-  
-  function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon){
-      $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado');
-      $this->db->from('vacaciones va');
-      $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
-      $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
-      $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
-      $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2))');
-      $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
-      if($empresa != 'todo'){
-        $this->db->where('co.id_empresa',$empresa);
-      }
-
-      if($agencia != 'todas'){
-        $this->db->where('co.id_agencia',$agencia);
-      }
-
-      if($ag_admon == null){
-        $this->db->where('ag.id_agencia != 00');
-      }
+  //NO28042023 vacaciones actualziar
+  function actualizar_vacacion($id_vacacion){
+    $this->db->set('aprobado', 1);
+    $this->db->set('fecha_aprobado', date("Y-m-d"));
+    $this->db->where('id_vacacion', $id_vacacion);
+    $this->db->update('vacaciones');
+    return null;
+  }
+    //NO28042023 vacaciones cancelar
+    function cancelar_vacacion($id_vacacion){
+      $this->db->set('aprobado', 0);
+      $this->db->set('estado', 0);
+      $this->db->where('id_vacacion', $id_vacacion);
+      $this->db->update('vacaciones');
+      return null;
+    }
+      function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon){
+        $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado, va.aprobado, va.id_vacacion');
+        $this->db->from('vacaciones va');
+        $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
+        $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
+        $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
+       
+        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 0 and va.estado = 1))');
         
-      $query = $this->db->get();
-      return $query->result();
-      }
+        $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
+        if($empresa != 'todo' && $empresa != null){
+          $this->db->where('co.id_empresa',$empresa);
+        }
+  
+        if($agencia != 'todas'){
+          $this->db->where('co.id_agencia',$agencia);
+        }
+  
+        if($ag_admon != null){
+          $this->db->where('ag.id_agencia != 00');
+        }
+          
+        $query = $this->db->get();
+        return $query->result();
+        }
   
 
   function vacaAnterior($diaUno,$diaUltimo,$code){
@@ -993,8 +1010,8 @@ where vacaciones.id_vacacion=211
     return $query->result();
   }
 
-  //APARTADO PARA NUEVAS VACACIONES
-  function get_all_empleado($agencia){
+  //APARTADO PARA NUEVAS VACACIONES //NO28042023
+  function get_all_empleado($agencia, $id_empleado = null){
     $this->db->select('em.id_empleado, co.id_contrato, concat(em.nombre," ",em.apellido) as empleado,em.afp,em.ipsfa,em.isss,co.fecha_inicio,ag.id_agencia, ag.agencia,empresa.nombre_empresa,cc.Sbase');
     $this->db->from('empleados em');
 
@@ -1010,6 +1027,9 @@ where vacaciones.id_vacacion=211
     }
 
     $this->db->where('em.activo = 1 and (co.estado = 1 or co.estado = 3 or co.estado = 9) and ((em.afp IS NOT NULL and em.afp != "") OR (em.ipsfa IS NOT NULL and em.ipsfa != "")) and (em.isss != "" and em.isss IS NOT NULL)');
+    if($id_empleado != null){
+    $this->db->where('em.id_empleado', $id_empleado);
+    }
     $this->db->order_by('ag.agencia','ASC');
 
     $query = $this->db->get();
@@ -1084,8 +1104,9 @@ where vacaciones.id_vacacion=211
     return $id;
   }
 
+  //WM23032023 se agrego el campo id_contrato para utilizar en funciones
   function vacaciones_aprobadas($empleado,$fecha_inicio,$fecha_fin){
-    $this->db->select('"1" as guardado,agencias.agencia, empresa.nombre_empresa, concat(empleados.nombre," ",empleados.apellido) as empleado, vacaciones.fecha_aplicacion as fecha_aplicar, DATE_ADD(vacaciones.fecha_aplicacion, INTERVAL 14 DAY) as fecha_final, (vacaciones.cantidad_apagar-vacaciones.prima) as sueldo_quin, vacaciones.comision as comisiones, vacaciones.prima, vacaciones.cantidad_apagar as total_pagar, vacaciones.isss, vacaciones.afp_ipsfa as afp, vacaciones.isr as renta, vacaciones.prestamo_interno as interno, vacaciones.prestamos_personal as personal, vacaciones.orden_descuento, vacaciones.anticipos, (vacaciones.cantidad_apagar-vacaciones.afp_ipsfa-vacaciones.isss-vacaciones.isr-vacaciones.prestamo_interno-vacaciones.prestamos_personal-vacaciones.anticipos-vacaciones.orden_descuento) as a_pagar');
+    $this->db->select('"1" as guardado,agencias.agencia, empresa.nombre_empresa, concat(empleados.nombre," ",empleados.apellido) as empleado, vacaciones.fecha_aplicacion as fecha_aplicar, DATE_ADD(vacaciones.fecha_aplicacion, INTERVAL 14 DAY) as fecha_final, (vacaciones.cantidad_apagar-vacaciones.prima) as sueldo_quin, vacaciones.comision as comisiones, vacaciones.prima, vacaciones.cantidad_apagar as total_pagar, vacaciones.isss, vacaciones.afp_ipsfa as afp, vacaciones.isr as renta, vacaciones.prestamo_interno as interno, vacaciones.prestamos_personal as personal, vacaciones.orden_descuento, vacaciones.anticipos, (vacaciones.cantidad_apagar-vacaciones.afp_ipsfa-vacaciones.isss-vacaciones.isr-vacaciones.prestamo_interno-vacaciones.prestamos_personal-vacaciones.anticipos-vacaciones.orden_descuento) as a_pagar, vacaciones.id_contrato');
     $this->db->from('vacaciones'); 
     $this->db->join('contrato', 'contrato.id_contrato=vacaciones.id_contrato');
     $this->db->join('agencias', 'agencias.id_agencia=contrato.id_agencia');
@@ -1101,6 +1122,57 @@ where vacaciones.id_vacacion=211
 
     $result = $this->db->get();
     return $result->result();
+  }
+
+  // WM23032023 funcion para revertir vacaciones
+  function revertir_vacaciones($id_contrato, $fecha_aplicacion){
+    $this->db->set('estado', 0);
+    $this->db->set('aprobado', 0);
+    $this->db->where('id_contrato', $id_contrato);
+    $this->db->where('fecha_aplicacion', $fecha_aplicacion);
+    
+    $result=$this->db->update('vacaciones');
+    return $result;
+  }
+
+  // WM23032023 funcion para revertir los pagos de cuota de herramienta
+  function revertir_pago_herramienta_vacaciones($id_contrato){
+   $this->db->query("UPDATE pagos_descuento_herramienta as pdh 
+      JOIN descuento_herramienta as dh on dh.id_descuento_herramienta = pdh.id_descuento_herramienta
+      SET pdh.estado = 0, pdh.planilla = 0
+      WHERE dh.id_contrato = ".$id_contrato."
+      ORDER BY pdh.estado DESC
+      LIMIT 1");
+   
+    return null;
+  }
+
+  // WM23032023 funcion para traer el id_empleado
+  function empleado_id($id_contrato){
+    $this->db->select('emp.id_empleado');
+    $this->db->from('empleados as emp');
+    $this->db->join('contrato as con','con.id_empleado=emp.id_empleado');
+    $this->db->where('con.id_contrato',$id_contrato);
+
+    $result= $this->db->get();
+    return $result->result();
+  }
+
+  // WM23032023 funcion para revertir el pago ejectutado en las vacaciones
+  function revertir_pago_siga($id_empleado){
+    $this->db->db_select('Operaciones');
+    $this->db->query("
+    UPDATE pagos_empleado AS pag_emp
+    JOIN credito_empleado AS cre_emp ON cre_emp.codigo=pag_emp.credito
+    JOIN cliente_empleado AS cli_emp ON cli_emp.id_cliente=cre_emp.id_cliente
+    SET pag_emp.estado = '0'
+    WHERE cli_emp.id_empleado = ".$id_empleado."
+    ORDER BY pag_emp.estado DESC
+    LIMIT 1; ");
+
+    $this->db->db_select('tablero');
+
+    return null;
   }
 
 }

@@ -370,5 +370,9 @@
 		$APP['permisos']['editar_retenciones'] = array(
 			"editar_retenciones" => 181
 		);
+		$APP['permisos']['agendar_vacaciones'] = array(
+			'agendar_vacaciones' => 182,
+			'aprobar_vacaciones' => 183
+		);
 
  ?>

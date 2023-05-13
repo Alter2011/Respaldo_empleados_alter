@@ -203,6 +203,7 @@ class Liquidacion extends Base {
         $data['rechazar']=$this->validar_secciones($this->seccion_actual1["rechazar"]);
         $data['perdon']=$this->validar_secciones($this->seccion_actual1["perdon"]);
         $data['aprobado'] = array();
+        $data['contrato'] = $id_contrato;
         $ultimoCont = $this->liquidacion_model->ultContrato($id_contrato);
         
         if(empty($verificar) && $data['aprobar'] == 1 && $data['rechazar'] == 1){
@@ -246,6 +247,7 @@ class Liquidacion extends Base {
         $diasDes = 0;
         
         $previosCont = $this->liquidacion_model->contratosMenores($ultimoCont[0]->id_empleado,$id_contrato);
+
 
         if($previosCont != null){
            while($bandera != false){
@@ -737,7 +739,8 @@ class Liquidacion extends Base {
 
 
         $data['liquidacion'] = $this->liquidacion_model->buscarLiquidacion($id_contrato);
-
+        // echo "<pre>";
+        // print_r($data['liquidacion']);
 
         if($data['liquidacion'] == null){
             array_push($data['aprobado'], 'Esta liquidacion no esta aprobada');
@@ -851,16 +854,16 @@ class Liquidacion extends Base {
 
         //$id_empleado = ($_SESSION['login']['id_empleado']);
         if($data['liquidacion'][0]->usuario_revision == null){
-            $data['firma'] = base_url().'assets/images/rrhh.jpg';
-            $data['nombre_auto'] = 'Katherine Isabel Molina Sanchez';
-            $data['cargo_auto'] = 'Jefe de RRHH';
+            $data['firma'] = base_url().'assets/images/bark.jpeg';
+            $data['nombre_auto'] = 'Bryan Alexander Rosales Iraheta';
+            $data['cargo_auto'] = 'Coordinador de RRHH';
         }else{
             $img2 = base_url().'assets/images/'.$data['liquidacion'][0]->usuario_revision.'.jpeg';
             $images = @get_headers($img2);
             if($images[0] == 'HTTP/1.1 404 Not Found'){
-                $data['firma'] = base_url().'assets/images/rrhh.jpg';
-                $data['nombre_auto'] = 'Katherine Isabel Molina Sanchez';
-                $data['cargo_auto'] = 'Jefe de RRHH';
+                $data['firma'] = base_url().'assets/images/bark.jpeg';
+                $data['nombre_auto'] = 'Bryan Alexander Rosales Iraheta';
+                $data['cargo_auto'] = 'Coordinador de RRHH';
             }else{
                 $datos = $this->liquidacion_model->datos_auto($data['liquidacion'][0]->usuario_revision);
                 $data['firma'] = $img2;
@@ -1132,7 +1135,7 @@ class Liquidacion extends Base {
                 $sumAnticipo += $cantA;
                 if($cantA > 0){
                     if($anticipo[0]->estado == 1){
-                        $liquidacion = 4;
+                        $liquidacion = 5;       //WM27032023 se le ha cambiado para que sea cancelado por liquidacion sera el estado 5
                         $this->Planillas_model->cancelarAnticipo($anticipo[$i]->id_anticipos,$liquidacion);
                         $liquidacion = 3;
                     }else{    
@@ -1758,8 +1761,10 @@ class Liquidacion extends Base {
         echo json_encode($data);
     }
 
+    //WM27032023 se modifico al integrar la reversion del anticipo 
     function rechazarLiquidacion(){
         $code=$this->input->post('id_liq_rechazar');
+        $contrato = $this->input->post('id_contrato');
         $data['aprobar'] = array();
         $planilla = 3;
 
@@ -1769,7 +1774,10 @@ class Liquidacion extends Base {
 
         $this->liquidacion_model->eliminarPagoL($liquidacion[0]->id_contrato,$liquidacion[0]->fecha_inicio,$liquidacion[0]->fecha_fin,$planilla);
 
+        //reversion de anticipo al rechazar la liquidacion
+        $this->liquidacion_model->eliminar_anticipo($contrato);
         $this->liquidacion_model->deleteLiquidacion($code);
+
 
         array_push($data['aprobar'], 'Sea rechazado con exito la liquidacion');
 
@@ -1777,6 +1785,7 @@ class Liquidacion extends Base {
 
         redirect(base_url().'index.php/Liquidacion');
     }
+
 
     function aprobarLiquidacion(){
         $code=$this->input->post('code');
@@ -1797,6 +1806,7 @@ class Liquidacion extends Base {
             $this->liquidacion_model->regresarLiquidacion($liquidacion[0]->id_contrato,$liquidacion[0]->fecha_inicio,$liquidacion[0]->fecha_fin,$planilla);
 
             $this->liquidacion_model->deleteLiquidacion($id_liq_aprobar2);
+
 
             $data = $this->liquidacion_model->aporbarLiq($code);
         }
@@ -2091,6 +2101,7 @@ class Liquidacion extends Base {
 
     function rechazarLiquidacion2(){
         $code=$this->input->post('id_liq_rechazar2');
+        $contrato = $this->input->post('id_contrato');
         $planilla = 4;
 
         $liquidacion = $this->liquidacion_model->liquidacion($code);
@@ -2099,6 +2110,8 @@ class Liquidacion extends Base {
 
         $this->liquidacion_model->eliminarPagoL($liquidacion[0]->id_contrato,$liquidacion[0]->fecha_inicio,$liquidacion[0]->fecha_fin,$planilla);
 
+        $this->liquidacion_model->eliminar_anticipo($contrato);
+
         $data = $this->liquidacion_model->deleteLiquidacion($code);
 
         echo json_encode($data);
@@ -2106,6 +2119,7 @@ class Liquidacion extends Base {
 
     function rechazarLiquidacion3(){
         $code=$this->input->post('id_liq_rechazar3');
+        $contrato = $this->input->post('id_contrato');
         $planilla = 3;
 
         $liquidacion = $this->liquidacion_model->liquidacion($code);
@@ -2113,6 +2127,7 @@ class Liquidacion extends Base {
         $this->liquidacion_model->eliminarPagoL($liquidacion[0]->id_contrato,$liquidacion[0]->fecha_inicio,$liquidacion[0]->fecha_fin,$planilla);
 
         $this->liquidacion_model->updateEstados($liquidacion[0]->id_contrato,$liquidacion[0]->fecha_inicio,$liquidacion[0]->fecha_fin);
+        $this->liquidacion_model->eliminar_anticipo($contrato);
 
         $data = $this->liquidacion_model->deleteLiquidacion($code);
 

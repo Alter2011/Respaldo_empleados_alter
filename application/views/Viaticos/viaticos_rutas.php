@@ -1,4 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<!-- inicio de div principal -->
 <div class="col-sm-10">
     <div class="text-center well text-white blue">
         <h2>Viaticos</h2>
@@ -11,11 +13,13 @@
         <li><a data-toggle="tab" href="#menu1">Viaticos extras</a></li>
         <li><a data-toggle="tab" href="#menu2">Viaticos efectivos</a></li>
         <li><a data-toggle="tab" href="#menu3">Viaticos renuncia/despedidos</a></li>
+        <li><a data-toggle="tab" href="#menu4">Control de viaticos</a></li>
+
     </ul>
-
+    <!-- inicio de div tab-content -->
     <div class="tab-content">
-    <br>
-
+        <br>
+        <!-- inicio de div de home -->
         <div id="home" class="tab-pane fade in active">
             <div class="row">
                 <div class="col-sm-12">
@@ -154,9 +158,11 @@
                 </div>
             </div>
         </div>
+        <!-- fin de div de home -->
+
+        <!-- inicio de div menu1 -->
         <div id="menu1" class="tab-pane fade">
-            
-        <div class="row">
+            <div class="row">
             <div class="col-sm-12">
                 <div class="form-group col-md-3">
                     <label for="inputState">Agencia:</label>
@@ -190,14 +196,14 @@
                 </div>
 
             </div>
-        </div><br>
+            </div><br>
 
 
-    <div class="row">
-        <div class="col-sm-12">
-            <table class="table table-bordered" id="data_extra">
-                <thead>
-                    <tr class="success">
+            <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-bordered" id="data_extra">
+                    <thead>
+                        <tr class="success">
                         <th style="text-align:center;">Agencia</th>         
                         <th style="text-align:center;">Empleado</th>      
                         <th style="text-align:center;">Cargo</th>      
@@ -209,9 +215,9 @@
                         <th style="text-align:center;">Aceite</th>      
                         <th style="text-align:center;">Total</th>      
                         <th style="text-align:center;">Accion</th>      
-                    </tr>
-                </thead>
-                <tbody id="show_extra"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
+                        </tr>
+                    </thead>
+                    <tbody id="show_extra"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
                     <?php 
                         foreach($empleados as $empleado){
                             echo '<tr>';
@@ -232,9 +238,9 @@
                             echo '</tr>';
                         }
                     ?>
-                </tbody>
-                <tfoot>
-                    <tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -246,16 +252,16 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            </div>
         </div>
-    </div>
-
-    </div>
-
-    <div id="menu2" class="tab-pane fade">
-        <div class="row">
+        <!-- fin de div menu1 -->
+        <!-- inicio de div menu2 -->
+        <div id="menu2" class="tab-pane fade">
+            <div class="row">
             <div class="col-sm-12">
                 <div class="form-group col-md-3">
                     <label for="inputState">Agencia:</label>
@@ -289,13 +295,13 @@
                 </div>
 
             </div>
-        </div><br>
+            </div><br>
 
-        <div class="row">
-        <div class="col-sm-12">
-            <table class="table table-bordered" id="data_efectivo">
-                <thead>
-                    <tr class="success">
+            <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-bordered" id="data_efectivo">
+                    <thead>
+                        <tr class="success">
                         <th style="text-align:center;">Agencia</th>         
                         <th style="text-align:center;">Empleado</th>      
                         <th style="text-align:center;">Cargo</th>      
@@ -307,9 +313,9 @@
                         <th style="text-align:center;">Aceite</th>      
                         <th style="text-align:center;">Total</th>      
                         <th style="text-align:center;">Accion</th>      
-                    </tr>
-                </thead>
-                <tbody id="show_efectivo"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
+                        </tr>
+                    </thead>
+                    <tbody id="show_efectivo"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
                     <?php 
                         foreach($efectivos as $efectivo){
                             echo '<tr>';
@@ -329,9 +335,9 @@
                             echo '</tr>';
                         }
                     ?>
-                </tbody>
-                <tfoot>
-                    <tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -343,19 +349,19 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            </div>
         </div>
-    </div>
-
-
-    </div>
-    <div id="menu3" class="tab-pane fade">
-        <div class="col-sm-12">
-            <div class="form-group col-md-3">
-                <label for="inputState">Empresa:</label>
-                <select class="form-control" name="empresa_inactivo" id="empresa_inactivo" class="form-control" onchange="inactivo_agencia();">
+        <!-- fin de div de menu2 -->
+        <!-- inicio de div menu3 -->
+        <div id="menu3" class="tab-pane fade">
+            <div class="col-sm-12">
+                <div class="form-group col-md-3">
+                    <label for="inputState">Empresa:</label>
+                    <select class="form-control" name="empresa_inactivo" id="empresa_inactivo" class="form-control" onchange="inactivo_agencia();">
                     <option value="todas">Todas</option>
                     <?php
                         foreach($empresas as $empresa){
@@ -364,96 +370,175 @@
                     <?php
                         }
                     ?>
-                </select>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="inputState">Agencia:</label>
+                    <select class="form-control" name="agencia_inactivo" id="agencia_inactivo" class="form-control">
+                        
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="inputState">Mes de renuncia/despido:</label>
+                    <input type="month" name="mes_inactivo" id="mes_inactivo"  class="form-control" value="<?= date('Y-m') ?>">
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="inputState">Filtrar</label><br>
+                    <a id="filtrar" class="btn btn-primary btn-sm" onclick="seleccionar_inactivo()"><span class="glyphicon glyphicon-search"></span></a>
+                </div>
+
+            </div><br>
+
+            <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-bordered" id="data_inactivos">
+                    <thead>
+                        <tr class="success">
+                            <th style="text-align:center;">Agencia</th>         
+                            <th style="text-align:center;">Empresa</th>         
+                            <th style="text-align:center;">Empleado</th>      
+                            <th style="text-align:center;">Cargo</th>      
+                            <th style="text-align:center;">Fecha fin</th>      
+                            <th style="text-align:center;">Renuncia/despido</th>      
+                            <th style="text-align:center;">Total</th>      
+        
+                            <th style="text-align:center;">Accion</th>      
+                        </tr>
+                    </thead>
+                    <tbody id="show_inactivos"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
+                        <?php 
+                            foreach($inactivos as $inactivo){
+                                if($inactivo->tipo_des_ren == 1){
+                                    $renuncia = 'Despido sin responsabilidad';
+                                }else if($inactivo->tipo_des_ren == 2){
+                                    $renuncia = 'Despido con responsabilidad';
+                                }else if($inactivo->tipo_des_ren == 3){
+                                    $renuncia = 'No aprobo periodo de prueba';
+                                }else if($inactivo->tipo_des_ren == 4){
+                                    $renuncia = 'Renuncia con previo aviso';
+                                }else if($inactivo->tipo_des_ren == 5){
+                                    $renuncia = 'Abandono de puesto';
+                                }
+                                echo '<tr>';
+                                echo '<td>'.$inactivo->agencia.'</td>';
+                                echo '<td>'.$inactivo->nombre_empresa.'</td>';
+                                echo '<td>'.$inactivo->nombre.'</td>';
+                                echo '<td>'.$inactivo->cargo.'</td>';
+                                echo '<td>'.$inactivo->fecha_fin.'</td>';
+                                echo '<td>'.$renuncia.'</td>';
+                                echo '<td>$'.number_format($inactivo->total,2).'</td>';
+
+                                echo '<td>';
+                                echo '<a class="btn btn-success" title="Agregar viatico" onclick="datos_inactivos('.$inactivo->id_empleado.')"><span class="glyphicon glyphicon-plus-sign"></span></a> ';
+                                echo '<a class="btn btn-primary" href="'.base_url('index.php/Viaticos/viaticos_detalle_inactivo/'.$inactivo->id_empleado).'" title="Revisar viaticos" ><span class="glyphicon glyphicon-check"></span></a>';
+                                echo '</td>';
+                                echo '</tr>';
+                            }
+                        ?>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-
-            <div class="form-group col-md-3">
-                <label for="inputState">Agencia:</label>
-                <select class="form-control" name="agencia_inactivo" id="agencia_inactivo" class="form-control">
-                    
-                </select>
             </div>
-
-            <div class="form-group col-md-3">
-                <label for="inputState">Mes de renuncia/despido:</label>
-                <input type="month" name="mes_inactivo" id="mes_inactivo"  class="form-control" value="<?= date('Y-m') ?>">
+        </div>
+        <!-- fin de div de menu3 -->
+        <!-- inicio de div menu4 -->
+        <div id="menu4" class="tab-pane fade">
+            <form id="form_viaticos_control">
+            <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group col-md-3">
+                    <label for="inputState">Agencia:</label>
+                    <select class="form-control" name="agencia_viatico_control" id="agencia_viatico_control" class="form-control">
+                        <?php
+                            foreach($agencias_ex as $agencia){
+                        ?>
+                            <option value="<?= ($agencia->id_agencia);?>" data-estado="0"><?php echo($agencia->agencia);?></option>
+                        <?php
+                            }
+                        ?>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="inputState">Mes:</label>
+                    <input type="month" name="mes_viatico_control" id="mes_viatico_control"  class="form-control" value="<?= date('Y-m') ?>">        
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="inputState">Quincena:</label>
+                    <select class="form-control" name="quincena_viatico_control" id="quincena_viatico_control" class="form-control">
+                        <option value="1" <?php if($quincena == 1){echo 'selected';} ?>>Primera quincena</option>
+                        <option value="2" <?php if($quincena == 2){echo 'selected';} ?>>Segunda quincena</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="inputState">Filtrar</label><br>
+                       <button type="submit" id="viaticos_control" class="btn btn-primary bi bi-search"></button>
+                </div>
+            </div>    
             </div>
-
-            <div class="form-group col-md-3">
-                <label for="inputState">Filtrar</label><br>
-                <a id="filtrar" class="btn btn-primary btn-sm" onclick="seleccionar_inactivo()"><span class="glyphicon glyphicon-search"></span></a>
-            </div>
-
-        </div><br>
-
-        <div class="row">
-        <div class="col-sm-12">
-            <table class="table table-bordered" id="data_inactivos">
-                <thead>
-                    <tr class="success">
+            </form><br>
+            <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-bordered" id="data_control">
+                    <thead>
+                        <tr class="success">
                         <th style="text-align:center;">Agencia</th>         
-                        <th style="text-align:center;">Empresa</th>         
                         <th style="text-align:center;">Empleado</th>      
                         <th style="text-align:center;">Cargo</th>      
-                        <th style="text-align:center;">Fecha fin</th>      
-                        <th style="text-align:center;">Renuncia/despido</th>      
-                        <th style="text-align:center;">Total</th>      
-    
-                        <th style="text-align:center;">Accion</th>      
-                    </tr>
-                </thead>
-                <tbody id="show_inactivos"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
+                        <th style="text-align:center;">Viatico Carteras</th>      
+                        <th style="text-align:center;">Viatico Extra</th>         
+                        <th style="text-align:center;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="show_control"><!--Aca deberia mandar a llamar los datos de la funcion js show_data-->
                     <?php 
-                        foreach($inactivos as $inactivo){
-                            if($inactivo->tipo_des_ren == 1){
-                                $renuncia = 'Despido sin responsabilidad';
-                            }else if($inactivo->tipo_des_ren == 2){
-                                $renuncia = 'Despido con responsabilidad';
-                            }else if($inactivo->tipo_des_ren == 3){
-                                $renuncia = 'No aprobo periodo de prueba';
-                            }else if($inactivo->tipo_des_ren == 4){
-                                $renuncia = 'Renuncia con previo aviso';
-                            }else if($inactivo->tipo_des_ren == 5){
-                                $renuncia = 'Abandono de puesto';
-                            }
+                        foreach($empleados as $empleado){
                             echo '<tr>';
-                            echo '<td>'.$inactivo->agencia.'</td>';
-                            echo '<td>'.$inactivo->nombre_empresa.'</td>';
-                            echo '<td>'.$inactivo->nombre.'</td>';
-                            echo '<td>'.$inactivo->cargo.'</td>';
-                            echo '<td>'.$inactivo->fecha_fin.'</td>';
-                            echo '<td>'.$renuncia.'</td>';
-                            echo '<td>$'.number_format($inactivo->total,2).'</td>';
-
-                            echo '<td>';
-                            echo '<a class="btn btn-success" title="Agregar viatico" onclick="datos_inactivos('.$inactivo->id_empleado.')"><span class="glyphicon glyphicon-plus-sign"></span></a> ';
-                            echo '<a class="btn btn-primary" href="'.base_url('index.php/Viaticos/viaticos_detalle_inactivo/'.$inactivo->id_empleado).'" title="Revisar viaticos" ><span class="glyphicon glyphicon-check"></span></a>';
-                            echo '</td>';
+                            echo '<td>'.$empleado->agencia.'</td>';
+                            echo '<td>'.$empleado->nombre.'</td>';
+                            echo '<td>'.$empleado->cargo.'</td>';
+                            echo '<td>$'.number_format($empleado->totalViaticos,2).'</td>';
+                            echo '<td>$'.number_format($empleado->total,2).'</td>';
+                            echo '<td>$'.number_format(($empleado->totalViaticos + $empleado->total),2).'</td>';
                             echo '</tr>';
                         }
                     ?>
-                </tbody>
-                <tfoot>
-                    <tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
                         <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            </div>
+
         </div>
-        </div>
+        <!-- fin de div de menu4 -->
+
     </div>
-
-
-        </div>
-
-        </div>
+    <!-- fin de div tab-content -->
+</div>
+<!-- fin de div principal -->
 
 <!--MODAL DELETE-->
 <form>
@@ -1948,6 +2033,38 @@
         });
     }
 
+    // function seleccionar_viaticos_control(){
+    //     agencia = $('#agencia_viatico_control').val();
+    //     mes = $('#mes_viatico_control').val();
+    //     quincena = $('#quincena_viatico_control').val();
+
+    //     $('#data_control').DataTable().destroy();
+    //     $('#data_control #show_control').empty();.
+
+    //     $.ajax({
+    //       type : "POST",
+    //       url  : "<?php echo site_url('Viaticos/get_viaticos_temp')?>",
+    //       dataType : "JSON",
+    //       data : {agencia:agencia,mes:mes,quincena:quincena}, 
+    //       success: function(data){
+    //         $.each(data,function(key, registro){
+    //             $("#show_control").append(
+    //               '<tr>'+
+    //                 '<td>'+registro.agencia+'</td>'+  
+    //                 '<td>'+registro.nombre+'</td>'+  
+    //                 '<td>'+registro.cargo+'</td>'+  
+    //                 '<td>'+parseFloat(registro.totalViaticos).toFixed(2)+'</td>'+ 
+    //                 '<td>'+parseFloat(registro.total).toFixed(2)+'</td>'+ 
+    //                 '<td>'+parseFloat(registro.totalViaticos + registro.total).toFixed(2)+'</td>'+ 
+    //               '</tr>'
+    //             );
+    //           }); 
+    //       }
+    //     });
+
+    // }
+
+
     function insert_viaticos(){
         var empleado = $('#codigo_empleado').val();
         var tipo_viatico = $('#tipo_viatico').val();
@@ -2527,6 +2644,48 @@
             }
         });
     }
+
+    //WM08052023 funcion para llenar campos de tabla de control de viaticos
+    $(document).ready(function() {
+    // Escuchar el evento submit del formulario
+        $('#form_viaticos_control').on('submit', function(event) {
+            event.preventDefault(); // Prevenir el envío del formulario
+
+            // Obtener los valores de los select del formulario
+            var agencia = $('#agencia_viatico_control').val();
+            var mes = $('#mes_viatico_control').val();
+            var quincena = $('#quincena_viatico_control').val();
+
+            // Realizar la consulta AJAX
+            $.ajax({
+                type: "POST",
+                url: "<?php echo site_url('Viaticos/viaticos_control')?>",
+                dataType: "JSON",
+                data: {agencia: agencia, mes: mes, quincena: quincena},
+                success: function(data) {
+                    console.log(data)
+
+                    // Limpiar la tabla y agregar los nuevos resultados
+                    $('#show_control').empty();
+                    
+                    $.each(data, function(key, registro) {
+                       $("#show_control").append(
+                            '<tr>'+
+                                '<td>'+registro.agencia+'</td>'+
+                                '<td>'+registro.nombre+'</td>'+
+                                '<td>'+registro.cargo+'</td>'+
+                                '<td>'+parseFloat(registro.totalCartera).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalParciales + registro.totalPermanentes + registro.totalXtra).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalCartera +registro.totalParciales + registro.totalPermanentes + registro.totalXtra).toFixed(2)+'</td>'+
+                            '</tr>'
+                        ); 
+                    
+                    });
+                    }
+            });
+            // console.log(viaticosArray)     
+        });
+    });
 
     // mascara para los input que deben contener unicamente numeros, solo se debe añadir la clase numbers o number-only
     $("input.numbers").keypress(function(event) {

@@ -1112,6 +1112,7 @@
 
                 }
             }
+            // console.log(vals);
             //if (vals) vals = vals.substring(1);
             if (vals.length==0) {
                 alert('Debe seleccionar al menos una planilla');

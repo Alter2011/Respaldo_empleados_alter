@@ -124,7 +124,7 @@ $ultimo_dia = date('Y-m-d', strtotime("{$aux} - 1 day"));
                             </div>
                         </div>
                         <!--Efectividad-->
-                        <!--<label>Efectividad Cartera Efectiva:<span  id="efectividad_efectiva">%</span></label><br>-->
+                        <label>Efectividad Cartera Efectiva:<span  id="efectividad_efectiva">%</span></label><br>
                         <label>Cartera Efectiva</label>
                         <div class="progress">
                             <div class="progress-bar progress-bar-green progress-bar-striped active" role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="10" id="barra_cartera_efectiva">
@@ -227,7 +227,7 @@ $ultimo_dia = date('Y-m-d', strtotime("{$aux} - 1 day"));
                                 </div>
                             </div>
                             <!--Efectividad-->
-                            <!--<label>Efectividad Cartera Efectiva:<span  <?= 'id="efectividad_efectiva_'.($i+1).'"';  ?>>%</span></label><br>-->
+                            <label>Efectividad Cartera Efectiva:<span  <?= 'id="efectividad_efectiva_'.($i+1).'"';  ?>>%</span></label><br>
                             <label>Cartera Efectiva</label>
                             <div class="progress">
                                 <div class="progress-bar progress-bar-green progress-bar-striped active" role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="10" <?= 'id="barra_cartera_efectiva_'.($i+1).'"';  ?>>
@@ -568,8 +568,8 @@ $ultimo_dia = date('Y-m-d', strtotime("{$aux} - 1 day"));
                             efectividad_efectiva=number_format(Math.round((parseFloat(data[0].efectividad_efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
                             cartera_efectiva=number_format(Math.round((parseFloat(data[0].efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
 
-                            //document.getElementById("efectividad_efectiva").className = 'label label-'+data[0].color_efectividad_efectiva+'';
-                           //$('#efectividad_efectiva').html(efectividad_efectiva+'%')
+                            document.getElementById("efectividad_efectiva").className = 'label label-'+data[0].color_efectividad_efectiva+'';
+                           $('#efectividad_efectiva').html(efectividad_efectiva+'%')
                             b_global = document.getElementById('barra_cartera_efectiva');
                             b_global.style.width  = efectividad_efectiva+'%';
                             b_global.style.color  = 'black';
@@ -672,8 +672,8 @@ $ultimo_dia = date('Y-m-d', strtotime("{$aux} - 1 day"));
                             efectividad_efectiva=number_format(Math.round((parseFloat(data[i].efectividad_efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
                             cartera_efectiva=number_format(Math.round((parseFloat(data[i].efectiva)+ Number.EPSILON) * 100) / 100,2,',','');
 
-                            //document.getElementById("efectividad_efectiva_"+i).className = 'label label-'+data[i].color_efectividad_efectiva+'';
-                           //$('#efectividad_efectiva_'+i).html(efectividad_efectiva+'%')
+                            document.getElementById("efectividad_efectiva_"+i).className = 'label label-'+data[i].color_efectividad_efectiva+'';
+                           $('#efectividad_efectiva_'+i).html(efectividad_efectiva+'%')
                             b_global = document.getElementById('barra_cartera_efectiva_'+i);
                             b_global.style.width  = efectividad_efectiva+'%';
                             b_global.style.color  = 'black';

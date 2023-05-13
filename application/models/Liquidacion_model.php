@@ -1384,4 +1384,19 @@ class Liquidacion_model extends CI_Model{
         return $query->result();
    }
 
+   // WM27032023 funcion para revertir el anticipo de la liquidacion cuando se rechaza
+   function eliminar_anticipo($contrato){
+       $this->db->set('estado',1);
+       $this->db->set('planilla',0);
+       $this->db->where('id_contrato',$contrato);
+       $this->db->where('planilla',5);
+       $this->db->where('estado',0);
+       $this->db->order_by('fecha_aplicacion','DESC');
+       $this->db->limit(1);
+
+       $result = $this->db->update('anticipos');
+       return $result;
+   }
+
+
 }

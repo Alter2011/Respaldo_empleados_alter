@@ -318,8 +318,9 @@ class contrato_model extends CI_Model{
 
     }
 
+    //NO04052023 traer salario base
     function categoria($id){
-        $this->db->select('id_categoria, categoria');
+        $this->db->select('id_categoria, categoria, Sbase');
         $this->db->from('categoria_cargo');
         $this->db->where('id_cargo', $id);
         $this->db->where('estado', 1);
@@ -574,7 +575,7 @@ class contrato_model extends CI_Model{
     }
 
     function datosLaboral($code,$estado=null){
-        $this->db->select('em.*, emp.nombre_empresa, emp.casa_matriz, emp.telefono, emp.celular, co.id_empresa, ca.cargo, ag.agencia, ag.id_agencia, co.id_contrato, co.fecha_inicio, co.fecha_fin, co.estado, cc.Sbase');
+        $this->db->select('em.*, emp.nombre_empresa, emp.casa_matriz, emp.telefono, emp.celular, co.id_empresa, ca.carg o, ag.agencia, ag.id_agencia, co.id_contrato, co.fecha_inicio, co.fecha_fin, co.estado, cc.Sbase');
          $this->db->from('empleados em');
          $this->db->join('contrato co', 'co.id_empleado=em.id_empleado');
          $this->db->join('cargos ca', 'ca.id_cargo=co.id_cargo');

@@ -1270,6 +1270,7 @@
           </div>
           <div class="modal-footer">
             <input type="hidden" name="id_liq_rechazar" id="id_liq_rechazar" class="form-control" readonly value="<?= ($liquidacion[0]->id_liquidacion);?>">
+            <input type="hidden" name="id_contrato" id="id_contrato" class="form-control" readonly value="<?= ($liquidacion[0]->id_contrato);?>">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-danger">Aceptar</button>
         </div>
@@ -1295,6 +1296,7 @@
           </div>
           <div class="modal-footer">
             <input type="hidden" name="id_liq_rechaza3" id="id_liq_rechazar3" class="form-control" readonly value="<?= ($liquidacion[0]->id_liquidacion);?>">
+            <input type="hidden" name="id_contrato" id="id_contrato" class="form-control" readonly value="<?= ($liquidacion[0]->id_contrato);?>">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             <button type="button" id="btn_rechazar2" class="btn btn-danger">Aceptar</button>
         </div>
@@ -1381,6 +1383,7 @@
           </div>
           <div class="modal-footer">
             <input type="hidden" name="id_liq_rechazar2" id="id_liq_rechazar2" class="form-control" readonly value="<?= ($liquidacion[1]->id_liquidacion);?>">
+            <input type="hidden" name="id_contrato" id="id_contrato" class="form-control" readonly value="<?= ($liquidacion[1]->id_contrato);?>">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             <button type="button" id="btn_rechazar" class="btn btn-danger">Aceptar</button>
         </div>
@@ -1654,13 +1657,16 @@
         });//fin de insercionde
 
         //Metodo para el rechazo de la segunda indemnizacion 
+        //WM27032023 se agrego el id_contrato para reversion de anticipo 
         $('#btn_rechazar').on('click',function(){
             var id_liq_rechazar2 = $('#id_liq_rechazar2').val();
+            var id_contrato = $('#id_contrato').val();
+            
             $.ajax({
               type : "POST",
               url  : "<?php echo site_url('Liquidacion/rechazarLiquidacion2')?>",
               dataType : "JSON",
-              data : {id_liq_rechazar2:id_liq_rechazar2},
+              data : {id_liq_rechazar2:id_liq_rechazar2,id_contrato:id_contrato},
               success: function(data){
                 Swal.fire(
                     'Liquidacion Eliminada Correctamente!',
@@ -1694,7 +1700,7 @@
                 data : {id_aprobar1:id_aprobar1,id_aprobar2:id_aprobar2},
                 success: function(data){
                   Swal.fire(
-                      'La Liquidacion a Sido Aprobada Con Exito!',
+                      'La Liquidacion a Sido Aprobada Con Exito1!',
                       '',
                       'success'
                     )
@@ -1716,6 +1722,9 @@
         //Metodo para el rechazo de la segunda indemnizacion 
         $('#btn_rechazar2').on('click',function(){
             var id_liq_rechazar3 = $('#id_liq_rechazar3').val();
+             var id_contrato = $('#id_contrato').val();
+            
+
             $.ajax({
               type : "POST",
               url  : "<?php echo site_url('Liquidacion/rechazarLiquidacion3')?>",

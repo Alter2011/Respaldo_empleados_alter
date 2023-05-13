@@ -305,7 +305,7 @@
                //cancelacion de deuda
             if (data[0].id_empresa==1){//Altercredit
                     $('#mostrar2').append(
-                    '<br><br><div id="todo">'+      
+                    '<br><br><br><br><div id="todo">'+      
                     '<div style="margin: 10px;text-align: center;" >'+
                         '<img src="<?= base_url();?>/assets/images/watermark.png" id="logo_permiso">'+
                     '</div><br>'

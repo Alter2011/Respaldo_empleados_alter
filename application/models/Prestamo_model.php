@@ -35,9 +35,9 @@ class Prestamo_model extends CI_Model{
         $query = $this->db->get();
         return $query->result();
     }
-
+    //NO27042023 cambio
     function empleadosvaca($code){
-      $this->db->select('co.id_contrato,co.id_empleado,co.id_empresa, em.nombre, em.apellido, em.dui, ca.cargo');
+      $this->db->select('co.id_contrato,co.id_empleado,co.id_empresa, em.nombre, em.apellido, em.dui, ca.cargo, co.fecha_inicio');
          $this->db->from('empleados em');
          $this->db->join('contrato co', 'em.id_empleado=co.id_empleado');
          $this->db->join('agencias ag', 'co.id_agencia = ag.id_agencia');
