@@ -1,6 +1,24 @@
 
 <?php
 class Vacacion_model extends CI_Model{
+//NO18052023 function para traer todos los empleados
+public function get_all_empleado_by_agencia($id_agencia = null, $id_empresa = null){
+  $this->db->select('contrato.*, empleados.*, agencias.agencia');
+  $this->db->from('contrato');
+  $this->db->join('empleados', 'contrato.id_empleado = empleados.id_empleado');
+  $this->db->join('agencias', 'contrato.id_agencia = agencias.id_agencia');
+  if($id_agencia != null){
+  $this->db->where('contrato.id_agencia', $id_agencia);
+  }
+  if($id_empresa != null){
+  $this->db->where('contrato.id_empresa', $id_empresa);
+  }
+  $this->db->where('contrato.estado = 1 or contrato.estado = 3');
+
+  $result = $this->db->get();
+  return $result->result();
+}
+
 
 //Mantenimiento para el pago de vacaciones()
    function getFechasContrato(){
@@ -784,23 +802,26 @@ where vacaciones.id_vacacion=211
       return $query->result();
   }*/
 
-  function controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon){
+  function controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon =null, $id_empleado =null){
       $this->db->select('ag.agencia, em.nombre, em.apellido, SUM(va.horas) as horas, SUM(va.minutos) as minutos, co.id_empleado');
       $this->db->from('vacacion_anticipada va');
       $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
       $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
       $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
       $this->db->where('va.fechas_vacacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
-      if($empresa != 'todo'){
+      if($empresa != 'todo' && $empresa != null){
         $this->db->where('co.id_empresa',$empresa);
       }
 
-      if($agencia != 'todas'){
+      if($agencia != 'todas' && $agencia != null){
         $this->db->where('co.id_agencia',$agencia);
       }
 
-      if($ag_admon == null){
+      if($ag_admon != null){
         $this->db->where('ag.id_agencia != 00');
+      }
+      if($id_empleado != null){
+        $this->db->where('em.id_empleado', $id_empleado);
       }
 
       $this->db->where('va.estado = 1');
@@ -829,26 +850,31 @@ where vacaciones.id_vacacion=211
       $this->db->update('vacaciones');
       return null;
     }
-      function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon){
+
+      //NO18052023 modificacion para traer la vacacion de 1 empleado
+      function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $id_empleado = null){
         $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado, va.aprobado, va.id_vacacion');
         $this->db->from('vacaciones va');
         $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
         $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
         $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
        
-        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 0 and va.estado = 1))');
+        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
         
         $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
         if($empresa != 'todo' && $empresa != null){
           $this->db->where('co.id_empresa',$empresa);
         }
   
-        if($agencia != 'todas'){
+        if($agencia != 'todas' && $agencia != null){
           $this->db->where('co.id_agencia',$agencia);
         }
   
         if($ag_admon != null){
           $this->db->where('ag.id_agencia != 00');
+        }
+        if($id_empleado != null){
+          $this->db->where('em.id_empleado', $id_empleado);
         }
           
         $query = $this->db->get();

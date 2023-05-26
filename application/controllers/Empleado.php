@@ -30,6 +30,13 @@ class Empleado extends Base{
 		$this->load->view('dashboard/menus',$data);
         $this->load->view('Empleado/index');
     }
+    function plazas(){
+        
+        $data['activo'] = 'Empleado';
+        $this->load->view('dashboard/header');
+		$this->load->view('dashboard/menus',$data);
+        $this->load->view('Empleado/plazas');
+    }
     function recorrido(){
         /*$empleado = $this->empleado_model->empleados_list2();
         echo "<pre>";

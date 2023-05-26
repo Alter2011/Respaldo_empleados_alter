@@ -55,7 +55,7 @@ class Mantenimiento extends Base {
                 "estado_test2" => 0,
                 "estado" => 1
             );
-            //$insert = $this->empleado_model->save_test($data);
+            $insert = $this->empleado_model->save_test($data);
             if($insert == null){
                 echo json_encode(null);
             }else{
@@ -71,13 +71,27 @@ class Mantenimiento extends Base {
         $dui = $verificacion[0]->DUI;
         $data['resultados_tetra'] = $this->empleado_model->get_resultados_tetra($dui);
         $data['propspecto'] = $verificacion[0];
-        $this->load->view('dashboard/header');
         $data['activo'] = 'Mantenimientos';
+        
 
+        $this->load->view('dashboard/header');
         $this->load->view('dashboard/menus',$data);
-    
         $this->load->view('Mantenimiento/resultados_tetra',$data);
        
+    }
+
+    public function resultado_disc(){
+        $id = $this->uri->segment(3);
+        $verificacion = $this->empleado_model->get_candidatos(null, $id);
+        $dui = $verificacion[0]->DUI;
+        $data['resultados_disc'] = $this->empleado_model->get_result_disc($dui);
+        $data['propspecto'] = $verificacion[0];
+        $data['activo'] = 'Mantenimientos';
+
+        $this->load->view('dashboard/header');
+        $this->load->view('dashboard/menus',$data);
+        $this->load->view('Mantenimiento/resultados_disc',$data);
+
     }
    
 

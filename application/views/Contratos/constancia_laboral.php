@@ -144,7 +144,7 @@
         	<h4 class="text-justify" style="line-height: 1.5;">
         		Por medio de la presente se hace constar que el(la) Señor(a): <b class="negrita"><?php echo $empleado[0]->nombre ?> <?php echo $empleado[0]->apellido ?></b> con DUI: <?php echo $empleado[0]->dui ?> y NIT: <?php echo $empleado[0]->nit ?>, <?= $labora;?> para la empresa <?php echo $empleado[0]->nombre_empresa ?><br><br>
 
-        		Desempeñando el cargo de <b class="negrita"><?php echo $empleado[0]->cargo ?></b>, en agencia <?php echo $empleado[0]->agencia ?> desde el <?php echo $fecha_inicio ?> hasta <?php echo $fecha_fin ?>. <br><br>
+        		Desempeñando el cargo de <b class="negrita"><?php echo $empleado[0]->cargo ?></b>, en agencia <?php echo $empleado[0]->agencia ?> desde el <?php echo $fecha_inicio_cargo ?> hasta <?php echo $fecha_fin ?>, iniciando su relacion con la empresa el <?php echo $fecha_inicio ?> con el cargo de  <b class='negrita'><?= $cargo_inicial?></b> <br><br>
 
         		Y para los usos que estime conveniente se extiende la siguiente constancia en la ciudad de <?php if($empleado[0]->id_agencia == 00){echo 'San Salvador';}else{echo $empleado[0]->agencia;} ?> a los <?php echo $fecha_actual ?>. <br><br>
 

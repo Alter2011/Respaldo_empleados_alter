@@ -1,7 +1,7 @@
 <?php
 class empleado_model extends CI_Model{
 
-
+  
     //guardar candidatos a realizar el examen NO26042023
     public function save_test($data){
         $this->db->insert('agendar_test', $data);
@@ -22,12 +22,22 @@ class empleado_model extends CI_Model{
     public function get_resultados_tetra($dui){
         $this->db->select("*");
         $this->db->from('respuestas_tetra');
+        $this->db->where('dui',$dui);
+
         $result = $this->db->get();
         return $result->result();
     }
 
-
-
+    public function get_result_disc($dui){
+        $this->db->select('*');
+        $this->db->from('resultado_disc');
+        $this->db->where('DUI',$dui);
+        $this->db->order_by('CAST(pregunta AS UNSIGNED)', 'ASC');
+        
+        $result = $this->db->get();
+        return $result->result();
+    }
+    
     public function save($title,$url)
     {
         $this->db->set('title',$title);

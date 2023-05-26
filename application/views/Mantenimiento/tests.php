@@ -10,10 +10,10 @@
                         <table class="table table-striped" id="mydata">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>DUI</th>
-                                    <th>Test #1 (DISC)</th>
-                                    <th>Test #2 (Tetramap)</th>
+                                    <th style="text-align: center;">Nombre</th>
+                                    <th style="text-align: center;">DUI</th>
+                                    <th style="text-align: center;">Test #1 (DISC)</th>
+                                    <th style="text-align: center;">Test #2 (Tetramap)</th>
                                     <!-- <th style="text-align: right;">Accion</th> -->
                                 </tr>
                             </thead>
@@ -26,8 +26,8 @@
                                     if($candidato->estado_test1 == 0){
                                         echo "<td>Incompleto</td>";
                                     }else{
-                                        echo "<td>Completado
-                                        <button class='btn btn-success'>Ver resultados</button>
+                                        echo "<td>Completado<br>
+                                        <a href=".site_url('/Mantenimiento/resultado_disc/'.$candidato->id_agendar.'')." class='btn btn-success'>Ver resultados</a>
                                         </td>";
                                     }
                                     if($candidato->estado_test2 == 0){

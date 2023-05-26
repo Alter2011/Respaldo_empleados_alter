@@ -55,6 +55,7 @@ class contrato_model extends CI_Model{
         $query = $this->db->get();
         return $query->result();
     }
+    
 
     function update_contrato($estado,$razon,$contrato,$fecha_inicio){
         if($razon == null && $fecha_inicio == null){
@@ -575,7 +576,7 @@ class contrato_model extends CI_Model{
     }
 
     function datosLaboral($code,$estado=null){
-        $this->db->select('em.*, emp.nombre_empresa, emp.casa_matriz, emp.telefono, emp.celular, co.id_empresa, ca.carg o, ag.agencia, ag.id_agencia, co.id_contrato, co.fecha_inicio, co.fecha_fin, co.estado, cc.Sbase');
+        $this->db->select('em.*, emp.nombre_empresa, emp.casa_matriz, emp.telefono, emp.celular, co.id_empresa, ca.cargo, ag.agencia, ag.id_agencia, co.id_contrato, co.fecha_inicio, co.fecha_fin, co.estado, cc.Sbase');
          $this->db->from('empleados em');
          $this->db->join('contrato co', 'co.id_empleado=em.id_empleado');
          $this->db->join('cargos ca', 'ca.id_cargo=co.id_cargo');
@@ -596,8 +597,9 @@ class contrato_model extends CI_Model{
     }
 
     function contratosMenos($code,$id_contrato){
-        $this->db->select('*');
-        $this->db->from('contrato'); 
+        $this->db->select('contrato.*, cargos.*');
+        $this->db->from('contrato');
+        $this->db->join('cargos', 'cargos.id_cargo = contrato.id_cargo');
         $this->db->where('id_empleado',$code);
         $this->db->where('id_contrato < ',$id_contrato);
         $this->db->order_by('id_contrato','DESC');
@@ -606,6 +608,7 @@ class contrato_model extends CI_Model{
         return $result->result();
     }
 
+ 
     function buscarPrestInt($code){
         $this->db->select('pi.*');
         $this->db->from('prestamos_internos pi'); 

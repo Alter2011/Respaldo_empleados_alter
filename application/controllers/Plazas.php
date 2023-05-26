@@ -20,13 +20,24 @@ class Plazas extends Base {
    {
       $this->verificar_acceso($this->seccion_actual1);
    	  $data['agencia'] = $this->plazas->agencias_listas();
+      
       $data['data'] = $this->plazas->obtenerPlazas();
       $data['activo'] = 'Capacitacion';//aca cambiar, no se que iria
     	$this->load->view('dashboard/header');
     	$this->load->view('dashboard/menus',$data);      
       $this->load->view('Plazas/index',$data);
    }
-
+   //NO19052023
+   public function get_carteras(){
+    $agencia = $this->input->post('agencia');
+    $data = $this->plazas->get_carteras($agencia);
+    echo json_encode($data);
+   }
+   //NO19052023
+   public function get_empresas(){
+    $data = $this->plazas->get_empresas();
+    echo json_encode($data);
+   }
     function quitarEstado(){
         $data=$this->plazas->quitarEstado();
         echo json_encode($data);    
@@ -37,6 +48,12 @@ class Plazas extends Base {
        $data = $this->plazas->obtenerPlazas();
         echo json_encode($data);
     }
+    //NO19052023
+    function plazas_data_inactivo(){
+
+      $data = $this->plazas->obtenerPlazas_inactivo();
+       echo json_encode($data);
+   }
 function save(){
         $data=$this->plazas->savePlazas();
         echo json_encode($data);
@@ -47,17 +64,28 @@ function save(){
         $data=$this->plazas->countPlazas($id);
         echo json_encode($data);
   }
+  //NO19052023
   function validarExistencias(){
     
     $nombre_plaza = $this->input->post('plaza_name');
     $agencia = $this->input->post('plaza_agencia');
-
-    $data = $this->plazas->validarExistencia($nombre_plaza,$agencia);
+    $cartera = $this->input->post('cartera');
+    $empresa = $this->input->post('empresa');
+    $data = $this->plazas->validarExistencia($nombre_plaza,$agencia, $cartera, $empresa);
     echo json_encode($data);
   }
   function update(){
       $data=$this->plazas->updatePlazas();
       echo json_encode($data);
+  }
+  function mostrar_ocupacion_plazas(){
+    $id_plaza = $this->uri->segment(3);
+    $get_empleado_plaza = $this->plazas->get_empleado_plaza($id_plaza);
+    $data['empleados'] = $get_empleado_plaza;
+    $data['activo'] = 'Capacitacion';//aca cambiar, no se que iria
+    $this->load->view('dashboard/header');
+    $this->load->view('dashboard/menus',$data);      
+    $this->load->view('Plazas/plazas_ocupada',$data);
   }
 
 //FUNCIONES PARA EL MODULO DE ASPIRANTES DE RRHH

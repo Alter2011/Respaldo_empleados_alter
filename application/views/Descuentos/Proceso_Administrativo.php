@@ -265,6 +265,24 @@
                 </a>          
             </div>
         <?php } ?>
+            <!-- NO18052023 -->
+        <!-- FALTA PERMISOS -->
+        <?php if(isset($this->data["seccion_47"]) or isset($this->data["seccion_48"])){  ?>
+            <div class="panel-group col-sm-4">
+                <!--7.2 manual de empleados-->
+                <a href="<?= base_url();?>index.php/Empleado/plazas">
+                    <div class="panel-info" role="button">
+                        <div class="panel-heading print-blue text-center" >
+                            <span class="glyphicon glyphicon-user fa-5x text-center"></span><br/>
+                        </div>
+                        <div class="panel-footer text-center">
+                        <label>Control de plazas</label>
+                        </div>
+                    </div> 
+                </a>          
+            </div>
+        <?php } ?>
+
 
     </div>
     </div>

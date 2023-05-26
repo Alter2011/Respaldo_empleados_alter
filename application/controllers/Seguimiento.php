@@ -3455,7 +3455,7 @@ class Seguimiento extends Base {
 				if(empty($data['recuperados'][$recuperados[$i]->gestion]) && $recuperados[$i]->gestion != null){
 					$data['recuperados'][$recuperados[$i]->gestion]['id_usuario'] = $recuperados[$i]->gestion;
 					$contrato = $this->conteos_model->contrato_login($recuperados[$i]->gestion);
-					print_r($contrato);
+					
 					if(!empty($contrato)){
 						$data['recuperados'][$recuperados[$i]->gestion]['contrato'] = $contrato[0]->id_contrato;
 				       	$data['recuperados'][$recuperados[$i]->gestion]['nombre'] = $contrato[0]->nombre;

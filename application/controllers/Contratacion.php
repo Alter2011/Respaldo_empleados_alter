@@ -655,6 +655,15 @@ class Contratacion extends Base{
         $previosCont = $this->contrato_model->contratosMenos($code,$data['empleado'][0]->id_contrato);
         $k=0;
         $bandera = true;
+       
+        $contrato_actual = $this->contrato_model->contrato_actual($code);
+        
+   
+        $fechaFin_cargo = $contrato_actual[0]->fecha_inicio;
+        $dia1_cargo = substr($fechaFin_cargo, 8,2);
+        $mes1_cargo = $this->meses(substr($fechaFin_cargo, 5,2));
+        $anio1_cargo = substr($fechaFin_cargo, 0,4);
+        $data['fecha_inicio_cargo'] = $dia1_cargo.' de '.strtolower($mes1_cargo).' de '.$anio1_cargo;
 
         if($previosCont != null){
            while($bandera != false){
@@ -664,6 +673,7 @@ class Contratacion extends Base{
                     }
                     if($bandera){
                         $fechaInicio = $previosCont[$k]->fecha_inicio;
+                        $cargo = $previosCont[$k]->cargo;
                     }
                 }else{
                     $bandera = false;
@@ -671,6 +681,7 @@ class Contratacion extends Base{
                 $k++;
             } 
         }else{
+            $cargo = $data['empleado'][0]->cargo;
             $fechaInicio = $data['empleado'][0]->fecha_inicio;
         }
         $fechaFin = $data['empleado'][0]->fecha_fin;
@@ -678,7 +689,8 @@ class Contratacion extends Base{
         $mes1 = $this->meses(substr($fechaInicio, 5,2));
         $anio1 = substr($fechaInicio, 0,4);
         $data['fecha_inicio'] = $dia1.' de '.strtolower($mes1).' de '.$anio1;
-
+        //NO23052023
+        $data['cargo_inicial'] = $cargo;
         if($fechaFin != null){
             $dia2 = substr($fechaFin, 8,2);
             $mes2 = $this->meses(substr($fechaFin, 5,2));
@@ -890,6 +902,12 @@ class Contratacion extends Base{
         $previosCont = $this->contrato_model->contratosMenos($code,$data['empleado'][0]->id_contrato);
         $k=0;
         $bandera = true;
+    
+        $fechaFin_cargo =$data['empleado'][0]->fecha_inicio;
+        $dia1_cargo = substr($fechaFin_cargo, 8,2);
+        $mes1_cargo = $this->meses(substr($fechaFin_cargo, 5,2));
+        $anio1_cargo = substr($fechaFin_cargo, 0,4);
+        $data['fecha_inicio_cargo'] = $dia1_cargo.' de '.strtolower($mes1_cargo).' de '.$anio1_cargo;
 
         if($previosCont != null){
            while($bandera != false){
@@ -899,6 +917,7 @@ class Contratacion extends Base{
                     }
                     if($bandera){
                         $fechaInicio = $previosCont[$k]->fecha_inicio;
+                        $cargo = $previosCont[$k]->cargo;
                     }
                 }else{
                     $bandera = false;
@@ -906,14 +925,17 @@ class Contratacion extends Base{
                 $k++;
             } 
         }else{
+            $cargo = $data['empleado'][0]->cargo;
             $fechaInicio = $data['empleado'][0]->fecha_inicio;
         }
+       
         $fechaFin = $data['empleado'][0]->fecha_fin;
         $dia1 = substr($fechaInicio, 8,2);
         $mes1 = $this->meses(substr($fechaInicio, 5,2));
         $anio1 = substr($fechaInicio, 0,4);
         $data['fecha_inicio'] = $dia1.' de '.strtolower($mes1).' de '.$anio1;
-
+        //NO23052023
+        $data['cargo_inicial'] = $cargo;
         if($fechaFin != null){
             $dia2 = substr($fechaFin, 8,2);
             $mes2 = $this->meses(substr($fechaFin, 5,2));

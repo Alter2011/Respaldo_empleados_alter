@@ -3060,7 +3060,13 @@ class Vacaciones extends Base {
         $empresa = $this->input->post('empresa');
         $agencia = $this->input->post('agencia');
         $anio = $this->input->post('anio');
-
+       if($empresa == 'todo'){
+        $empresa = null;
+       }
+      if($agencia == 'todas'){
+        $agencia = null;
+      }
+     
         $minutos_vaca = 7200;
 
         $diaUno = $anio.'-01-01';
@@ -3070,25 +3076,28 @@ class Vacaciones extends Base {
         $diaUltimo2 = ($anio - 1).'-12-31';
         $data = array();
      
-        $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
-        $anticipadas = $this->Vacacion_model->controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
+        // $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
+        // $anticipadas = $this->Vacacion_model->controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon);
+        $empleado = $this->Vacacion_model->get_all_empleado_by_agencia($agencia, $empresa);
+
         // echo "<pre>";
         // print_r($vacacion);
         //echo "<pre>";
         //print_r($anticipadas);
 
-        if($vacacion != null){
-            for($i = 0; $i < count($vacacion); $i++){
-
-                $control = $this->Vacacion_model->controlVacacion($vacacion[$i]->id_vacacion);
+        if($empleado != null){
+            for($i = 0; $i < count($empleado); $i++){
+               
+               
+             
 
                 /*echo "<pre>";
                 print_r($control);*/
 
-                $data2['id_empleado'] = $vacacion[$i]->id_empleado;
-                $data2['agencia'] = $vacacion[$i]->agencia;
-                $data2['nombre'] = $vacacion[$i]->nombre.' '.$vacacion[$i]->apellido;
-                $data2['ganados'] = 15;
+                $data2['id_empleado'] = $empleado[$i]->id_empleado;
+                $data2['agencia'] = $empleado[$i]->agencia;
+                $data2['nombre'] = $empleado[$i]->nombre.' '.$empleado[$i]->apellido;
+                $data2['ganados'] = 0;
                 $data2['utilizados'] = 0;
                 $data2['anticipados'] = 0;
                 $data2['horas_usadas'] = 0;
@@ -3102,6 +3111,11 @@ class Vacaciones extends Base {
                 $minutos_dis = 0;
                 $thoras = 0; 
 
+                $vacacion_empleado = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $empleado[$i]->id_empleado);
+                if(!empty($vacacion_empleado)){
+                $data2['ganados'] = 15; 
+                $control = $this->Vacacion_model->controlVacacion($vacacion_empleado[0]->id_vacacion);
+                
                 if($control != null){
 
                 $minutos = ($control[0]->horas*60) + $control[0]->minutos;
@@ -3126,13 +3140,15 @@ class Vacaciones extends Base {
    
                 $data2['horas_usadas'] = $thoras . " Horas" . " " . $tminutos . " minutos";
 
+                $anticipadas = $this->Vacacion_model->controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $empleado[$i]->id_empleado);
                 //Tiene vacaciones aprobadas y tiene anticipadas
+                
                 if($anticipadas != null){
                     for($j = 0; $j < count($anticipadas); $j++){
 
                         //print_r($anticipadas);
 
-                        if($vacacion[$i]->id_empleado == $anticipadas[$j]->id_empleado){
+                        if($empleado[$i]->id_empleado == $anticipadas[$j]->id_empleado){
                             $minutos = ($anticipadas[$j]->horas*60) + $anticipadas[$j]->minutos;
 
                             $dias = intval((($minutos)/60)/8);
@@ -3148,12 +3164,13 @@ class Vacaciones extends Base {
                         }
                     }
                 }   
-                $data2['id_vacacion'] = $vacacion[$i]->id_vacacion;
-
+                $data2['id_vacacion'] = $vacacion_empleado[0]->id_vacacion;
                 array_push($data, $data2);
-            }//fin for count($vacacion)
-        }//fin if $vacacion != null
-
+            }else{
+              
+            //fin for count($vacacion)
+      
+            $anticipadas = $this->Vacacion_model->controlAnticipaada($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $empleado[$i]->id_empleado);
         //No tiene vacaciones aprobadas pero si anticipadas
         if($anticipadas != null){
 
@@ -3176,9 +3193,11 @@ class Vacaciones extends Base {
             $data2['horas_usadas'] = "0 Horas 0 minutos"; 
 
             }
+        }
           
             array_push($data, $data2);
-            
+    }
+              }//fin if $vacacion != null
         }//fin if $anticipadas != null
 
         echo json_encode($data);
