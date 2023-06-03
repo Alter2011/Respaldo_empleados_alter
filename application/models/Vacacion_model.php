@@ -852,15 +852,14 @@ where vacaciones.id_vacacion=211
     }
 
       //NO18052023 modificacion para traer la vacacion de 1 empleado
+      // WM01062023 se modifico el primer where para que regrese datos con aprobado 0 y estado 1
       function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $id_empleado = null){
         $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado, va.aprobado, va.id_vacacion');
         $this->db->from('vacaciones va');
         $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
         $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
         $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
-       
-        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
-        
+        $this->db->where('((va.aprobado = 0 and va.estado = 1) or (va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
         $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
         if($empresa != 'todo' && $empresa != null){
           $this->db->where('co.id_empresa',$empresa);

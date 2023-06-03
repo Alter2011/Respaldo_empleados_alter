@@ -499,8 +499,11 @@
                         <th style="text-align:center;">Agencia</th>         
                         <th style="text-align:center;">Empleado</th>      
                         <th style="text-align:center;">Cargo</th>      
-                        <th style="text-align:center;">Viatico Carteras</th>      
+                        <th style="text-align:center;">Viatico Carteras</th> 
                         <th style="text-align:center;">Viatico Extra</th>         
+                        <th style="text-align:center;">Viatico Permanentes</th>
+                        <th style="text-align:center;">Viatico Parciales</th>
+                        <th style="text-align:center;">Viatico Compartidos</th>        
                         <th style="text-align:center;">Total</th>
                         </tr>
                     </thead>
@@ -511,9 +514,12 @@
                             echo '<td>'.$empleado->agencia.'</td>';
                             echo '<td>'.$empleado->nombre.'</td>';
                             echo '<td>'.$empleado->cargo.'</td>';
-                            echo '<td>$'.number_format($empleado->totalViaticos,2).'</td>';
-                            echo '<td>$'.number_format($empleado->total,2).'</td>';
-                            echo '<td>$'.number_format(($empleado->totalViaticos + $empleado->total),2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
+                            echo '<td>$'.number_format(0.00,2).'</td>';
                             echo '</tr>';
                         }
                     ?>
@@ -2667,7 +2673,7 @@
 
                     // Limpiar la tabla y agregar los nuevos resultados
                     $('#show_control').empty();
-                    
+                    // WM31052023 se modifico los td por cada uno de los viaticos que se tienen en la empresa
                     $.each(data, function(key, registro) {
                        $("#show_control").append(
                             '<tr>'+
@@ -2675,8 +2681,11 @@
                                 '<td>'+registro.nombre+'</td>'+
                                 '<td>'+registro.cargo+'</td>'+
                                 '<td>'+parseFloat(registro.totalCartera).toFixed(2)+'</td>'+
-                                '<td>'+parseFloat(registro.totalParciales + registro.totalPermanentes + registro.totalXtra).toFixed(2)+'</td>'+
-                                '<td>'+parseFloat(registro.totalCartera +registro.totalParciales + registro.totalPermanentes + registro.totalXtra).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalXtra).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalPermanentes).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalParciales).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.totalCompartido).toFixed(2)+'</td>'+
+                                '<td>'+parseFloat(registro.ViaticoNeto).toFixed(2)+'</td>'+
                             '</tr>'
                         ); 
                     

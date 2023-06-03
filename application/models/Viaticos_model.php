@@ -320,7 +320,7 @@ class Viaticos_model extends CI_Model{
     return $result;
   }
 
-  function get_viaticos($cartera,$quincena,$mes,$estado=null){
+  function get_viaticos($id_empleado,$cartera,$quincena,$mes,$estado=null){
     $this->db->select('agencias.agencia,concat(empleados.nombre," ",empleados.apellido) as nombre,viaticos_carteras.*,cargos.cargo');
     $this->db->from('viaticos_carteras');
     $this->db->join('agencias', 'agencias.id_agencia=viaticos_carteras.id_agencia');
@@ -328,7 +328,9 @@ class Viaticos_model extends CI_Model{
     $this->db->join('login','login.id_empleado=empleados.id_empleado');
     $this->db->join('Operaciones.usuarios as usuarios','usuarios.id_usuarios=login.id_login');
     $this->db->join('Operaciones.cargos as cargos','cargos.id_cargo=usuarios.id_cargo');
-
+    if($id_empleado != null) {
+      $this->db->where('viaticos_carteras.id_empleado',$id_empleado);
+    }
     if($cartera != null){
       $this->db->where('viaticos_carteras.id_cartera = ',$cartera);
     }
@@ -791,6 +793,29 @@ class Viaticos_model extends CI_Model{
     $this->db->db_select('tablero');
     return $query->result();
   }
+
+  // WM31052023 funcion para obtener totales de viaticos en sus diferentes estados
+  public function obtenerDatosViaticosEmpleado($id_empleado, $quincena, $mes) {
+    // esta funcion en la parte del select esta llamando al empleado y los valores maximos segun los estados, estas estan renombradas segun su estado
+    // y condicioonadas de sus subconsultas atraves de los join left y si en su efecto encuentra algo en su join monta el resultado o sino le da valor nulo
+    $this->db->select("em.id_empleado, CONCAT(em.nombre, ' ', em.apellido) AS nombre,
+                       MAX(CASE WHEN vica_estado1.total IS NOT NULL THEN vica_estado1.total ELSE 0 END) AS viatico_cartera,
+                       MAX(CASE WHEN vica_estado3.total IS NOT NULL THEN vica_estado3.total ELSE 0 END) AS viatico_parciales,
+                       MAX(CASE WHEN vica_estado5.total IS NOT NULL THEN vica_estado5.total ELSE 0 END) AS viatico_extra,
+                       MAX(CASE WHEN vica_estado6.total IS NOT NULL THEN vica_estado6.total ELSE 0 END) AS viatico_permanente,
+                       MAX(CASE WHEN vica_estado9.total IS NOT NULL THEN vica_estado9.total ELSE 0 END) AS viatico_compartido");
+    $this->db->from("empleados AS em");
+    $this->db->join("(SELECT id_empleado, MAX(total) AS total FROM viaticos_carteras WHERE mes = '$mes' AND quincena = $quincena AND estado = 1 GROUP BY id_empleado) AS vica_estado1", "em.id_empleado = vica_estado1.id_empleado", "left");
+    $this->db->join("(SELECT id_empleado, MAX(total) AS total FROM viaticos_carteras WHERE mes = '$mes' AND quincena = $quincena AND estado = 3 GROUP BY id_empleado) AS vica_estado3", "em.id_empleado = vica_estado3.id_empleado", "left");
+    $this->db->join("(SELECT id_empleado, MAX(total) AS total FROM viaticos_carteras WHERE mes = '$mes' AND quincena = $quincena AND estado = 5 GROUP BY id_empleado) AS vica_estado5", "em.id_empleado = vica_estado5.id_empleado", "left");
+    $this->db->join("(SELECT id_empleado, COUNT(*) AS cantidad, MAX(total) AS total FROM viaticos_carteras WHERE estado = 6 GROUP BY id_empleado) AS vica_estado6", "em.id_empleado = vica_estado6.id_empleado", "left");
+    $this->db->join("(SELECT id_empleado, MAX(total) AS total FROM viaticos_carteras WHERE mes = '$mes' AND quincena = $quincena AND estado = 9 GROUP BY id_empleado) AS vica_estado9", "em.id_empleado = vica_estado9.id_empleado", "left");
+    $this->db->where("em.id_empleado", $id_empleado);
+    $query = $this->db->get();
+
+    return $query->result();
+  }
+
 
 
 

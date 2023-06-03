@@ -459,6 +459,7 @@
                 <div class="form-group">
                 <strong>¿Seguro que desea aprobar estas vacaciones?</strong>
                 <input type="hidden" name="id_vacacion" id="id_vacacion">
+                <input type="hidden" name="id_empleado" id="id_empleado">
                 </div>
                 <div class="modal-footer">
                
@@ -532,11 +533,12 @@
 
     function send_aprobar(){
         let id_vacacion = $("#id_vacacion").val()
+        let id_empleado = $("#id_empleado").val()
         $.ajax({
                 type  : 'POST',
                 url   : '<?php echo site_url('vacaciones/save_vacacion')?>',
                 dataType : 'JSON',
-                data : {id_vacacion:id_vacacion},
+                data : {id_vacacion:id_vacacion, id_empleado:id_empleado},
                 success : function(data){
                    console.log(data)
                    if(data == null){
@@ -553,9 +555,10 @@
                 }
             });
     }
-    function aprobar_vacacion(id_vacacion){
-        console.log(id_vacacion)
+    function aprobar_vacacion(id_vacacion, id_empleado){
+        // console.log(id_vacacion, id_empleado)
         $("#id_vacacion").val(id_vacacion)
+        $('#id_empleado').val(id_empleado)
         $("#modal_aprobar").modal('show')
         
     }
@@ -571,10 +574,10 @@
                 dataType : 'JSON',
                 data : {agencia:agencia, anio:anio},
                 success : function(data){
-                   console.log(data)
+                //    console.log(data)
                     $.each(data,function(key, registro){
                         if(registro.aprobado == 0){
-                                accion = "<td ><a class='btn btn-danger' style='margin-right:5px' onclick='eliminar_vacacion("+registro.id_vacacion+")'>Eliminar vacacion</a><a class='btn btn-success' onclick='aprobar_vacacion("+registro.id_vacacion+")'>Aprobar vacacion</a></td>"
+                                accion = "<td ><a class='btn btn-danger' style='margin-right:5px' onclick='eliminar_vacacion("+registro.id_vacacion+")'>Eliminar vacacion</a><a class='btn btn-success' onclick='aprobar_vacacion("+registro.id_vacacion+","+registro.id_empleado+")'>Aprobar vacacion</a></td>"
                             }else{
                                 accion = "<td><p class='success'>Vacacion agendada</p></td>"
                             }
@@ -638,7 +641,7 @@
                 dataType : 'JSON',
                 data : {id_contrato:id_contrato, fecha_inicio:fecha_inicio, id_empleado:id_empleado, fecha_inicio_empleado:fecha_inicio_empleado, agencia:agencia},
                 success : function(data){
-                    console.log(data)
+                    // console.log(data)
                     if(data == null){
                         alert('ingresado')
                         location.reload()
@@ -688,8 +691,9 @@
                 dataType : 'JSON',
                 data : {agencia:agencia, anio:anio},
                 success : function(data){
-                   console.log(data.empleados_disponibles)
-                    $.each(data.empleados_disponibles,function(key, registro){
+                //    console.log(data)
+                // WM01062023 se modifico para obtenga datos de empleadosAgendar
+                   $.each(data.empleadosAgendar,function(key, registro){
                         $('.tabla5').empty()
                         $('.tablaagendar').append(
                         '<tr>'+
@@ -702,6 +706,7 @@
                                 '</tr>'
                         );
                    });
+
                 //Se genera la paguinacion cada ves que se ejeucuta la funcion
                    $('#agendar_vacacion').dataTable({
                 "dom": "<'row'<'col-sm-9'l><'col-sm-3'f>>" +

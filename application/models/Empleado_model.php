@@ -452,4 +452,24 @@ function save_empleado($data){
         return $result->result();
     }
 
+    // WM01062023 funcion para traer los empleados por agencia con su contrato 
+    public function obtenerEmpleadosPorAgencia($agencia)
+    {
+        $this->db->select('subquery.id_empleado, subquery.nombre, subquery.apellido, subquery.id_contrato, subquery.fecha_inicio');
+        $this->db->from('(SELECT em.id_empleado, em.nombre, em.apellido, con.id_contrato, con.fecha_inicio, con.id_cargo,
+                        ROW_NUMBER() OVER (PARTITION BY em.id_empleado ORDER BY con.fecha_inicio) AS rn
+                        FROM empleados AS em
+                        JOIN contrato AS con ON con.id_empleado = em.id_empleado
+                        WHERE con.id_agencia = '.$this->db->escape($agencia).' AND em.activo = 1) AS subquery');
+        $this->db->where('rn', 1);
+        $this->db->order_by('subquery.fecha_inicio', 'ASC');
+    
+        $query = $this->db->get();
+        $result = $query->result();
+    
+        return $result;
+    }
+    
+
+
 }

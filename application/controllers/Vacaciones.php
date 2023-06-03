@@ -47,6 +47,16 @@ class Vacaciones extends Base {
     //NO28042023
     public function save_vacacion(){
         $id_vacacion = $this->input->post('id_vacacion');
+        $id_empleado = $this->input->post('id_empleado');
+
+        // print_r($id_vacacion);
+
+        $verificacion = $this->Vacacion_model->verificacionVaca($id_empleado);
+        // print_r($verificacion);
+        for($i=0; $i<count($verificacion); $i++){
+            $this->Vacacion_model->deleteVacacion($verificacion[$i]->id_vacacion);
+        }
+
         $actualizar_vacacion = $this->Vacacion_model->actualizar_vacacion($id_vacacion);
         echo json_encode($actualizar_vacacion);
     }
@@ -69,7 +79,7 @@ class Vacaciones extends Base {
         
         
         $data['empleados_disponibles'] = array();
-        $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,null,$agencia, null);
+        $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,null,$agencia, null, null);
        
        echo json_encode($vacacion);
 
@@ -91,6 +101,8 @@ class Vacaciones extends Base {
         
         
         $data['empleados_disponibles'] = array();
+        $data['empleadosAgendar'] = 0;
+        
         $vacacion = $this->Vacacion_model->vacacionAnio($diaUno,$diaUltimo,null,$agencia, null, null);
        
         $empleados = $this->prestamo_model->empleadosvaca($agencia);
@@ -146,11 +158,13 @@ class Vacaciones extends Base {
             
             
             if($intervalo > 0 && $flag != true){
-               
-               
+                $empleados[$i]->disponible = 1;
                 array_push($data['empleados_disponibles'], $empleados[$i]);
             }
         }
+
+        $empleadosVacacion = $this->empleado_model->obtenerEmpleadosPorAgencia($agencia);
+        $data['empleadosAgendar'] = $empleadosVacacion;
         
         echo json_encode($data);
     }
