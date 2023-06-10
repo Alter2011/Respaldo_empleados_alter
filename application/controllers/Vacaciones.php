@@ -1575,6 +1575,13 @@ class Vacaciones extends Base {
             //consulta que trae todos los dias que un empleado tomo en el mes actual
             $allRegistro = $this->Vacacion_model->regitrosMes($code,$verificacion[0]->id_vacacion);
 
+            //NO09062023
+             $anticipadas = $this->Vacacion_model->conteoVacacionAnt($code);
+           
+            $dias_anticipadas = 0;
+            $horas_anticipada = 0; 
+            $minutos_anticipada = 0;
+
             if($allRegistro != null){
                 //se hace un for para los conteo de los minutos
                 for($i = 0; $i < count($allRegistro); $i++){
@@ -1583,6 +1590,11 @@ class Vacaciones extends Base {
                     $horas += $allRegistro[$i]->horas;
                 }//fin for count($allRegistro)
                 //se convierte las horas a minutos
+                if(!is_null($anticipadas)){
+                    $tminutos += $anticipadas[0]->minutos;
+                    $minutos += $anticipadas[0]->minutos;
+                    $horas += $anticipadas[0]->horas;
+                }
                 $horas = $horas * 60;
                 //total de minutos
                 $tminutos = $horas + $tminutos;
@@ -1595,8 +1607,23 @@ class Vacaciones extends Base {
                 $dias = 15;
                 $thoras = 0;
                 $minutos = 0;
+                //NO09062023 cambio
+                if(!is_null($anticipadas)){                   
+                    $tminutos += $anticipadas[0]->minutos;
+                    $minutos += $anticipadas[0]->minutos;
+                    $horas += $anticipadas[0]->horas;
+
+                    $horas = $horas * 60;
+                    //total de minutos
+                    $tminutos = $horas + $tminutos;
+
+                    $dias = intval((($tdias - $tminutos)/60)/8);
+                    $thoras = intval(($tdias - ($dias*60*8) - $tminutos)/60);
+                    $minutos = $tdias - ($dias*60*8) - $tminutos - ($thoras*60); 
+                }
             }//fin if $allRegistro != null
             //enunciado que se muestra en la cabacera del mundial
+
             $enun = "Tiempo restantes: ".$dias." dias con ". $thoras." horas y ".$minutos." minutos";
         }else{
             //horas y minutos de las vacaciones anticipadas

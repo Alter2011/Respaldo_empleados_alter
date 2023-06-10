@@ -33,7 +33,17 @@
                  return 0;
              }
          }
-
+         //NO07062023 traer el ultimo bono que tiene
+         function get_last_bono($id_contrato){  
+            $this->db->select("*");
+            $this->db->from('bonificacion');
+            $this->db->where('id_contrato', $id_contrato);
+            $this->db->where('estado_control = 1');
+            $this->db->order_by('mes', 'desc');
+            $this->db->limit(1);
+            $result = $this->db->get();
+            return $result->result();
+         }
 
         function n_coord(){//Saca el numero de coordinadores
             $this->db->db_select('Produccion');

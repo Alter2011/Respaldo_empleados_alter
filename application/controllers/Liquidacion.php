@@ -197,6 +197,29 @@ class Liquidacion extends Base {
         $this->load->view('dashboard/header');
         $data['activo'] = 'Liquidacion';
         $id_contrato = $this->uri->segment(3);
+
+        $traer_bono = $this->conteos_model->get_last_bono($id_contrato);
+       
+        $fecha_actual = date('d');
+        $mes_anio = date('Y-m');
+
+
+
+        if($fecha_actual > 1 && $fecha_actual < 15 && ($mes_anio == $traer_bono[0]->mes)){
+            $quincena = 1;
+        }else{
+            $quincena = 2;
+        }
+        if(!empty($traer_bono)){
+        if($quincena > $traer_bono[0]->quincena){
+            //YA PASO LA QUINCENA PARA PAGAR ESTE BONO
+            $data['bono'] = 0;
+        }else{
+            $data['bono'] = $traer_bono[0]->bono;
+        }
+        }
+
+
         $verificar = $this->liquidacion_model->verificarLiquidacion($id_contrato);
         $data['aprobar']=$this->validar_secciones($this->seccion_actual1["aprobar"]);
         $data['revisar']=$this->validar_secciones($this->seccion_actual1["revisar"]);
@@ -654,7 +677,7 @@ class Liquidacion extends Base {
             }
 
             //se saca el total de prestaciones
-            $totalPrestaciones = $sueldoLaborado + $totalVaca + $aguinaldo + $totalIndemnizacion + $sumViaticos;
+            $totalPrestaciones = $sueldoLaborado + $totalVaca + $aguinaldo + $totalIndemnizacion + $sumViaticos+ $data['bono'];
 
             //APARTADO PARA LA PARTE DE LAS LIQUIDACIONES DE DEDUCCIONES
             $totalGravado = $sueldoLaborado + $totalVaca;
@@ -691,10 +714,11 @@ class Liquidacion extends Base {
                 $sueldoDes = $interno['sueldoDes'];*/
             
                 $totalDeducciones = $isss + $afp + $isr + $sumFaltante + $sumDescuento + $sumAnticipo + $sumPrestamo;
-            
+                //NO07062023 cambio
                 $data2 = array(
                     'id_contrato'           => $id_contrato,  
-                    'sueldo_quincena'       => $sueldoQuincena,  
+                    'sueldo_quincena'       => $sueldoQuincena,
+                    'bono'                  => $data['bono'],
                     'fecha_inicio'          => $fechaInicio,  
                     'fecha_fin'             => $fechaFin,    
                     'dias_laborado'         => $diasLab,  
