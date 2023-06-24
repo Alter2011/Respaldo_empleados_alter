@@ -285,7 +285,9 @@
                                 <th >P. emp</th>
                                 <th>Bancos</th>
                                 
-                                <th>Faltante(descuento)</th>                               
+                                <th>Faltante(descuento)</th> 
+                                <!-- NO19062023 -->
+                                <th>Faltante</th>                            
                                 <th>Anticipo</th>
                                 <th colspan="">Viaticos</th>
                                 
@@ -321,7 +323,10 @@
                                     <?php } ?>
                                     <td><?=(number_format(abs($key->prestamo_personal),2));?></td>
                                     <td><?=(number_format(abs($key->orden_descuento),2));?></td>
+                                    
                                     <td><?=(number_format(abs($key->horas_descuento+ $key->descuentos_faltantes),2));?></td>
+                                    <!-- NO19062023 -->
+                                    <td><?= "0"?></td>
                                     <td><?=(number_format(abs($key->anticipos),2));?></td>
                                     <td><?=(number_format(abs($key->viaticos),2));?></td>
                                     

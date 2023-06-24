@@ -1348,7 +1348,9 @@ class Viaticos extends Base {
     function viaticos_detalle($id_empleado=null){
         $data['empleado'] = $this->viaticos_model->datos_empleado($id_empleado);
         $ultimo = $this->viaticos_model->viaticos_empleado($id_empleado,null,null,1);
+        print_r($ultimo);
         if(!empty($ultimo)){
+            echo "entre";
             $data['viaticos'] = $this->viaticos_model->viaticos_empleado($id_empleado,$ultimo[0]->mes,null,2);
             $data['mes'] = $ultimo[0]->mes;
         }
