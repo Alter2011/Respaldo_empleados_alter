@@ -8,7 +8,7 @@ Luego comienza a mostrar el contenido de la pagina
     <div class="row content">
         <div class="col-sm-3 sidenav hidden-xs">
         </div>
--->
+--> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
         <div class="col-sm-10">
             <div class="text-center well text-white blue">
@@ -123,6 +123,76 @@ Luego comienza a mostrar el contenido de la pagina
 </form>
         <!--END MODAL EDIT-->
 
+ <!-- MODAL AGREGAR -->
+ <form>
+    <div class="modal fade" id="Modal_agregar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <center><h2 class="modal-title" id="exampleModalLabel">Agregar capitulo</h2>
+</center>
+            <table class="table table-striped" id="historial_ponderacion">
+                <thead>
+                    <tr>
+                        <th class="text-center">Capitulo</th>
+                        <th class="text-center">Ponderacion</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="historietas_data">
+                   
+                </tbody>
+                <tfoot id="acumulado">
+                    <tr>
+                    <td colspan="3" class="text-center">Total</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group row">
+                <!--
+                <label class="col-md-2 col-form-label">Product Code</label>
+-->
+                <div class="col-md-10">
+                    <input type="hidden" name="historieta_agregar" id="historieta_agregar" class="form-control" placeholder="Product Code" readonly >
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">Nombre del capitulo</label>
+                <div class="col-md-10">
+                    <input type="text" name="capitulo_nombre" id="capitulo_nombre" class="form-control" placeholder="Capitulo ###">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">Ponderacion</label>
+                <div class="col-md-10">
+                    <input type="number" name="ponderacion" id="ponderacion" class="form-control" placeholder="0.00">
+                </div>
+            </div>
+            <input type="hidden" name="acumulado_val" id="acumulado_val">
+            
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" type="submit" class="btn btn-primary" onclick="agregarChap()">Agregar</button>
+            </div>
+        </div>
+        </div>
+    </div>
+</form>
+        <!--END MODAL AGREGAR-->
+
+  <!--MODAL EDITAR CAPITULO-->
+ 
+
+
         <!--MODAL DELETE-->
         <form>
         <div class="modal fade" id="Modal_Delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -146,13 +216,257 @@ Luego comienza a mostrar el contenido de la pagina
             </div>
         </div>
         </form>
+
         <!--END MODAL DELETE-->
+
+        <!-- EDITAR MODAL -->
+        <form>
+        <div class="modal fade" id="Modal_editar_cap" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editar capitulo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+
+                <div class="form-group row">
+                <label class="col-md-2 col-form-label">Nombre del capitulo</label>
+                <div class="col-md-10">
+                    <input type="text" name="capitulo_nombre_editar" id="capitulo_nombre_editar" class="form-control" placeholder="Capitulo ###">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">Ponderacion</label>
+                <div class="col-md-10">
+                    <input type="number" name="ponderacion_editar" id="ponderacion_editar" class="form-control" placeholder="0.00">
+                    <input type="hidden" name="ponderacion_original" id="ponderacion_original">
+                </div>
+            </div>
+
+                </div>
+                <div class="modal-footer">
+                <input type="hidden" name="capitulo_code_editar" id="capitulo_code_editar" class="form-control">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" type="submit" id="btn_editar" class="btn btn-primary" onclick="sendEditar()">Editar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+        </form>
+    <!--END MODAL EDITAR CAPITULO-->
 <!-- Llamar JavaScript -->
 <script type="text/javascript" src="<?php echo base_url().'assets/js/jquery-3.2.1.js'?>"></script>
 <script type="text/javascript" src="<?php echo base_url().'assets/js/bootstrap.js'?>"></script>
 <script type="text/javascript" src="<?php echo base_url().'assets/js/jquery.dataTables.js'?>"></script>
 <script type="text/javascript" src="<?php echo base_url().'assets/js/dataTables.bootstrap4.js'?>"></script>
 <script type="text/javascript">
+
+
+        function agregar_capitulo(e){
+            historieta = e.dataset.codigo
+            $("#historieta_agregar").val(historieta)
+            console.log(historieta)
+            $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('Historietas/capitulos_data')?>',
+                dataType : 'JSON',
+                data : {historieta:historieta},
+                success : function(data){
+                    console.log(data)
+                    var html = '';
+                    var i;
+                    $('#historial_ponderacion').DataTable().destroy()
+                    var acumulado = 0
+                    for(i=0; i<data.length; i++){
+                        acumulado += parseFloat(data[i].ponderacion)
+                        html += '<tr>'+
+                                '<td>'+data[i].capitulo+'</td>'+
+                                '<td>'+data[i].ponderacion+'</td>'+
+                                '<td><a  data-target="#Modal_editar_cap"  data-toggle="modal" class="btn btn-warning" onclick="handleEditar(' + "'" + data[i].id_capitulos + "'" + ',' + "'" + data[i].capitulo + "'" + ',' + data[i].ponderacion + ')">Editar</a> <a class="btn  btn-danger" onclick ="eliminarCapitulo('+data[i].id_capitulos+')">Eliminar</a></td>'+
+                                '</tr>';
+                    }
+                    $("#acumulado").html('<tr><td colspan="3" class="text-center">Total: '+acumulado+'</td></tr>')
+                    $("#acumulado_val").val(acumulado)
+                    $('#historietas_data').html(html);
+                        $('#historial_ponderacion').dataTable( {
+                "dom": "<'row'<'col-sm-9'l><'col-sm-3'f>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                "aLengthMenu": [[3, 5, 10, -1], [3, 5, 10, "All"]],
+                "iDisplayLength": 5,
+                "oLanguage": {
+                    "sLengthMenu": "Your words here _MENU_ and/or here",
+                },
+                "oLanguage": {
+                    "sSearch": "Buscador: "
+                }
+        } );
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+        };
+
+        function handleEditar(id_capitulo, capitulo, ponderacion){
+            $("#capitulo_nombre_editar").val(capitulo)
+            $("#ponderacion_editar").val(ponderacion)
+            $("#ponderacion_original").val(ponderacion)
+            $("#capitulo_code_editar").val(id_capitulo)
+        }
+        function sendEditar(){
+            capitulo = $("#capitulo_nombre_editar").val()
+            ponderacion = $("#ponderacion_editar").val()
+            ponderacion_original = $("#ponderacion_original").val()
+            codigo_capitulo = $("#capitulo_code_editar").val()
+            let acumulado = $("#acumulado_val").val()
+            let suma = (parseFloat(acumulado)-parseFloat(ponderacion_original)+parseFloat(ponderacion))
+            console.log(suma)
+            if(suma > 1){
+                Swal.fire(
+                'Ponderacion es mayor al 100%',
+                '',
+                'error'
+                )
+            }else{
+            $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('Historietas/editar_capitulos')?>',
+                dataType : 'JSON',
+                data : {capitulo:capitulo, ponderacion:ponderacion, id_capitulo:codigo_capitulo},
+                success : function(data){
+                    if(data === null){
+                Swal.fire({
+                    title: 'Capitulo editado',
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+                                    
+                    }else{
+                        Swal.fire(
+                            'Ocurrio un error',
+                            '',
+                            'error'
+                            )
+                    }
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+        }
+        }
+        function eliminarCapitulo(id_capitulo){
+            Swal.fire({
+                title: '¿Seguro que desea eliminar?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, eliminar',
+                cancelButtonText: 'No, cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type  : 'POST',
+                        url   : '<?php echo site_url('Historietas/eliminar_capitulos')?>',
+                        dataType : 'JSON',
+                        data : {id_capitulo:id_capitulo},
+                        success : function(data){
+                            if(data === null){
+                        Swal.fire({
+                            title: 'Capitulo eliminado',
+                            icon: 'success'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                                            
+                            }else{
+                                Swal.fire(
+                                    'Ocurrio un error',
+                                    '',
+                                    'error'
+                                    )
+                            }
+                        },  
+                        error: function(data){
+                            var a =JSON.stringify(data['responseText']);
+                            alert(a);
+                        }
+                    });
+                }
+            });
+        }
+
+        function agregarChap(){
+            let historieta = $("#historieta_agregar").val()
+            let capitulo = $("#capitulo_nombre").val()
+            let ponderacion = $("#ponderacion").val()
+            let acumulado = $("#acumulado_val").val()
+            let suma = (parseFloat(acumulado)+parseFloat(ponderacion))
+            if(suma > 1){
+                Swal.fire(
+                'Ponderacion es mayor al 100%',
+                '',
+                'error'
+                )
+            }else{      
+            if(ponderacion == 0 || ponderacion == ''){
+            Swal.fire(
+                'Ponderacion esta vacio o es 0',
+                '',
+                'error'
+                )
+           }else if(capitulo == ''){
+            Swal.fire(
+                'Capitulo esta vacio',
+                '',
+                'error'
+                )
+           }else{
+            $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('Historietas/guardar_capitulos')?>',
+                dataType : 'JSON',
+                data : {historieta:historieta, capitulo: capitulo, ponderacion:ponderacion},
+                success : function(data){
+                    if(data === null){
+                Swal.fire({
+                    title: 'Capitulo agregado',
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+                                    
+                    }else{
+                        Swal.fire(
+                            'Ocurrio un error',
+                            '',
+                            'error'
+                            )
+                    }
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+           }
+            }
+        }
+
+
 
     $(document).ready(function(){
         show_historieta();    //call function show all product
@@ -185,6 +499,9 @@ Luego comienza a mostrar el contenido de la pagina
                         html += '<tr>'+
                                 '<td>'+data[i].historieta+'</td>'+
                                 '<td style="text-align:right;">'+
+
+                                    '<a onclick="agregar_capitulo(this)" href="javascript:void(0);" data-toggle="modal" data-target="#Modal_agregar" class="btn btn-warning btn-sm item_edit" data-codigo="'+data[i].id_historieta+'" data-nombre="'+data[i].historieta+'">Agregar capitulo</a>'+' '+
+
                                     '<a href="javascript:void(0);" data-toggle="modal" data-target="#Modal_Edit" class="btn btn-info btn-sm item_edit" data-codigo="'+data[i].id_historieta+'" data-nombre="'+data[i].historieta+'">Edit</a>'+' '+
                                     '<a href="javascript:void(0);" data-toggle="modal" data-target="#Modal_Delete" class="btn btn-danger btn-sm item_delete" data-codigo="'+data[i].id_historieta+'">Delete</a>'+' '+
                                    /* '<?php if($ver){ ?><a href="javascript:void(0);" class="btn btn-success btn-sm item_ver" data-product_code="'+data[i].product_code+'">Ver</a><?php } ?>'+*/
@@ -201,6 +518,7 @@ Luego comienza a mostrar el contenido de la pagina
         }
 
 
+    
         //Save product
         $('#btn_save').on('click',function(){
             this.disabled=true;

@@ -780,4 +780,12 @@ class Empleado extends Base{
         //print_r($data['respuestas']);
         echo json_encode($data);
     }
-}
+
+    public function capacitaciones(){
+        $data['activo'] = 'Examenes';
+
+        $this->load->view('dashboard/header');
+		$this->load->view('dashboard/menus',$data);
+        $this->load->view('Examenes/capacitacion');
+    }
+    }

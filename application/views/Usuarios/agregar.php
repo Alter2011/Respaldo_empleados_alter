@@ -18,10 +18,10 @@
                     <label>Usuario</label>
                     <input type="text" name="usuario" value="<?php if(isset($usuario)){echo($usuario->usuario);}?>" class="form-control"> 
                 </div>
-                <div class="form-group col-md-6">
+                <!-- <div class="form-group col-md-6">
                     <label>Usuario Produccion</label>
                     <input type="text" name="usuarioP" value="<?php if(isset($usuario)){echo($usuario->usuarioP);}?>" class="form-control"> 
-                </div>
+                </div> -->
                 <div class="form-group col-md-6">
                     <label>Empleado</label>
                     <?php if($accion=='editar'){ 

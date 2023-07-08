@@ -159,6 +159,51 @@ public function cargar_crud($output = null)
         $data=$this->Historietas_model->histori_list();
         echo json_encode($data);
 	}
+
+	function capitulos_data(){
+		$historieta = $this->input->post('historieta');
+		
+        $data=$this->Historietas_model->traer_capitulos_historietas($historieta);
+        echo json_encode($data);
+	}
+
+	function guardar_capitulos(){
+		$historieta = $this->input->post('historieta');
+		$capitulo = $this->input->post('capitulo');
+		$ponderacion = $this->input->post('ponderacion');
+		$array = array(
+			'id_historieta' => $historieta,
+			'capitulo' => $capitulo,
+			'ponderacion' => $ponderacion
+		);
+		$data=$this->Historietas_model->guardar_capitulos($array);
+		echo json_encode($data);
+	}
+	////////////////////////////////////////////////////////////////
+	function editar_capitulos(){
+		$capitulo = $this->input->post('capitulo');
+		$ponderacion = $this->input->post('ponderacion');
+		$id_capitulo = $this->input->post('id_capitulo');
+		$array = array(
+			'capitulo' => $capitulo,
+			'ponderacion' => $ponderacion,
+			'id_capitulo' => $id_capitulo
+		);
+		$data=$this->Historietas_model->editar_capitulos($array);
+		echo json_encode($data);
+	}
+
+	function eliminar_capitulos(){
+		$id_capitulo = $this->input->post('id_capitulo');
+		$array = array(
+			'id_capitulo' => $id_capitulo
+		);
+		$data=$this->Historietas_model->eliminar_capitulos($array);
+		echo json_encode($data);
+	}
+
+
+	
 	
 	
 

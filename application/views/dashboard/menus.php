@@ -1,4 +1,4 @@
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <nav class=" navbar-inverse visible-xs no-print">
     <div class="container-fluid no-print">
         <div class="navbar-header no-print">
@@ -198,8 +198,11 @@
 
                      <li class="dropdown <?php if($activo=="examen"){ ?>active<?php } ?>">
                         <!--<a href="<?= base_url();?>index.php/Mantenimiento/">Mantenimientos</a>-->
-                        <a id="secDes" href="#" class="dropdown-toggle" data-toggle="dropdown" >Exámenes <span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <a id="secDes" href="#" class="dropdown-toggle" data-toggle="dropdown" > Capacitaciones <span class="glyphicon glyphicon-chevron-down"></span></a>
                         <ul class="dropdown-menu" id="ulDes">
+                            <li class="liDesp">
+                                <a id="despegable" href="<?= base_url();?>index.php/Empleado/capacitaciones"><i class="bi bi-book"></i> Capacitaciones</a>
+                            </li>
                             <li class="liDesp">
                                 <a id="despegable" href="<?= base_url();?>index.php/Empleado/ver_examenes"><span class="glyphicon glyphicon-inbox"></span> Realizar examen</a>
                             </li>

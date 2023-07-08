@@ -172,7 +172,7 @@
     </div>
     <?php if(isset($this->data["seccion_17"]) ) {  ?>
     <div class="panel-group col-sm-4">
-        <a href="<?= base_url();?>index.php/Historietas/Capitulo">
+        <a href="<?= base_url();?>index.php/Historietas/Agregar/">
             <div class="panel-info " role="button">
                 <div class="panel-heading print-blue text-center" >
                     <span class="glyphicon glyphicon-bookmark fa-5x text-center"></span> <br/>
