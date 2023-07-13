@@ -1,3 +1,6 @@
+<style>
+
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <div class="col-sm-10">
@@ -9,9 +12,11 @@
         <div class="panel-body">
            <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#home" id="pag1">Examenes</a></li>
-                <li><a data-toggle="tab" href="#menu1" id="pag2">Competencias </a></li>
+                <!-- <li><a data-toggle="tab" href="#menu1" id="pag2">Competencias </a></li> -->
+                <li><a data-toggle="tab" href="#menu3" id="pag3">Asignar modulos </a></li>
                 <li><a data-toggle="tab" href="#menu2" id="pag3">Preguntas </a></li>
-                <li><a data-toggle="tab" href="#menu3" id="pag3">Resultados </a></li>
+                <li><a data-toggle="tab" href="#menu4" id="pag3">Resultados </a></li>
+
 
             </ul>
             <div class="tab-content">
@@ -65,7 +70,7 @@
                         <thead class="text-center">
                         <tr>
                             <th style="text-align: center">Pregunta</th>
-                            <th style="text-align: center">Competencia</th>
+                            
                             <th style="text-align: center">Examen</th>
                             <th style="text-align: center">Fecha creación</th>
                             <th style="text-align: center">Usuario creador</th>
@@ -78,8 +83,28 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="menu4" class="tab-pane fade"><br>
+                    <h2>Notas de empleados</h2>
+                   
+                    <br>
+                    <br>
+                    <table id="tabla_notas" class="table table-striped table-bordered" style="width:100%">
+                        <thead class="text-center">
+                        <tr>
+                            <th style="text-align: center">Empleado</th>
+                            <th style="text-align: center">Examen</th>
+                            <th style="text-align: center">Nota</th>
+
+
+                        </tr>
+                        </thead>
+                        <tbody id="notas">
+                        </tbody>
+                    </table>
+                </div>
+
                 <div id="menu3" class="tab-pane fade"><br>
-                    <h2>Resultados</h2>
+                    <h2>Asignar modulos a empleados</h2>
                     <div class="form-group col-md-12">
 
                     <div class="col-md-3">
@@ -90,8 +115,10 @@
                         <?php } ?>
                      </select>               
                     </div>
-                    <div class="col-md-1">
-                        <button type="button" title="Buscar por agencia" onclick="listar_resultados()"  class="btn btn-success eliminar_examen"><span class="glyphicon glyphicon-eye-open"></span></button>                                     
+                    <div class="col-md-4">
+                        <button type="button" title="Agregar modulo a empleado"  class="btn btn-primary eliminar_examen"><span class="glyphicon glyphicon-search"></span></button>   
+
+                        <button type="button" title="Agregar modulo a empleado"  class="btn btn-success eliminar_examen" onclick="agregar_modulo()"><span class="glyphicon glyphicon-plus"></span></button>                                     
                     </div>
                     <div class="col-md-8">
                 
@@ -100,11 +127,13 @@
                     <table id="tabla_resultados" class="table table-striped table-bordered" style="width:100%">
                         <thead class="text-center">
                         <tr>
-                            <th style="text-align: center">Examen</th>
-                            <th style="text-align: center">Fecha realización</th>
+                           
                             <th style="text-align: center">Empleado</th>
-                            <th style="text-align: center">Agencia</th>
+                            <th style="text-align: center">Modulo</th>
+                            <th style="text-align: center">Estado</th>
+                            <th style="text-align: center">Nota</th>
                             <th style="text-align: center">Acciones</th>
+                            
                         </tr>
                         </thead>
                         <tbody id="resultados">
@@ -137,6 +166,21 @@
                     <input type="datetime-local" name="fecha_fin" id="fecha_fin" class="form-control" >
                 </div>
                 <div class="form-group col-md-3">
+                    <label for="fecha_fin">Materia:</label>
+                    <select name="materias" class='form-control' id="materias" onchange="get_modulos()">
+                     
+                        <?php 
+                        foreach ($modulos as $modulo) {
+                            echo '<option value="'.$modulo->id_historieta.'">'.$modulo->historieta.'</option>';
+                        }
+                        ?>
+                    </select>
+                 </div>
+                 <div class="form-group col-md-3">
+                    <label for="fecha_fin">Modulo:</label>
+                    <select name="modulo" class='form-control' id="modulo">
+                        <option value="0">Seleccione el modulo</option>
+                    </select>
                  </div>
             </div>
 
@@ -216,9 +260,7 @@
                 <div class="form-group col-md-12">
                     <div class="form-group col-md-10">
 
-                        <label for="competencias">Competencias:</label>
-                        <select name="competencias_preguntas_empleados" class='form-control' id="competencias_preguntas_empleados">
-                        </select>
+                       
                     </div>
                 </div>
 
@@ -232,10 +274,35 @@
                     </div>
                     <input type="hidden" id="contador_preguntas" value="1">
                     <div id="contenedor-preguntas" >
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-12">
                             <label for="nombre_pregunta">Pregunta 1: </label>
                             <input type="text" name="nombre_pregunta[]"  class="form-control" >
                         </div>
+                        <div class="form-group col-md-4">
+                            <label for="nombre_pregunta">Respuesta 1: </label>
+                            <input type="text" name="respuesta_pregunta[]"  class="form-control" >
+                            <label for="respuesta_correcta">Marcar como respuesta correcta </label>
+                            <input type="radio" name="respuesta_correcta" id="respuesta4" value="4">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="nombre_pregunta">Respuesta 2: </label>
+                            <input type="text" name="respuesta_pregunta[]"  class="form-control" >
+                            <label for="respuesta_correcta">Marcar como respuesta correcta </label>
+                            <input type="radio" name="respuesta_correcta" id="respuesta4" value="4">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="nombre_pregunta">Respuesta 3: </label>
+                            <input type="text" name="respuesta_pregunta[]"  class="form-control" >
+                            <label for="respuesta_correcta">Marcar como respuesta correcta </label>
+                            <input type="radio" name="respuesta_correcta" id="respuesta4" value="4">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="nombre_pregunta">Respuesta 4: </label>
+                            <input type="text" name="respuesta_pregunta[]"  class="form-control" >
+                            <label for="respuesta_correcta">Marcar como respuesta correcta </label>
+                            <input type="radio" name="respuesta_correcta" id="respuesta4" value="4">
+                        </div>
+                       
                     </div>
 
                 </div>
@@ -339,22 +406,154 @@ th, td {
 }
 </style>
 <script>
+function agregar_modulo(){
+    modulos = <?php echo json_encode($modulos); ?>
+
+    agencias = <?php echo json_encode($agencias); ?>
+
+    console.log(agencias)
+    var option = '';
+    $.each(modulos, function(index, value) {
+      option += '<option value="' + value.id_historieta + '">' + value.historieta + '</option>';
+    });
+    var option_agencias = '';
+    $.each(agencias, function(index, value) {
+        option_agencias += '<option value="' + value.id_agencia + '">' + value.agencia + '</option>';
+    });
+
+    Swal.fire({
+  title: 'Ingresar un modulo a un empleado',
+
+  html:
+    '<select class="form-control" id="select1" >' +
+    option+
+    '</select>' +
+    '<br>'+
+    '<select id="select2" class="form-control" onchange="select_empleados()">' +
+    '<option>Selecciona una agencia</option>'+
+    option_agencias+
+    '</select>'+
+    '<br>'+
+    '<select id="empleados_list" class="form-control">'+
+    '<option>Selecciona un empleado</option>'+
+    '</select>',
+  showCancelButton: true,
+  confirmButtonText: 'Enviar',
+  cancelButtonText: 'Cancelar',
+  preConfirm: () => {
+    const input1 = Swal.getPopup().querySelector('#select1').value;
+    const input2 = Swal.getPopup().querySelector('#select2').value;
+    const input3 = Swal.getPopup().querySelector('#empleados_list').value;
+    console.log(input3)
+    if (!input1 || !input2 || !input3 || input3== 'Selecciona un empleado' || input3== 0) {
+      Swal.showValidationMessage('Por favor, completa ambos campos');
+    }
+    
+    return { input1: input1, input2: input2, input3: input3 };
+  }
+}).then((result) => {
+  if (result.dismiss === Swal.DismissReason.cancel) {
+    Swal.fire(
+      'Cancelado',
+      'La operación ha sido cancelada',
+      'error'
+    );
+  } else if (result.value) {
+    $.ajax({
+        type : "POST",
+        url  : "<?php echo site_url('Empleado/insertar_modulo_empleado')?>",
+        dataType : "JSON",
+        data : { id_empleado:result.value.input3,id_historieta:result.value.input1},
+        success: function(data){
+            if(data!=null){
+                Swal.fire(
+                    'Insercion correcta',
+                    '',
+                    'success'
+                )
+                listar_resultados();
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de inserción',
+                    text: 'Por favor revise que haya ingresado todos los datos correctamente',
+                })
+                //alert('Por favor revise que haya ingresado todos los datos');
+            }
+        },
+        error: function(data){
+            var a =JSON.stringify(data['responseText']);
+            alert(a);
+        
+        }
+    });
+
+  }
+});
+}
+function select_empleados(){
+    id_agencia = $('#select2').val();
+    $.ajax({
+        type : "POST",
+        url  : "<?php echo site_url('Empleado/get_empleados_agencia')?>",
+        dataType : "JSON",
+        data : { id_agencia:id_agencia},
+        success: function(data){
+            console.log(data)
+            $('#empleados_list').empty();
+            $('#empleados_list').append('<option value="0">Seleccione el empleado</option>');
+            for (var i = 0 ; i <data.length; i++) {
+                $('#empleados_list').append('<option value="'+data[i].id_empleado+'">'+data[i].nombre+" "+data[i].apellido+'</option>');
+            }
+        },
+        error: function(data){
+            var a =JSON.stringify(data['responseText']);
+            alert(a);
+        
+        }
+    });
+}
+function get_modulos(){
+    $("#materias").val();
+    $.ajax({
+        type : "POST",
+        url  : "<?php echo site_url('Empleado/get_modulos')?>",
+        dataType : "JSON",
+        data : { id_historieta:$("#materias").val()},
+        success: function(data){
+            console.log(data)
+            $('#modulo').empty();
+            $('#modulo').append('<option value="0">Seleccione el modulo</option>');
+            for (var i = 0 ; i <data.length; i++) {
+                $('#modulo').append('<option value="'+data[i].id_capitulos+'">'+data[i].capitulo+'</option>');
+            }
+        },
+        error: function(data){
+            var a =JSON.stringify(data['responseText']);
+            alert(a);
+        
+        }
+    });
+}
 
 $(document).ready(function() {
   listar_examenes();
   listar_competencias();  
   listar_preguntas();
   listar_resultados();
+  listar_notas();
 } );
+    //NO10072023
     function insertar_examen(){
             nombre_examen = $('#nombre_examen').val();
             fecha_inicio = $('#fecha_inicio').val();
             fecha_fin = $('#fecha_fin').val();
+            modulo = $("#modulo").val();
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('Empleado/insertar_examen')?>",
                 dataType : "JSON",
-                data : { nombre_examen:nombre_examen,fecha_inicio:fecha_inicio,fecha_fin:fecha_fin},
+                data : { nombre_examen:nombre_examen,fecha_inicio:fecha_inicio,fecha_fin:fecha_fin, modulo:modulo},
                 success: function(data){
                     if(data!=null){
                        // alert('Insercion correcta');
@@ -533,6 +732,42 @@ $(document).ready(function() {
                 }
             });
     }
+    function listar_notas(){
+            $.ajax({
+                type : "POST",
+                url  : "<?php echo site_url('Empleado/traer_notas')?>",
+                dataType : "JSON",
+                success: function(data){
+                    console.log(data)
+                    $('#tabla_notas').DataTable().destroy();
+                    $('#tabla_notas #notas').empty();
+                    if (data != null) {
+                        for (var i = 0 ; i <data.length; i++) {
+                            $('#notas').append('<tr>'+
+                                                    '<td>'+data[i].nombre+" "+data[i].apellido+'</td>'+
+                                                    '<td>'+data[i].nombre_examen+'</td>'+
+                                                    '<td>'+data[i].nota+'</td>'+
+                                                    
+                                                   
+
+                                                  '</tr>');
+                        }   
+                    }
+                    $('#tabla_notas').DataTable({
+                        "bAutoWidth": false,
+                        "oLanguage": {
+                            "sSearch": "Buscador: "
+                          },
+                        "order": [[ 2, "desc" ]],
+                    });
+                },
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                
+                }
+            });
+    }
     function llenar_select_examenes() {
     $.ajax({
                 type : "POST",
@@ -587,11 +822,9 @@ $(document).ready(function() {
    }
    function agregar_pregunta() {
         contador_preguntas = parseInt($('#contador_preguntas').val(), 10)+1;
-        $('#contenedor-preguntas').append('<div class="form-group col-md-4">'+
+        $('#contenedor-preguntas').append('<div class="form-group col-md-12">'+
                                         '<label for="nombre_pregunta">Pregunta '+contador_preguntas+': </label>'+
-                                        '<input type="text" name="nombre_pregunta[]" class="form-control">'+
-                                        '<button type="button" title="Remover pregunta" class="btn btn-default remover_campo"><span class="glyphicon glyphicon-trash"></span></button>'+
-                                    '</div>');
+                                        '<input type="text" name="nombre_pregunta[]" class="form-control"><div class="form-group col-md-4"><label for="nombre_pregunta">Respuesta 1: </label><input type="text" name="respuesta_pregunta[]"  class="form-control"> <label for="respuesta_correcta">Marcar como respuesta correcta </label>   <input type="radio" name="respuesta_correcta'+contador_preguntas+'" id="respuesta4" value="4">  </div>   <div class="form-group col-md-4"><label for="nombre_pregunta">Respuesta 2: </label><input type="text" name="respuesta_pregunta[]"  class="form-control">   <label for="respuesta_correcta">Marcar como respuesta correcta </label> <input type="radio" name="respuesta_correcta'+contador_preguntas+'" id="respuesta4" value="4">  </div>  <div class="form-group col-md-4"><label for="nombre_pregunta">Respuesta 3: </label><input type="text" name="respuesta_pregunta[]"  class="form-control">   <label for="respuesta_correcta">Marcar como respuesta correcta </label> <input type="radio" name="respuesta_correcta'+contador_preguntas+'" id="respuesta4" value="4">  </div><div class="form-group col-md-4"><label for="nombre_pregunta">Respuesta 4: </label><input type="text" name="respuesta_pregunta[]"  class="form-control">   <label for="respuesta_correcta">Marcar como respuesta correcta </label><input type="radio" name="respuesta_correcta'+contador_preguntas+'" id="respuesta4" value="4"> </div><button type="button" title="Remover pregunta" style="margin-top:25px" class="btn btn-default remover_campo"><span class="glyphicon glyphicon-trash"></span></button></div>');
         $('#contador_preguntas').val(contador_preguntas);
     }
         $('#contenedor-preguntas').on("click",".remover_campo",function(e) {
@@ -603,18 +836,63 @@ $(document).ready(function() {
 
     function insertar_preguntas() {
         preguntas = document.getElementsByName('nombre_pregunta[]');
+        respuestas = document.getElementsByName('respuesta_pregunta[]');
+
+        respuesta_correcta = []
         valor_preguntas=[];
         for (i = 0; i < preguntas.length; i++) {
             valor_preguntas[i] = preguntas[i].value;
+            if(i == 0){
+                respuesta_correcta[i] = document.getElementsByName('respuesta_correcta');
+            }else{
+                respuesta_correcta[i] = document.getElementsByName('respuesta_correcta'+(i+1));
+            }
+           
         }
-        id_competencia = $('#competencias_preguntas_empleados').val();
+       
+        new_respuesta = []
+        validacion_respuestas = []
+        respuesta_correcta.forEach(element => {
+            validation = false
+           for (let i = 0; i < 4; i++) {
+            if(element[i].checked){
+                validation = true;
+            }
+            new_respuesta.push(element[i]);
+           }
+           if(validation === false){
+            validacion_respuestas.push(validation);
+           }
+        });
 
 
+      
+        validacion_global = true;
+        validacion_respuestas.forEach(element => {
+            if(element === false){
+                validacion_global = false;
+            }
+        });
+      
+        
+        id_examen = $('#examenes_preguntas_empleados').val();
+        valor_respuestas = []
+        for (i  = 0 ; i < respuestas.length; i++) {
+                if (new_respuesta[i].checked) {
+                    valor_respuestas[i] = {veracidad: 1, respuesta:respuestas[i].value};
+                }else{
+                    valor_respuestas[i] = {veracidad: 0, respuesta:respuestas[i].value};
+                }               
+            
+        }
+      
+
+        if(validacion_global === true){
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('Empleado/insertar_preguntas')?>",
                 dataType : "JSON",
-                data : { valor_preguntas:valor_preguntas,id_competencia:id_competencia},
+                data : { valor_preguntas:valor_preguntas,id_examen:id_examen, valor_respuestas:valor_respuestas},
                 success: function(data){
                     if(data!=null){
                         //alert('Insercion correcta');
@@ -647,6 +925,13 @@ $(document).ready(function() {
                 
                 }
             });
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de inserción',
+                text: 'Por favor revise que haya ingresado todos los datos',
+            })
+        }
     }
     //listar preguntas de una competencia
     function listar_preguntas() {
@@ -663,7 +948,7 @@ $(document).ready(function() {
                             //llenar el select de examenes
                             $('#preguntas').append('<tr>'+
                                                     '<td>'+data[i].nombre_pregunta+'</td>'+
-                                                    '<td>'+data[i].nombre_competencia+'</td>'+
+                                                   
                                                     '<td>'+data[i].nombre_examen+'</td>'+
                                                     '<td>'+data[i].fecha_creacion+'</td>'+
                                                     '<td>'+data[i].nombre_empleado+'</td>'+
@@ -827,45 +1112,33 @@ $(document).ready(function() {
                         contenido_examen='';
                         contenido_examen+='<div class="col-md-12">';
 
-                        contenido_examen+='<table class="table table-bordered" >';
-                                contenido_examen+='<tbody>';
-                                    contenido_examen+='<tr>';
-                                        contenido_examen+='<td><strong>Puntuaciones</strong></td>';
-                                        contenido_examen+='<td>1</td>';
-                                        contenido_examen+='<td>2</td>';
-                                        contenido_examen+='<td>3</td>';
-                                        contenido_examen+='<td>4</td>';
-                                        contenido_examen+='<td>5</td>';
-                                    contenido_examen+='</tr>';
-                                contenido_examen+='</tbody>';
-                            contenido_examen+='</table>';
-                        contenido_examen+='</div>';
 
-                        for (i = 0; i < data.competencias.length; i++) {
-                            contenido_examen+='<div class="col-md-12">';
-                                contenido_examen+='<h4><strong>Competencia '+(i+1)+': '+data.competencias[i].nombre_competencia+'</strong></h4>';
+                       
 
                             contenido_examen+='</div>';
                                 //competencias
                                 //console.log(data.competencias[i]);
 
-                                for (j = 0; j < data.preguntas[i].length; j++) {
+                                for (j = 0; j < data.preguntas.length; j++) {
                                     contenido_examen+='<div class="col-md-12">';
                                         contenido_examen+='<table class="table table-bordered" >';
                                             contenido_examen+='<tbody>';
                                                 contenido_examen+='<tr>';
-                                                    contenido_examen+='<td><p><strong>'+data.preguntas[i][j].nombre_pregunta+'</strong></p></td>';
-                                                    contenido_examen+='<td><input class="form-check-input" type="radio" name="respuesta'+i+j+'" value="1"></td> ';
-                                                    contenido_examen+='<td><input class="form-check-input" type="radio" name="respuesta'+i+j+'" value="2"></td> ';
-                                                    contenido_examen+='<td><input class="form-check-input" type="radio" name="respuesta'+i+j+'" value="3"></td> ';
-                                                    contenido_examen+='<td><input class="form-check-input" type="radio" name="respuesta'+i+j+'" value="4"></td> ';
-                                                    contenido_examen+='<td><input class="form-check-input" type="radio" name="respuesta'+i+j+'" value="5"></td> ';
+                                                    contenido_examen+='<td><p><strong>'+data.preguntas[j].nombre_pregunta+'</strong></p></td>';
+                                                   for (let i = 0; i < 4; i++) {
+                                                    if(data.respuestas[j][i].veracidad == 1){
+                                                        contenido_examen+='<td> <label for="">'+data.respuestas[j][i].pregunta+' (C)</label> <span class="glyphicon glyphicon-ok"></span></td> ';
+                                                    }else{
+                                                    contenido_examen+='<td> <label for="">'+data.respuestas[j][i].pregunta+'</label></td> ';
+                                                    }
+                                                    
+                                                   }
                                                 contenido_examen+='</tr>';
                                             contenido_examen+='</tbody>';
                                             contenido_examen+='</table>';
                                     contenido_examen+='</div>';
                                 }
-                        }
+                        
 
                            $('#contenedor_competencias').append(contenido_examen);    
                     },
@@ -941,21 +1214,30 @@ $(document).ready(function() {
                 data : { id_agencia:id_agencia},
 
                 success: function(data){
+                    console.log(data)
                     $('#tabla_resultados').DataTable().destroy();
                     $('#tabla_resultados #resultados').empty();
                     if (data != null) {
                         for (var i = 0 ; i <data.length; i++) {
+                            estado = ''
+                            acciones = ''
+                            if(data[i].estado == 1){
+                                estado = 'En curso'
+                                acciones = '<button type="button" class="btn btn-warning" title="Finalizar modulo" onclick="finalizar_modulo('+data[i].id+')">Finalizar</button>'
+                            }else if(data[i].estado == 2){
+                                estado = 'Finalizado'
+                                acciones = '<div class="alert alert-success" role="alert">Modulo finalizado</div>'
+                            }
                             $('#resultados').append('<tr>'+
-                                                    '<td>'+data[i].nombre_examen+'</td>'+
-                                                    '<td>'+data[i].fecha_creacion+'</td>'+
-                                                    '<td>'+data[i].nombre_empleado+'</td>'+
-                                                    '<td>'+data[i].agencia+'</td>'+
-
-
-                                                    '<td>'+
-                                                        '<button type="button" title="Vista previa" data-toggle="modal" data-target="#Modal_ver_examen" onclick="ver_examen_resultados('+data[i].id_examen+','+data[i].id_empleado+')" class="btn btn-success ver_examen"><span class="glyphicon glyphicon-eye-open"></span></button> '+
-                                                        //'<button type="button" title="Eliminar examen" onclick="eliminar_resultados('+data[i].id_examen+')" class="btn btn-danger eliminar_examen"><span class="glyphicon glyphicon-trash"></span></button> '+                                       
-                                                    '</td>'+
+                                                    '<td>'+data[i].nombre+" "+data[i].apellido+'</td>'+
+                                                    '<td>'+data[i].historieta+'</td>'+
+                                                    '<td>'+estado+'</td>'+
+                                                    '<td>'+(data[i].nota_final*10).toFixed(2)+'</td>'+
+                                                    '<td>'+acciones+'</td>'+
+                                                    // '<td>'+
+                                                    //     '<button type="button" title="Vista previa" data-toggle="modal" data-target="#Modal_ver_examen" onclick="ver_examen_resultados('+data[i].id_examen+','+data[i].id_empleado+')" class="btn btn-success ver_examen"><span class="glyphicon glyphicon-eye-open"></span></button> '+
+                                                    //     //'<button type="button" title="Eliminar examen" onclick="eliminar_resultados('+data[i].id_examen+')" class="btn btn-danger eliminar_examen"><span class="glyphicon glyphicon-trash"></span></button> '+                                       
+                                                    // '</td>'+
 
                                                   '</tr>');
                         }   
@@ -974,6 +1256,49 @@ $(document).ready(function() {
                 
                 }
             });
+    }
+    function finalizar_modulo(id_modulo){
+        Swal.fire({
+            title: 'Esta seguro de finalizar este modulo?',
+            text: "Este proceso no se puede revertir!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+
+            confirmButtonText: 'Si, finalizar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //luego de verificar eliminar examen
+                    $.ajax({
+                        type : "POST",
+                        url  : "<?php echo site_url('Empleado/finalizar_modulo')?>",
+                        dataType : "JSON",
+                        data : { id_modulo:id_modulo},
+                        success: function(data){
+                            //alert('Eliminacion correcta');
+                            if(data){
+                                Swal.fire(
+                                'Finalizado!',
+                                'Modulo finalizado.',
+                                'success'
+                                )
+                                listar_resultados();
+                             }else{
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error de finalizacion',
+                                    text: 'Este modulo ya fue finalizado',
+                                })
+                             }
+                        },
+                        error: function(data){
+                            var a =JSON.stringify(data['responseText']);
+                            alert(a);
+                        }
+                    });
+                }
+            })
     }
     function ver_examen_resultados(id_examen,id_empleado) {
         $.ajax({

@@ -1,7 +1,11 @@
 <?php
 class empleado_model extends CI_Model{
 
-  
+    //NO10072023
+    public function insert_examen($data){
+        $this->db->insert('examen_modulo', $data);
+        return null;
+    }
     //guardar candidatos a realizar el examen NO26042023
     public function save_test($data){
         $this->db->insert('agendar_test', $data);
@@ -256,7 +260,7 @@ function save_empleado($data){
         return $result->result();
     }
 
-    function listado_empleados($activo=0,$empresa='todas'){
+    function listado_empleados($activo=0,$empresa='todas', $agencia = null){
         if($activo == 0){
             $estado = '(contrato.estado = 1 or contrato.estado = 3 or contrato.estado = 0 or contrato.estado = 4 or contrato.estado = 10)';
         }else if($activo == 1){
@@ -275,6 +279,9 @@ function save_empleado($data){
         $this->db->join('empresa', 'empresa.id_empresa=contrato.id_empresa');
         //$this->db->where('co.id_empleado', $empleado);
         $this->db->where($estado);
+        if($agencia != null){
+            $this->db->where('contrato.id_agencia', $agencia);
+        }
         if($empresa != 'todas'){
             $this->db->where('contrato.id_empresa', $empresa);
         }
@@ -341,25 +348,23 @@ function save_empleado($data){
         $this->db->insert('preguntas_examenes',$data);
         return $this->db->insert_id();
     }
-    //listado preguntas
-    public function listado_preguntas($id_competencia=null,$id_examen=null){
-        $this->db->select('preguntas_examenes.*,competencias_examenes.nombre_competencia,examenes_empleados.nombre_examen,concat(empleados.nombre, " ", empleados.apellido) as nombre_empleado');
-        $this->db->from('preguntas_examenes');
-        $this->db->join('competencias_examenes', 'competencias_examenes.id_competencia = preguntas_examenes.id_competencia');
-        $this->db->join('examenes_empleados', 'examenes_empleados.id_examen = competencias_examenes.id_examen');
-        $this->db->join('login', 'login.id_login = preguntas_examenes.usuario_creador');
-        $this->db->join('empleados', 'empleados.id_empleado = login.id_empleado');
-        if($id_examen!=null){
-            $this->db->where('examenes_empleados.id_examen',$id_examen);
-        }
-        if($id_competencia!=null){
-            $this->db->where('preguntas_examenes.id_competencia',$id_competencia);
-        }
-        $this->db->where('preguntas_examenes.estado',1);
+    // //listado preguntas
+    // public function listado_preguntas($id_competencia=null,$id_examen=null){
+    //     $this->db->select('preguntas_examenes.*,examenes_empleados.nombre_examen,concat(empleados.nombre, " ", empleados.apellido) as nombre_empleado');
+    //     $this->db->from('preguntas_examenes');
+       
+    //     $this->db->join('examenes_empleados', 'examenes_empleados.id_examen = preguntas_examenes.id_examen');
+    //     $this->db->join('login', 'login.id_login = preguntas_examenes.usuario_creador');
+    //     $this->db->join('empleados', 'empleados.id_empleado = login.id_empleado');
+    //     if($id_examen!=null){
+    //         $this->db->where('examenes_empleados.id_examen',$id_examen);
+    //     }
+     
+    //     $this->db->where('preguntas_examenes.estado',1);
 
-        $result = $this->db->get();
-        return $result->result();
-    }
+    //     $result = $this->db->get();
+    //     return $result->result();
+    // }
     //eliminar pregunta
     public function modificar_pregunta($id_pregunta,$data){
         $this->db->where('id_pregunta',$id_pregunta);
@@ -375,31 +380,21 @@ function save_empleado($data){
         $this->db->where('id_examen',$id_examen);
         $this->db->update('examenes_empleados',$data);
     }
-    //insertar respuestas examen
-    public function insertar_respuesta_examen($data){
-        $this->db->insert('respuestas_examen',$data);
-        return $this->db->insert_id();
-    }
+
     //insertar insertar respuesta pregunta
     public function insertar_respuesta_pregunta($data){
         $this->db->insert('respuestas_pregunta',$data);
         return $this->db->insert_id();
     }
     //get respuestas examen
-    public function get_respuestas_examen($id_examen,$calificador=null,$calificado=null){
+    public function get_respuestas_examen($id_examen,$id_empleado){
         $this->db->select('respuestas_examen.*');
         $this->db->from('respuestas_examen');
         $this->db->where('respuestas_examen.id_examen',$id_examen);
-        if ($calificador!=null) {
-            $this->db->where('respuestas_examen.id_empleado_calificador',$calificador);
-        }
-        if ($calificado!=null) {
-            $this->db->where('respuestas_examen.id_empleado_calificado',$calificado);
-        }
+        $this->db->where('respuestas_examen.id_empleado',$id_empleado);
         $this->db->where('respuestas_examen.estado',1);
 
         $result = $this->db->get();
-        return $result->result();
     }
     public function resultados_examenes($id_agencia=null,$id_empleado=null,$id_examen=null)
     {
@@ -470,6 +465,181 @@ function save_empleado($data){
         return $result;
     }
     
+    //NO10072023
+    public function insertar_respuesta($data){
+        $this->db->insert('r_examen',$data);
+        return $this->db->insert_id();
+    }
+    //NO10072023
+    public function listado_respuestas($id_pregunta){
+        $this->db->select('r_examen.*');
+        $this->db->from('r_examen');
+        $this->db->where('r_examen.examen',$id_pregunta);
+        $result = $this->db->get();
+        return $result->result();
 
+
+    }
+    //NO10072023
+    public function listado_preguntas($var = null,$id_examen= null){
+        $this->db->select('preguntas_examenes.*,examenes_empleados.nombre_examen,concat(empleados.nombre, " ", empleados.apellido) as nombre_empleado');
+        $this->db->from('preguntas_examenes');
+        $this->db->join('examenes_empleados', 'examenes_empleados.id_examen = preguntas_examenes.id_examen');
+        $this->db->join('login', 'login.id_login = preguntas_examenes.usuario_creador');
+        $this->db->join('empleados', 'empleados.id_empleado = login.id_empleado');
+        if($id_examen!=null){
+            $this->db->where('examenes_empleados.id_examen',$id_examen);
+        }
+     
+        $this->db->where('preguntas_examenes.estado',1);
+
+        if($id_examen != null){
+
+            $this->db->where('preguntas_examenes.id_examen',$id_examen);
+        }
+        $result = $this->db->get();
+        return $result->result();
+    }
+    //NO11072023
+    public function materias_asignadas($id_empleado, $stateless = null){
+        $this->db->select("modulos_empleados.*, historieta.*");
+        $this->db->from("modulos_empleados");
+        $this->db->join('historieta', 'historieta.id_historieta = modulos_empleados.id_historieta');
+        $this->db->where("id_empleado",$id_empleado);
+        if($stateless == null){
+          
+            $this->db->where("estado",1);
+        }
+        $result = $this->db->get();
+        return $result->result();
+    }
+    //NO11072023
+    public function modulos_asignados($id_historieta){
+        $this->db->select("*");
+        $this->db->from("capitulos");
+        $this->db->where("id_historieta",$id_historieta);
+        $result = $this->db->get();
+        return $result->result();
+    }
+    //NO11072023
+    public function get_examen($id_capitulos){
+        $this->db->select("*, capitulos.*");
+        $this->db->from("examenes_empleados");
+        $this->db->join('capitulos', 'capitulos.id_capitulos = examenes_empleados.modulo');
+        $this->db->where("modulo",$id_capitulos);
+        $result = $this->db->get();
+        return $result->result();
+    }
+    //NO11072023
+    public function count_respuesta($id_examen, $id_empleado){
+        $this->db->select("*");
+        $this->db->from("respuestas_examen");
+        $this->db->where("id_examen",$id_examen);
+        $this->db->where("id_empleado",$id_empleado);
+        $result = $this->db->get();
+        return $result->result();
+    }
+        //NO10072023
+        public function listado_preguntas_respuestas($var = null,$id_examen= null){
+            $this->db->select('preguntas_examenes.*,examenes_empleados.nombre_examen,concat(empleados.nombre, " ", empleados.apellido) as nombre_empleado, r_examen.*');
+            $this->db->from('preguntas_examenes');
+            $this->db->join('examenes_empleados', 'examenes_empleados.id_examen = preguntas_examenes.id_examen');
+            $this->db->join('login', 'login.id_login = preguntas_examenes.usuario_creador');
+            $this->db->join('empleados', 'empleados.id_empleado = login.id_empleado');
+            $this->db->join('r_examen', 'r_examen.examen = preguntas_examenes.id_pregunta');
+            $this->db->where('preguntas_examenes.estado',1);
+            if($id_examen!=null){
+                $this->db->where('examenes_empleados.id_examen',$id_examen);
+            }
+         
+            $this->db->where('preguntas_examenes.estado',1);
+    
+            if($id_examen != null){
+    
+                $this->db->where('preguntas_examenes.id_examen',$id_examen);
+            }
+            $result = $this->db->get();
+            return $result->result();
+        }
+    
+    //NO10072023
+    public function respuesta($id_respuesta){
+        $this->db->select('r_examen.*');
+        $this->db->from('r_examen');
+        $this->db->where('r_examen.id',$id_respuesta);
+        $result = $this->db->get();
+        return $result->result();
+    }
+    //NO10072023
+
+    public function insertar_respuesta_examen($array){
+        $this->db->insert('respuestas_examen',$array);
+        return $this->db->insert_id();
+    }
+    public function get_respuestas($id_examen, $id_empleado){
+        $this->db->select('respuestas_examen.*');
+        $this->db->from('respuestas_examen');
+        $this->db->where('respuestas_examen.id_empleado',$id_empleado);
+        $this->db->where('respuestas_examen.id_examen',$id_examen);
+        $result = $this->db->get();
+        return $result->result();
+    }
+    public function update_respuesta_examen($id_respuesta, $array){
+        $this->db->where('id_respuestas_examen',$id_respuesta);
+        $this->db->update('respuestas_examen',$array);
+    }
+
+    public function get_capitulo($id_examen){
+        $this->db->select('examenes_empleados.* ,capitulos.*, historieta.*');
+        $this->db->from('examenes_empleados');
+        $this->db->join('capitulos', 'capitulos.id_capitulos = examenes_empleados.modulo');
+        $this->db->join('historieta', 'historieta.id_historieta = capitulos.id_historieta');
+        $this->db->where('examenes_empleados.id_examen',$id_examen);
+        $result = $this->db->get();
+        return $result->result();
+    }
+    public function traer_modulo($id_historieta = null, $id_empleado = null){
+        $this->db->select('modulos_empleados.*, historieta.*, empleados.*');
+        $this->db->from('modulos_empleados');
+        $this->db->join('historieta', 'historieta.id_historieta = modulos_empleados.id_historieta');
+        $this->db->join('empleados', 'empleados.id_empleado = modulos_empleados.id_empleado');
+        if($id_empleado != null){
+            $this->db->where('modulos_empleados.id_empleado',$id_empleado);
+        }
+        if($id_historieta != null){
+        $this->db->where('modulos_empleados.id_historieta',$id_historieta);
+        }
+        $result = $this->db->get();
+        return $result->result();
+    }
+    public function update_modulo($data, $id){
+        $this->db->where('id',$id);
+        $this->db->update('modulos_empleados',$data);
+    }
+    public function finalizar_modulo($id){
+        $data = array(
+            'estado' => 2
+        
+        );
+        $this->db->where('id',$id);
+        $this->db->update('modulos_empleados',$data);
+    }
+    public function insertar_modulo_empleado($data){
+        $this->db->insert('modulos_empleados',$data);
+        return $this->db->insert_id();
+    }
+    public function traer_notas(){
+        $this->db->select('empleados.nombre, empleados.apellido, respuestas_examen.*, contrato.id_agencia, examenes_empleados.nombre_examen');
+        $this->db->from('respuestas_examen');
+        $this->db->join('empleados', 'empleados.id_empleado = respuestas_examen.id_empleado');
+        $this->db->join('contrato', 'contrato.id_empleado = empleados.id_empleado');
+        $this->db->join('examenes_empleados', 'examenes_empleados.id_examen = respuestas_examen.id_examen');
+        $this->db->where( '(contrato.estado = 1 or contrato.estado = 3)');
+        //$this->db->where('contrato.id_agencia',$id_agencias);
+        $result = $this->db->get();
+        return $result->result();
+
+    }
+    
 
 }

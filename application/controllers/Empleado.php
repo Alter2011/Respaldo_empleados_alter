@@ -14,6 +14,8 @@ class Empleado extends Base{
         $this->load->model('liquidacion_model');
         $this->load->model('prestamo_model');
         $this->load->model('agencias_model');
+        //NO10072023
+        $this->load->model('historietas_model');
 
 
         //permisos del usuario
@@ -451,24 +453,33 @@ class Empleado extends Base{
     //CONTROL EXAMENES
     public function control_examenes()
     {
+        
         $data['activo'] = 'Examenes';
         $data['agencias'] = $this->prestamo_model->agencias_listas();
-
+        $data['modulos'] = $this->historietas_model->ver_historietas();
+        $data['empleados'] = $this->empleado_model->listado_empleados();
         $this->load->view('dashboard/header');
         $this->load->view('dashboard/menus',$data);
         $this->load->view('Empleado/control_examenes',$data);
+    }
+    //NO10072023
+    public function get_modulos(){
+        $id_historieta = $this->input->post('id_historieta');
+        $modulos = $this->historietas_model->traer_capitulos_historietas($id_historieta);
+        echo json_encode($modulos);
     }
     public function insertar_examen(){
 
         $nombre_examen = $this->input->post('nombre_examen');
         $fecha_inicio = $this->input->post('fecha_inicio');
         $fecha_fin = $this->input->post('fecha_fin');
+        $modulo = $this->input->post('modulo');
         $validador=true;
-        if(!empty($nombre_examen) and !empty($fecha_inicio) and !empty($fecha_fin)){
+        if(!empty($nombre_examen) and !empty($fecha_inicio) and !empty($fecha_fin) and !empty($modulo)){
 
             if($fecha_inicio > $fecha_fin){
                 $validador=false;
-                //$data['error'] = 'La fecha de inicio no puede ser mayor a la fecha de fin';
+                $data['error'] = 'La fecha de inicio no puede ser mayor a la fecha de fin';
             }
             
         }else{
@@ -482,9 +493,12 @@ class Empleado extends Base{
                           'fecha_fin' => $fecha_fin,
                           'fecha_creacion' => date('Y-m-d H:i:s'),
                           'estado' => 1,
-                          'usuario_creador' => $_SESSION['login']['id_login']);
-            $this->empleado_model->insertar_examen($data);
+                          'usuario_creador' => $_SESSION['login']['id_login'],
+                          'modulo' => $modulo);
+                          
+            $id_examen = $this->empleado_model->insertar_examen($data);
 
+           
             echo json_encode(true);
 
         }else{
@@ -529,18 +543,34 @@ class Empleado extends Base{
     public function insertar_preguntas()
     {
         $valor_preguntas = $this->input->post('valor_preguntas');
-        $id_competencia = $this->input->post('id_competencia');
+        $id_examen = $this->input->post('id_examen');
+        $valor_respuestas = $this->input->post('valor_respuestas');
+        $contador = 0;
+       
         if (count($valor_preguntas) >0) {
             $fecha_creacion=date('Y-m-d H:i:s');
-            for ($i=0; $i <count($valor_preguntas) ; $i++) { 
+            for ($i=0; $i < count($valor_preguntas) ; $i++) { 
                 $data = array('nombre_pregunta' => $valor_preguntas[$i],
                               'fecha_creacion' => $fecha_creacion,
                               'estado' => 1,
                               'usuario_creador' => $_SESSION['login']['id_login'],
-                              'id_competencia' => $id_competencia);
-                $this->empleado_model->insertar_pregunta($data);
+                              'id_examen' => $id_examen);
+          $id_pregunta =  $this->empleado_model->insertar_pregunta($data);
+             for ($j=0; $j < 4; $j++) {
+
+                if ($valor_respuestas[$contador] != '') {
+                    $data2 = array(
+                              'pregunta' => $valor_respuestas[$contador]['respuesta'],
+                              'veracidad' => $valor_respuestas[$contador]['veracidad'],
+                              'examen' => $id_pregunta,
+                              );
+           $this->empleado_model->insertar_respuesta($data2);
+                }
+                $contador++;
+             }
+
             }
-        echo json_encode(true);
+            echo json_encode(true);
         }else{
             echo json_encode(null);
         }
@@ -548,7 +578,7 @@ class Empleado extends Base{
     //listado de preguntas por competencia
     public function listado_preguntas(){
 
-        $preguntas = $this->empleado_model->listado_preguntas();
+        $preguntas = $this->empleado_model->listado_preguntas(null, null);
 
         echo json_encode($preguntas);
     }
@@ -590,17 +620,17 @@ class Empleado extends Base{
         $id_examen = $this->input->post('id_examen');
         $data['examen'] = $this->empleado_model->listado_examenes($id_examen);
         $data['competencias'] = $this->empleado_model->listado_competencias(null,$id_examen);
-        for ($i=0; $i <count($data['competencias']) ; $i++) { 
-            $data['preguntas'][$i]=$this->empleado_model->listado_preguntas($data['competencias'][$i]->id_competencia);
+       $data['preguntas'] = $this->empleado_model->listado_preguntas(null,$id_examen);
+      
+      for($i=0; $i < count($data['preguntas']); $i++){
+      
+          $data['respuestas'][$i] = $this->empleado_model->listado_respuestas($data['preguntas'][$i]->id_pregunta);
         }
         echo json_encode($data);
     } 
     //realizar examen
-    public function realizar_examen($arreglo){
-        $arreglo = base64_decode($arreglo);
-        $arreglo = unserialize($arreglo);
-
-        $id_examen=$arreglo['id_examen'];
+    public function realizar_examen($id_examen){
+      
         $data['examen'] = $this->empleado_model->listado_examenes($id_examen);
         $fecha_actual = date('Y-m-d H:m:s');
         $examenes2 = $this->empleado_model->get_respuestas_examen($id_examen,$_SESSION['login']['id_empleado']);
@@ -609,10 +639,13 @@ class Empleado extends Base{
             $this->session->set_flashdata('error', 'El examen no esta disponible');
             redirect(base_url()."index.php/Empleado/ver_examenes");
         }else{
-            $data['competencias'] = $this->empleado_model->listado_competencias(null,$id_examen);
-            for ($i=0; $i <count($data['competencias']) ; $i++) { 
-                $data['preguntas'][$i]=$this->empleado_model->listado_preguntas($data['competencias'][$i]->id_competencia);
+
+          
+                $data['preguntas']=$this->empleado_model->listado_preguntas(null, $id_examen);
+            for($i = 0; $i < count($data['preguntas']); $i ++){
+                $data['respuestas'][$i] = $this->empleado_model->listado_respuestas($data['preguntas'][$i]->id_pregunta);
             }
+            
             $data['id_examen'] = $id_examen;
             $data['activo'] = 'Examenes';
             $this->load->view('dashboard/header');
@@ -620,35 +653,105 @@ class Empleado extends Base{
             $this->load->view('Empleado/realizar_examen',$data);
         }
     }
+    public function guardar_examen(){
+        $id_examen = $this->input->post('id_examen');
+        $capitulo = $this->empleado_model->get_capitulo($id_examen);
+        $anteriores_respuestas = $this->empleado_model->get_respuestas($id_examen,$_SESSION['login']['id_empleado']);
+       
+        if (empty($anteriores_respuestas)) {
+           echo json_encode(false);
+        }else{
+            $calificacion = ($capitulo[0]->ponderacion * $anteriores_respuestas[0]->nota)/10;
+            $modulo = $this->empleado_model->traer_modulo($capitulo[0]->id_historieta, $_SESSION['login']['id_empleado']);
+            
+            $new_nota = $modulo[0]->nota_final + $calificacion;
+            $data = array(
+                "nota_final" => $new_nota
+            );
+            $this->empleado_model->update_modulo($data, $modulo[0]->id );
+            $respuesta = array(
+                "numero_intentos" => $anteriores_respuestas[0]->numero_intentos + 1
+            );
+            $this->empleado_model->update_respuesta_examen($anteriores_respuestas[0]->id_respuestas_examen,$respuesta);
+            echo json_encode(true);
+        }
+    }
     public function almacenar_prueba_examen()
     {
         $id_examen=$this->input->post('id_examen');
-        $examenes2 = $this->empleado_model->get_respuestas_examen($id_examen,$_SESSION['login']['id_empleado']);
-        if (empty($examenes2)) {
-            $respuestas_examen = array('fecha_creacion' => date('Y-m-d H:m:s'), 
-                                        'estado' => 1,    
-                                        'id_examen' => $id_examen,
-                                        'id_empleado_calificador' => $_SESSION['login']['id_empleado']);
-            $id_insertar_respuesta_examen = $this->empleado_model->insertar_respuesta_examen($respuestas_examen);
-            //$examen = $this->empleado_model->listado_examenes($id_examen);
-            $competencias = $this->empleado_model->listado_competencias(null,$id_examen);
-            for ($i=0; $i <count($competencias) ; $i++) { 
-                $preguntas=$this->empleado_model->listado_preguntas($competencias[$i]->id_competencia);
-                for ($j=0; $j < count($preguntas) ; $j++) { 
-                    $respuesta=$this->input->post('respuesta'.$i.$j);
-                    //echo 'respuesta'.$i.$j.' '.$respuesta.'<br>';
-                    $respuestas_preguntas = array(  'respuesta' => $respuesta,
-                                                    'id_preguntas_examenes' => $preguntas[$j]->id_pregunta,
-                                                    'id_respuestas_examen' => $id_insertar_respuesta_examen);
-                    //print_r($respuestas_preguntas);
-                    $this->empleado_model->insertar_respuesta_pregunta($respuestas_preguntas);
-                }
+        $capitulo = $this->empleado_model->get_capitulo($id_examen);
+        
+        $anteriores_respuestas = $this->empleado_model->get_respuestas($id_examen,$_SESSION['login']['id_empleado']);
+       
+        
+        if(empty($anteriores_respuestas)){
+            print_r($anteriores_respuestas);
+        
+        $data['preguntas']=$this->empleado_model->listado_preguntas(null, $id_examen);
+        $valor_preguntas = 10/count($data['preguntas']);
+        $puntaje = 0;
+       
+        for($i = 0; $i < count($data['preguntas']); $i ++){
+        $respuesta=$this->input->post('respuesta'.$i);
+        $traer_respuesta=$this->empleado_model->respuesta($respuesta);
+       
+        if($traer_respuesta[0]->veracidad==1){
+            $puntaje+=$valor_preguntas;   
+        }
+         }
+
+         $respuesta = array(
+            "fecha_creacion" => date('Y-m-d'),
+            "id_examen" => $id_examen,
+            "id_empleado" => $_SESSION['login']['id_empleado'],
+            "nota" => $puntaje,
+        );
+        $this->empleado_model->insertar_respuesta_examen($respuesta);
+      
+
+
+        }else if($anteriores_respuestas[0]->numero_intentos == 1){
+           
+            $data['preguntas']=$this->empleado_model->listado_preguntas(null, $id_examen);
+            $valor_preguntas = 10/count($data['preguntas']);
+            $puntaje = 0;
+           
+            for($i = 0; $i < count($data['preguntas']); $i ++){
+            $respuesta=$this->input->post('respuesta'.$i);
+            $traer_respuesta=$this->empleado_model->respuesta($respuesta);
+           
+            if($traer_respuesta[0]->veracidad==1){
+                $puntaje+=$valor_preguntas;   
             }
+             }
+    
+             $respuesta = array(
+                "fecha_creacion" => date('Y-m-d'),
+                "id_examen" => $id_examen,
+                "id_empleado" => $_SESSION['login']['id_empleado'],
+                "nota" => $puntaje,
+                "numero_intentos" => $anteriores_respuestas[0]->numero_intentos + 1
+            );
+            if($puntaje > $anteriores_respuestas[0]->nota){
+                $this->empleado_model->update_respuesta_examen($anteriores_respuestas[0]->id_respuestas_examen,$respuesta);
+            }
+            $calificacion = ($capitulo[0]->ponderacion * $puntaje)/10;
+            $modulo = $this->empleado_model->traer_modulo($capitulo[0]->id_historieta, $_SESSION['login']['id_empleado']);
+            
+            $new_nota = $modulo[0]->nota_final + $calificacion;
+            $data = array(
+                "nota_final" => $new_nota
+            );
+            $this->empleado_model->update_modulo($data, $modulo[0]->id );
+            
         }else{
+            
             $this->session->set_flashdata('error', 'Este examen ya lo a realizado previamente');
         }
-       //echo $id_examen;
+    
        redirect(base_url()."index.php/Empleado/ver_examenes/");
+   
+   
     }
     //listado de examenes empleados
     public function ver_examenes(){        
@@ -658,59 +761,104 @@ class Empleado extends Base{
         $this->load->view('Empleado/lista_examenes',$data);
     }
     public function listado_examenes_empleado(){
-        //echo '<pre>';
-        $examenes_empleados = [];
-        $examenes_sin_realizar = [];
-        $examenes_vencidos = [];
-        $examenes_realizados = [];
-        $examenes = $this->empleado_model->listado_examenes();
-        $trabajadores=$this->agencias_model->trabajadores_examenes('01');
-        $con=0;
-        for ($i=0; $i < count($examenes) ; $i++) { 
-                //revision de fechas para habilitar o no el examen
-                $fecha_actual = date('Y-m-d H:m:s');
-                if ($fecha_actual<$examenes[$i]->fecha_inicio) {
-                    $examenes[$i]->estado = 2;//en espera
-                }
-                if ($fecha_actual>$examenes[$i]->fecha_fin) {
-                    $examenes[$i]->estado = 3;//vencida
-                    array_push($examenes_vencidos,$examenes[$i]);
-                }
-                if($examenes[$i]->estado == 1 or $examenes[$i]->estado == 2){
-                    for ($j=0; $j < count($trabajadores); $j++) { 
-                        $examenes2 = $this->empleado_model->get_respuestas_examen($examenes[$i]->id_examen,$_SESSION['login']['id_empleado'],$trabajadores[$j]->id_empleado);
-                        $estado=0;
-                        if (!empty($examenes2)) {
-                            if ($examenes2[0]->id_examen==$examenes[$i]->id_examen) {
-                                $estado= 4;//realizada
-                                //array_push($examenes_realizados,$examenes[$i]);
-                            }
-                        }
-                        if ( $estado!=4) {
-                            $examenes_sin_realizar[$j]  = $trabajadores[$j];
-                            //$examenes_sin_realizar[$j]->id_examen=$examenes[$i]->id_examen;
-                            $examenes_sin_realizar[$j]->nombre_examen=$examenes[$i]->nombre_examen;
-                            $examenes_sin_realizar[$j]->fecha_inicio=$examenes[$i]->fecha_inicio;
-                            $examenes_sin_realizar[$j]->fecha_fin=$examenes[$i]->fecha_fin;
-                            $examenes_sin_realizar[$j]->estado=$examenes[$i]->estado;
-                            $data = array('id_examen' => $examenes[$i]->id_examen,'id_empleado'=>$trabajadores[$j]->id_empleado );  
-                            $arr = serialize($data);
-                            $arr = base64_encode($arr);
-                            $arr = urldecode($arr);
-                            $examenes_sin_realizar[$j]->url=$arr;
-                        }
-                    }
 
+        $id_empleado = $_SESSION['login']['id_empleado'];
+        $materias_asignadas = $this->empleado_model->materias_asignadas($id_empleado);
+       // print_r($materias_asignadas);
+        $modulos = [];
+        for($i=0; $i < count($materias_asignadas); $i++){
+           $modulo = $this->empleado_model->modulos_asignados($materias_asignadas[$i]->id_historieta);
+           array_push($modulos, $modulo);
+        }
+        $unidimensional = array_merge(...$modulos);
+        $unidimensional = array_values($unidimensional);
+
+        $examenes = [];
+        for($i = 0; $i < count($unidimensional); $i++){
+          $examen = $this->empleado_model->get_examen($unidimensional[$i]->id_capitulos);
+            array_push($examenes, $examen);
+        }
+
+       
+        for($i = 0; $i < count($examenes); $i++){
+            $fecha_actual = date('Y-m-d H:m:s');
+            if(!empty($examenes[$i])){
+               $hasRespuesta = $this->empleado_model->count_respuesta($examenes[$i][0]->id_examen,$id_empleado);
+             
+               if(!empty($hasRespuesta)){
+                    if($hasRespuesta[0]->numero_intentos == 1){
+                        $examenes[$i][0]->realizado = 0;
+                        $examenes[$i][0]->nota = $hasRespuesta[0]->nota;
+                    }else{
+                    $examenes[$i][0]->realizado = 1;
+                    $examenes[$i][0]->nota = $hasRespuesta[0]->nota;
+                    }
+               }else{
+                    $examenes[$i][0]->realizado = 0;
+               }
+
+               if($fecha_actual > $examenes[$i][0]->fecha_fin){
+                    $examenes[$i][0]->realizado = 2;
+               }
+               
             }
         }
-        //$examenes_empleados[0]=$trabajadores;
 
-        $examenes_empleados[0]=$examenes_sin_realizar;
-        $examenes_empleados[1]=$examenes_realizados;
-        $examenes_empleados[2]=$examenes_vencidos;
+        echo json_encode($examenes);
+
+
+        // $examenes_empleados = [];
+        // $examenes_sin_realizar = [];
+        // $examenes_vencidos = [];
+        // $examenes_realizados = [];
+        // $examenes = $this->empleado_model->listado_examenes();
+        // $trabajadores=$this->agencias_model->trabajadores_examenes('01');
+        // $con=0;
+        // for ($i=0; $i < count($examenes) ; $i++) { 
+        //         //revision de fechas para habilitar o no el examen
+        //         $fecha_actual = date('Y-m-d H:m:s');
+        //         if ($fecha_actual<$examenes[$i]->fecha_inicio) {
+        //             $examenes[$i]->estado = 2;//en espera
+        //         }
+        //         if ($fecha_actual>$examenes[$i]->fecha_fin) {
+        //             $examenes[$i]->estado = 3;//vencida
+        //             array_push($examenes_vencidos,$examenes[$i]);
+        //         }
+        //         if($examenes[$i]->estado == 1 or $examenes[$i]->estado == 2){
+        //             for ($j=0; $j < count($trabajadores); $j++) { 
+        //                 $examenes2 = $this->empleado_model->get_respuestas_examen($examenes[$i]->id_examen,$_SESSION['login']['id_empleado'],$trabajadores[$j]->id_empleado);
+        //                 $estado=0;
+        //                 if (!empty($examenes2)) {
+        //                     if ($examenes2[0]->id_examen==$examenes[$i]->id_examen) {
+        //                         $estado= 4;//realizada
+        //                         //array_push($examenes_realizados,$examenes[$i]);
+        //                     }
+        //                 }
+        //                 if ( $estado!=4) {
+        //                     $examenes_sin_realizar[$j]  = $trabajadores[$j];
+        //                     //$examenes_sin_realizar[$j]->id_examen=$examenes[$i]->id_examen;
+        //                     $examenes_sin_realizar[$j]->nombre_examen=$examenes[$i]->nombre_examen;
+        //                     $examenes_sin_realizar[$j]->fecha_inicio=$examenes[$i]->fecha_inicio;
+        //                     $examenes_sin_realizar[$j]->fecha_fin=$examenes[$i]->fecha_fin;
+        //                     $examenes_sin_realizar[$j]->estado=$examenes[$i]->estado;
+        //                     $data = array('id_examen' => $examenes[$i]->id_examen,'id_empleado'=>$trabajadores[$j]->id_empleado );  
+        //                     $arr = serialize($data);
+        //                     $arr = base64_encode($arr);
+        //                     $arr = urldecode($arr);
+        //                     $examenes_sin_realizar[$j]->url=$arr;
+        //                 }
+        //             }
+
+        //     }
+        // }
+        // //$examenes_empleados[0]=$trabajadores;
+
+        // $examenes_empleados[0]=$examenes_sin_realizar;
+        // $examenes_empleados[1]=$examenes_realizados;
+        // $examenes_empleados[2]=$examenes_vencidos;
 
         //print_r($examenes_empleados);
-        echo json_encode($examenes_empleados);
+      //  echo json_encode($examenes_empleados);
     }   
     public function editar_examen()
     {
@@ -746,7 +894,8 @@ class Empleado extends Base{
     public function resultados_examenes()
     {
         $id_agencia = $this->input->post('id_agencia');
-        $resultados=$this->empleado_model->resultados_examenes($id_agencia);
+       
+        $resultados=$this->empleado_model->traer_modulo();
         echo json_encode($resultados);
 
     }
@@ -783,9 +932,57 @@ class Empleado extends Base{
 
     public function capacitaciones(){
         $data['activo'] = 'Examenes';
+        $data['modulos'] = $this->historietas_model->get_group();
 
+        $id_empleado = $_SESSION['login']['id_empleado'];
+        $materias_asignadas = $this->empleado_model->materias_asignadas($id_empleado,1);
+      
+        
+        $data['basico'] = [];
+        $data['intermedio'] = [];
+        $data['avanzado'] = [];
+       
+        for($i=0; $i<count($materias_asignadas); $i++ ){
+            if ($materias_asignadas[$i]->nivel == 1){
+                $data['basico'][$i] = $materias_asignadas[$i];
+            }else if ($materias_asignadas[$i]->nivel == 2){
+                $data['intermedio'][$i] = $materias_asignadas[$i];
+            }else if ($materias_asignadas[$i]->nivel == 3){
+                $data['avanzado'][$i] = $materias_asignadas[$i];
+            }
+        }
+        // echo "<pre>";
+        // print_r($data['intermedio']);
+        
         $this->load->view('dashboard/header');
 		$this->load->view('dashboard/menus',$data);
         $this->load->view('Examenes/capacitacion');
     }
+    public function finalizar_modulo(){
+        $id_modulo = $this->input->post('id_modulo');
+        $this->empleado_model->finalizar_modulo($id_modulo);
+        echo json_encode(true);
     }
+    public function get_empleados_agencia(){
+        $id_agencia = $this->input->post('id_agencia');
+        $empleados = $this->empleado_model->listado_empleados(0,'todas',$id_agencia);
+        echo json_encode($empleados);
+    }
+    public function insertar_modulo_empleado(){
+        $id_empleado = $this->input->post('id_empleado');
+        $id_historieta = $this->input->post('id_historieta');
+        $data = array(
+            "id_empleado" => $id_empleado,
+            "id_historieta" => $id_historieta,
+            "estado" => 1,
+            "nota_final" => 0
+        );
+        $this->empleado_model->insertar_modulo_empleado($data);
+        echo json_encode(true);
+    }
+    public function traer_notas(){
+        //$id_agencia = $this->input->post('id_agencia');
+        $notas = $this->empleado_model->traer_notas();
+        echo json_encode($notas);
+    }
+}

@@ -33,48 +33,39 @@
                     <div class="form-group col-md-12">
                         <div class="col-md-12">
                         <div id="mensaje" ></div>
-                            <h4> <strong>Instrucciones:</strong> por favor escoja un opción por pregunta, los números van del 1 al 5, siendo 1 el mas bajo y 5 el mas alto</h4>
+                            <h4> <strong>Instrucciones:</strong> por favor escoja un opción por pregunta</h4>
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
                                         <td></td>
-                                        <td><strong> Deficiente </strong></td>
-                                        <td><strong> Regular </strong></td>
-                                        <td><strong> Bueno </strong></td>
-                                        <td><strong> Muy bueno</strong></td>
-                                        <td><strong> Excelente </strong></td>
+                                      
+                                      
                                     </tr>
 
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><strong>Puntuaciones</strong></td>
-                                        <td>1</td>
-                                        <td>2</td>
-                                        <td>3</td>
-                                        <td>4</td>
-                                        <td>5</td>
+
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <?php
                             $contador=0;
-                        for ($i = 0; $i < count($competencias); $i++) { 
+                        for ($i = 0; $i < count($preguntas); $i++) { 
                         echo '<div class="col-md-12">';
-                            echo '<h4><strong>Competencia '.($i+1).': '.$competencias[$i]->nombre_competencia.'</strong></h4>';
+                          
                         echo '</div>';
-                        for ($j = 0; $j < count($preguntas[$i]); $j++) {
+                       
                                 echo '<div class="col-md-12">';
                                     echo '<table class="table table-bordered" >';
                                         echo '<tbody>';
                                             echo '<tr>';
-                                                echo '<td><p><strong>'. $preguntas[$i][$j]->nombre_pregunta.'</strong></p></td>';
-                                                echo '<td><input class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.$j.'" value="1"></td> ';
-                                                echo '<td><input class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.$j.'" value="2"></td> ';
-                                                echo '<td><input class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.$j.'" value="3"></td> ';
-                                                echo '<td><input class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.$j.'" value="4"></td> ';
-                                                echo '<td><input class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.$j.'" value="5"></td> ';
+                                                echo '<td><p>'. $preguntas[$i]->nombre_pregunta.'</p></td>';
+                            for ($j = 0; $j < count($respuestas[$i]); $j++) {
+                                echo '<td><label>'.$respuestas[$i][$j]->pregunta.'</label><input style="margin-left:10px" class="form-check-input respuesta'.$contador.'"  type="radio" name="respuesta'.$i.'" value='.$respuestas[$i][$j]->id.'></td> ';
+                            }
+                                                
                                             echo '</tr>';
                                         echo '</tbody>';
                                         echo '</table>';
@@ -82,7 +73,7 @@
                                     echo '</div>';
                                 echo '</div>';
                                 $contador++;
-                            }
+                            
                         } ?>
                         <input type="hidden" id="contador" name="contador" value="<?= $contador ?>">
                         <div class="col-md-12">
@@ -103,6 +94,7 @@
         });
     document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("formulario").addEventListener('submit', validarFormulario); 
+
     function validarFormulario(evento) {
     evento.preventDefault();
     //var usuario = document.getElementById('prueba').value;

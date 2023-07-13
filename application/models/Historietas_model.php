@@ -66,4 +66,15 @@ class Historietas_model extends CI_Model{
         return null;
     }
 
+    function get_group(){
+        $this->db->select('DISTINCT (gp.nombre) as grupo, gp.modulo, perfil.nombre, gp.nivel');
+        $this->db->from('Grupos_capitulos gp');
+        $this->db->join('perfil', 'perfil.id_perfil = gp.id_cargo');
+
+        $result = $this->db->get();
+        return $result->result();
+    }
+
+
+
 }
