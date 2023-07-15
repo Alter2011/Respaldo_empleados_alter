@@ -26,7 +26,7 @@
 	       		$data['crear']= $this->validar_secciones($this->seccion_actual["crear"]);
 			$data['activo'] = 'Presupuestado';
 			$data['cartera']=$this->Conteos_model->asesor($_SESSION['login']['prospectos']);
-			//print_r($data['cartera'][0]->id_cartera);
+			print_r($data['cartera']);
 			
 			$this->load->view('dashboard/header');
 			$this->load->view('dashboard/menus',$data);

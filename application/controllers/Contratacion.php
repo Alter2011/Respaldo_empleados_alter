@@ -19,7 +19,7 @@ class Contratacion extends Base{
          //permisos del usuario para empleados
         $this->seccion_empleado = $this->APP["permisos"]["empleados"];//array(21,22,23,24);//crear,editar,eliminar,ver
 
-        $this->seccion_historial = $this->APP["permisos"]["historial"];//array(25,26,27,28);//academico,laboral,capacitaciones,examen_ingreso 
+        $this->seccion_contratohistorial = $this->APP["permisos"]["historial"];//array(25,26,27,28);//academico,laboral,capacitaciones,examen_ingreso 
         $this->seccion_actual = $this->APP["permisos"]["agencia_empleados"];
         $this->seccion_actual1 = $this->APP["permisos"]["contratos"];
 
