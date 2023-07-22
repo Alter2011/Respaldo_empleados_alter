@@ -458,6 +458,10 @@ class Empleado extends Base{
         $data['agencias'] = $this->prestamo_model->agencias_listas();
         $data['modulos'] = $this->historietas_model->ver_historietas();
         $data['empleados'] = $this->empleado_model->listado_empleados();
+        $data['roles']= $this->empleado_model->get_rol();
+        // echo "<pre>";
+        // print_r($data['modulos']);
+        
         $this->load->view('dashboard/header');
         $this->load->view('dashboard/menus',$data);
         $this->load->view('Empleado/control_examenes',$data);

@@ -10,6 +10,16 @@ class contrato_model extends CI_Model{
         $query = $this->db->get();
         return $query->result();
     }
+    function marcar_dias($id_contrato){
+        $data = array(
+            'tipo_des_ren'              => 6,
+   
+          );
+          $this->db->where('id_contrato', $id_contrato);
+          $this->db->update('contrato', $data);
+
+
+    }
 
     function contratos_lista($id){
         $this->db->select('empleados.nombre, empleados.apellido, contrato.*, cargos.cargo, agencias.agencia, agencias.id_agencia, plaza.nombrePlaza, categoria_cargo.categoria, categoria_cargo.Sbase, empresa.nombre_empresa');
@@ -318,6 +328,7 @@ class contrato_model extends CI_Model{
         return $query->result();
 
     }
+
 
     //NO04052023 traer salario base
     function categoria($id){

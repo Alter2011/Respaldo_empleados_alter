@@ -128,7 +128,8 @@ public function cargar_crud($output = null)
 	
 	function update(){
         //$url    =   $this->do_upload();
-        $data=$this->Historietas_model->update_histori();
+       $data=$this->Historietas_model->update_histori();
+
         echo json_encode($data);
     }
 

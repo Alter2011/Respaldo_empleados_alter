@@ -640,6 +640,17 @@ function save_empleado($data){
         return $result->result();
 
     }
+
+    public function get_rol(){
+        $this->db->db_select('Operaciones');
+
+        $this->db->select('rol');
+        $this->db->from('roles');
+
+        $result=$this->db->get();
+        $this->db->db_select('tablero');
+        return $result->result();
+    }
     
 
 }

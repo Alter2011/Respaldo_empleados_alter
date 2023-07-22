@@ -205,12 +205,13 @@ class Liquidacion extends Base {
 
 
 
-        if($fecha_actual > 1 && $fecha_actual < 15 && ($mes_anio == $traer_bono[0]->mes)){
-            $quincena = 1;
-        }else{
-            $quincena = 2;
-        }
+        $data['bono'] = 0;
         if(!empty($traer_bono)){
+            if($fecha_actual > 1 && $fecha_actual < 15 && ($mes_anio == $traer_bono[0]->mes)){
+                $quincena = 1;
+            }else{
+                $quincena = 2;
+            }
         if($quincena > $traer_bono[0]->quincena){
             //YA PASO LA QUINCENA PARA PAGAR ESTE BONO
             $data['bono'] = 0;
@@ -228,7 +229,7 @@ class Liquidacion extends Base {
         $data['aprobado'] = array();
         $data['contrato'] = $id_contrato;
         $ultimoCont = $this->liquidacion_model->ultContrato($id_contrato);
-        
+   
         if(empty($verificar) && $data['aprobar'] == 1 && $data['rechazar'] == 1){
 
         $bandera = true;
@@ -314,7 +315,9 @@ class Liquidacion extends Base {
             $diast = 365;
         }
 
+
         $anos = $dias/365;
+        echo $anos+1;
 
         $sueldoQuincena = $ultimoCont[0]->Sbase/2;
         $sueldo = $ultimoCont[0]->Sbase;
@@ -448,16 +451,19 @@ class Liquidacion extends Base {
             if($fechaFin > $diaUltimo){
                 $difInd = date_diff(date_create(date("Y-m-d",strtotime($diaUltimo."+ 1 days"))),date_create($fechaFin));
                 $diasInde = ($difInd->format('%a') + 1) - $diasCesantia;
+              
             }else{
                 //si la fecha fin del contrato es menor o igual se saca la diferencia entre esta
                 $difInd = date_diff(date_create($diaUno2),date_create($fechaFin));
                 $diasInde = ($difInd->format('%a') + 1);
+                echo $diasInde;
             }
 
             if($diasInde > 365){
                 $diasInde = 365;
             }
-            if($anos >= 0 && $anos < 3){
+            if($anos >= 0 && $anos < 2){
+                
                 $aguinaldo = ($sueldoQuincena/365)*$diasInde;
 
             }else if($anos >= 3 && $anos < 10){
@@ -545,7 +551,7 @@ class Liquidacion extends Base {
         if($diasLab < 0){
             $diasLab = 0;
         }
-        $diasLab;
+        echo $diasLab;
         //se saca el sueldo del dia 
         $sueldoDia = ($sueldoQuincena/15);
         //se hace la proporcionalidad del sueldo
@@ -3384,8 +3390,7 @@ class Liquidacion extends Base {
             }*/
         }
 
-        echo '<pre>';
-        print_r($data);
+
 
         /*$this->load->view('dashboard/header');
         $data['activo'] = 'Creditos';
@@ -3458,8 +3463,7 @@ class Liquidacion extends Base {
             }
         }
 
-        echo '<pre>';
-        print_r($empleados);
+       
     }
 
      function meses($meses){

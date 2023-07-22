@@ -207,10 +207,14 @@ Luego comienza a mostrar el contenido de la pagina
 
                                 <?php
                                 }else if($contratos[$a]->estado == 0 || $contratos[$a]->estado == 4 || $contratos[$a]->estado == 6){
+                                        $marcar_sin_dias=  '';
                                         if($contratos[$a]->estado == 0){
                                             $est = "Despido";
                                         }else if($contratos[$a]->estado == 4){
                                             $est = "Renuncia";
+                                            if($contratos[$a]->tipo_des_ren != 6){
+                                            $marcar_sin_dias = '<a class="btn btn-warning" style="float: right; margin-top: 20px" onclick="marcar_dias('.$contratos[$a]->id_contrato.')">Marcar como incumplimiento de dias</a>';
+                                            }
                                         }else if($contratos[$a]->estado == 6){
                                             $est = "Jubilación y Retiro";
                                         }
@@ -227,6 +231,7 @@ Luego comienza a mostrar el contenido de la pagina
                                                 <div class="col-sm-4"><label></label></div>
                                                 <div class="col-sm-4">
                                                     <?= $activa ?>
+                                                    <?= $marcar_sin_dias ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1141,7 +1146,41 @@ Luego comienza a mostrar el contenido de la pagina
 
 <script type="text/javascript">
 i = 0;
-
+    function marcar_dias(id_contrato){
+        console.log(id_contrato)
+        Swal.fire({
+          title: 'Confirmación',
+          text: '¿Estás seguro de realizar esta acción?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí',
+          cancelButtonText: 'Cancelar',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+                type : "POST",
+                url  : "<?php echo site_url('contratacion/marcar_dias')?>",
+                dataType : "JSON",
+                data : { id_contrato:id_contrato},
+                success: function(data){
+                    if(data == null){
+                        location.reload();
+                    }else{
+                        alert("Error al marcar los dias");
+                    }
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+            Swal.fire('¡Confirmado!', 'La acción ha sido confirmada.', 'success');
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Acción a realizar si se cancela
+            Swal.fire('Cancelado', 'La acción ha sido cancelada.', 'error');
+          }
+        });
+    }   
     $(document).ready(function(){
         /*$('#contrato_tipo').change(function() {
         

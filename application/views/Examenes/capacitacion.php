@@ -2,7 +2,7 @@
 
 
 <div class="container">
-  <div class="row justify-content-center" style="">
+  <div class="row justify-content-center">
     <div class="col-md-4 mb-4" style="">
       <div>
         <h1>Básico</h1> 

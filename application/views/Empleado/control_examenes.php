@@ -13,6 +13,7 @@
            <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#home" id="pag1">Examenes</a></li>
                 <!-- <li><a data-toggle="tab" href="#menu1" id="pag2">Competencias </a></li> -->
+                <li><a data-toggle="tab" href="#menu5" id="pag3">Pensum </a></li>
                 <li><a data-toggle="tab" href="#menu3" id="pag3">Asignar modulos </a></li>
                 <li><a data-toggle="tab" href="#menu2" id="pag3">Preguntas </a></li>
                 <li><a data-toggle="tab" href="#menu4" id="pag3">Resultados </a></li>
@@ -139,6 +140,12 @@
                         <tbody id="resultados">
                         </tbody>
                     </table>
+                </div>
+
+                <div id="menu5" class="tab-pane fade">
+                    <h2>Asignar historietas a roles</h2>
+                    <button id="insertar_historietas" data-toggle="modal" data-target="#Modal_historietas" class="btn btn-success">Insertar</button>
+                    <br><br>
                 </div>
            </div>
         </div>
@@ -386,6 +393,64 @@
                     <br>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="editar_examen()">Editar</button>
+                </div>
+           
+        </div>
+    </div>
+</div>
+
+<!--Modelo insertar historietas a roles-->
+<div class="modal fade" id="Modal_historietas" tabindex="-1" role="dialog" aria-labelledby="Modal_examenes" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3 class="modal-title text-center" id="Modal_historietas">Insertar historietas</h3>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    <label >Rol:</label>
+                </div>
+                <div class="form-group col-md-4">
+                    <select name="roles" class='form-control' id="roles">
+                        <?php 
+                        foreach ($roles as $roles) {
+                            echo '<option value="'.$roles->rol.'">'.$roles->rol.'</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <br><br><br>
+                <div class="form-row" id="container_filas">
+                    <div class="form-group col-md-2">
+                        <label >Historietas:</label>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <select name="historietas" class="form-control" id="historietas">
+                            <?php 
+                            foreach ($modulos as $modulos) {
+                                echo '<option value="'.$modulos->historieta.'">'.$modulos->historieta.'</option>';
+                                
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <select name="nivel" class="form-control" id="nivel">
+                            <option value="1"> basico </option>
+                            <option value="2"> intermedio </option>
+                            <option value="3"> avanzado </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <button type="button" class="btn btn-primary" onclick="agregarFila()">+</button>
+                    </div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                    <br>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="insertar_examen()">Insertar</button>
                 </div>
            
         </div>
@@ -1395,4 +1460,30 @@ $(document).ready(function() {
                     return +(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp));
                     }
     }
+
+    var contador = 1; // Variable para llevar el conteo de filas
+
+    function agregarFila() {
+        // Clonar la fila con los elementos existentes
+        var filaExistente = document.querySelector('#container_filas');
+        var nuevaFila = filaExistente.cloneNode(true);
+
+        // Incrementar el contador y agregarlo a los nombres de los elementos
+        contador++;
+
+        // Restablecer los valores de los campos de la nueva fila (si es necesario)
+        var selectHistorietas = nuevaFila.querySelector('[name="historietas"]');
+        var selectNivel = nuevaFila.querySelector('[name="nivel"]');
+        selectHistorietas.value = ''; // Restablecer el valor de "historietas"
+        selectNivel.value = ''; // Restablecer el valor de "nivel"
+
+        // Agregar la nueva fila debajo de la última fila existente
+        
+        filaExistente.parentNode.appendChild(nuevaFila);
+
+        // Agregar un salto de línea (espacio) entre las filas
+        container.appendChild(document.createElement('br'));
+        
+    }
+
 </script>

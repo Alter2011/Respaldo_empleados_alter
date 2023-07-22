@@ -799,7 +799,7 @@
                     if($rechazar == 1){
                    ?>
                   <a class="btn btn-danger" data-toggle="modal" data-target="#Modal_Rechazar2" id="btn_permiso"><span class="glyphicon glyphicon-remove"></span> Rechazar</a>
-                  <?php } ?>
+                  <?php } ?>z
                 <?php }
                   $i = 1; ?>
 

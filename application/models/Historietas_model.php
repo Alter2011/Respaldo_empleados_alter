@@ -9,6 +9,7 @@ class Historietas_model extends CI_Model{
     function save_histori(){
         $data = array(
                 'historieta'    => strip_tags($this->input->post('name')), 
+                'nivel'         => strip_tags($this->input->post('nivel'))
             );
         $result=$this->db->insert('historieta',$this->security->xss_clean($data));
         return $result;
@@ -17,8 +18,10 @@ class Historietas_model extends CI_Model{
     function update_histori(){
         $code=$this->input->post('code');
         $name=$this->input->post('name');
+        $nivel = $this->input->post('nivel');
         
         $this->db->set('historieta', $name);
+        $this->db->set('nivel', $nivel);
         $this->db->where('id_historieta', $code);
         $result=$this->db->update('historieta');
         return $result;

@@ -68,6 +68,19 @@ Luego comienza a mostrar el contenido de la pagina
                         <input type="text" name="historieta_name" id="historieta_name" class="form-control" placeholder="Historieta">
                     </div>
                 </div>
+                
+                <div class="form-group row">
+                    <label class="col-md-2 col-form-label">Nivel de la historieta</label>
+                    <div class="col-md-10">
+                    <select class="form-control" id = "nivel_historieta">
+                    <option >Selecciona una opcion</option>
+                    <option value="1">Basico</option>
+                    <option value="2">Intermedio</option>
+                    <option value="3">Avanzado</option>
+                    </select>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -112,6 +125,16 @@ Luego comienza a mostrar el contenido de la pagina
                     <input type="text" name="historieta_name_edit" id="historieta_name_edit" class="form-control" placeholder="Nombre usuario">
                 </div>
             </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">Nivel de la historieta</label>
+                <div class="col-md-10">
+                <select class="form-control" id = "nivel_historieta_edit">
+
+                </select>
+                </div>
+            </div>
+
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -466,6 +489,25 @@ Luego comienza a mostrar el contenido de la pagina
             }
         }
 
+        function handleedit(e){
+            console.log(e)
+            var nivel = e.dataset.nivel
+            console.log(nivel)
+            var options = ''
+            if(nivel === "null"){
+            
+                options = '<option selected>Selecciona el nivel</option> <option value="1">Basico</option> <option value="2">Intermedio</option> <option value="3">Avanzado</option>'
+            }else if (nivel == 1){
+                options = '<option >Selecciona el nivel</option> <option value="1" selected>Basico</option> <option value="2">Intermedio</option> <option value="3">Avanzado</option>'
+            }else if(nivel == 2){
+                options = '<option selected>Selecciona el nivel</option> <option value="1">Basico</option> <option value="2" selected>Intermedio</option> <option value="3">Avanzado</option>'
+            }else if(nivel == 3){
+                options = '<option selected>Selecciona el nivel</option> <option value="1">Basico</option> <option value="2">Intermedio</option> <option value="3" selected>Avanzado</option>'
+            }
+            $("#nivel_historieta_edit").empty()
+           $("#nivel_historieta_edit").append(options)
+
+        }
 
 
     $(document).ready(function(){
@@ -493,6 +535,7 @@ Luego comienza a mostrar el contenido de la pagina
                 async : false,
                 dataType : 'json',
                 success : function(data){
+                    console.log(data)
                     var html = '';
                     var i;
                     for(i=0; i<data.length; i++){
@@ -502,7 +545,7 @@ Luego comienza a mostrar el contenido de la pagina
 
                                     '<a onclick="agregar_capitulo(this)" href="javascript:void(0);" data-toggle="modal" data-target="#Modal_agregar" class="btn btn-warning btn-sm item_edit" data-codigo="'+data[i].id_historieta+'" data-nombre="'+data[i].historieta+'">Agregar capitulo</a>'+' '+
 
-                                    '<a href="javascript:void(0);" data-toggle="modal" data-target="#Modal_Edit" class="btn btn-info btn-sm item_edit" data-codigo="'+data[i].id_historieta+'" data-nombre="'+data[i].historieta+'">Edit</a>'+' '+
+                                    '<a href="javascript:void(0);" data-toggle="modal" data-target="#Modal_Edit" class="btn btn-info btn-sm item_edit" data-codigo="'+data[i].id_historieta+'" data-nombre="'+data[i].historieta+'" data-nivel="'+data[i].nivel+'" onclick="handleedit(this)">Edit</a>'+' '+
                                     '<a href="javascript:void(0);" data-toggle="modal" data-target="#Modal_Delete" class="btn btn-danger btn-sm item_delete" data-codigo="'+data[i].id_historieta+'">Delete</a>'+' '+
                                    /* '<?php if($ver){ ?><a href="javascript:void(0);" class="btn btn-success btn-sm item_ver" data-product_code="'+data[i].product_code+'">Ver</a><?php } ?>'+*/
                                 '</td>'+
@@ -517,6 +560,7 @@ Luego comienza a mostrar el contenido de la pagina
             });
         }
 
+      
 
     
         //Save product
@@ -524,12 +568,13 @@ Luego comienza a mostrar el contenido de la pagina
             this.disabled=true;
             //var employee_code = $('#employee_code').val();
             var name = $('#historieta_name').val();
+            var nivel = $("#nivel_historieta").val();
             
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('Historietas/save')?>",
                 dataType : "JSON",
-                data : { name:name},
+                data : { name:name, nivel: nivel},
                 success: function(data){
                     //$('[name="historieta_name"]').val("");
                     //$('#Modal_Add').modal('hide');
@@ -561,11 +606,12 @@ Luego comienza a mostrar el contenido de la pagina
         $('#btn_update').on('click',function(){
             var code = $('#historieta_code_edit').val();
             var name = $('#historieta_name_edit').val();
+            var nivel = $("#nivel_historieta_edit").val();
             $.ajax({
                 type : "POST",
                 url  : "<?php echo site_url('Historietas/update')?>",
                 dataType : "JSON",
-                data : {code:code,name:name},
+                data : {code:code,name:name, nivel: nivel},
                 success: function(data){
                     $('[name="historieta_code_edit"]').val("");
                     $('[name="historieta_name_edit"]').val("");

@@ -1572,5 +1572,10 @@ class Contratacion extends Base{
         }
         
     }*/
+    public function marcar_dias(){
+        $id_contrato = $this->input->post('id_contrato');
+        $this->contrato_model->marcar_dias($id_contrato);
+        echo json_encode(null);
+    }
 
 }
