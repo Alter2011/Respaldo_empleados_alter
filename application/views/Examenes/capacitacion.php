@@ -3,7 +3,7 @@
 
 <div class="container">
   <div class="row justify-content-center">
-    <div class="col-md-4 mb-4" style="">
+    <div class="col-md-3 mb-4" style="">
       <div>
         <h1>Básico</h1> 
       </div>
@@ -22,7 +22,7 @@
       <?php  $i++; } ?>
     </div>
 
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
       <div>
         <h1>Intermedio</h1> 
       </div>
@@ -40,7 +40,7 @@
       <?php  $i++; } ?>
     </div>
 
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
       <div>
         <h1>Avanzado</h1> 
       </div>

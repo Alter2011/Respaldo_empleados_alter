@@ -1,6 +1,4 @@
-<style>
 
-</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <div class="col-sm-10">
@@ -11,10 +9,10 @@
     <div class="panel-group col-sm-12">
         <div class="panel-body">
            <ul class="nav nav-tabs">
+               <li><a data-toggle="tab" href="#menu5" id="pag3">Pensum </a></li>
+               <li><a data-toggle="tab" href="#menu3" id="pag3">Asignar modulos </a></li>
                 <li class="active"><a data-toggle="tab" href="#home" id="pag1">Examenes</a></li>
                 <!-- <li><a data-toggle="tab" href="#menu1" id="pag2">Competencias </a></li> -->
-                <li><a data-toggle="tab" href="#menu5" id="pag3">Pensum </a></li>
-                <li><a data-toggle="tab" href="#menu3" id="pag3">Asignar modulos </a></li>
                 <li><a data-toggle="tab" href="#menu2" id="pag3">Preguntas </a></li>
                 <li><a data-toggle="tab" href="#menu4" id="pag3">Resultados </a></li>
 
@@ -146,6 +144,19 @@
                     <h2>Asignar historietas a roles</h2>
                     <button id="insertar_historietas" data-toggle="modal" data-target="#Modal_historietas" class="btn btn-success">Insertar</button>
                     <br><br>
+                    <table id="tabla_pensum" class="table table-striped table-bordered" style="width:100%">
+                        <thead class="text-center">
+                        <tr>
+                            <th style="text-align: center">Pensum para cargo</th>
+                            <th style="text-align: center">Fecha creación</th>
+                            <th style="text-align: center">Usuario creador</th>
+                            <th style="text-align: center">Acciones</th>
+
+                        </tr>
+                        </thead>
+                        <tbody id="data_pensum">
+                        </tbody>
+                    </table>
                 </div>
            </div>
         </div>
@@ -404,58 +415,91 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h3 class="modal-title text-center" id="Modal_historietas">Insertar historietas</h3>
+            <h3 class="modal-title text-center" id="Modal_historietash">Insertar historietas</h3>
             </div>
-            
             <div class="form-row">
                 <div class="form-group col-md-2">
                     <label >Rol:</label>
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
                     <select name="roles" class='form-control' id="roles">
                         <?php 
                         foreach ($roles as $roles) {
-                            echo '<option value="'.$roles->rol.'">'.$roles->rol.'</option>';
+                            echo '<option value="'.$roles->id_rol.'">'.$roles->rol.'</option>';
                         }
                         ?>
                     </select>
                 </div>
                 <br><br><br>
                 <div class="form-row" id="container_filas">
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-1" style="width: 90px;">
                         <label >Historietas:</label>
                     </div>
-                    <div class="form-group col-md-3">
-                        <select name="historietas" class="form-control" id="historietas">
+                    <div class="form-group col-md-3" style="width: 250px;">
+                        <select name="historietas[]" class="form-control">
                             <?php 
                             foreach ($modulos as $modulos) {
-                                echo '<option value="'.$modulos->historieta.'">'.$modulos->historieta.'</option>';
+                                echo '<option value="'.$modulos->id_historieta.'">'.$modulos->historieta.'</option>';
                                 
                             }
                             ?>
                         </select>
                     </div>
-                    <div class="form-group col-md-3">
-                        <select name="nivel" class="form-control" id="nivel">
+                    <div class="form-group col-md-2" style="width: 200px;">
+                        <select name="nivel[]" class="form-control" >
+                            <option disabled selected> Seleccione un nivel </option>
                             <option value="1"> basico </option>
                             <option value="2"> intermedio </option>
                             <option value="3"> avanzado </option>
                         </select>
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3" style="width: 200px;">
                         <button type="button" class="btn btn-primary" onclick="agregarFila()">+</button>
+                    </div>
+                    <div class="form-group col-md-3" style="width: 150px; height: 40px">
+                        <input type="hidden" name="modulo[]" placeholder="Nº Modulo" class="form-control">
                     </div>
                 </div>
             </div>
                 <div class="modal-footer">
                     <br>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="insertar_examen()">Insertar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="insertar_historietas()">Insertar</button>
                 </div>
            
         </div>
     </div>
 </div>
+<!--Modelo vista de historietas asociadas al pensum-->
+<div class="modal fade" id="vista_historietas" tabindex="-1" role="dialog" aria-labelledby="vista_pensum" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3 class="modal-title text-center" id="view_historiestas">Historietas inscriptas en pensum para cargo: <span id="cargo"></span></h3>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12" id="contenedor_historietas">
+                    <table id="tabla_data_his" class="table table-striped table-bordered" style="width:100%">
+                        <thead class="text-center">
+                            <tr>
+                                <th style="text-align: center">Historieta</th>
+                                <th style="text-align: center">Nivel</th>
+                                <!-- <th style="text-align: center">Modulo</th> -->
+                                <th style="text-align: center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data_historieta"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-end"> <!-- Agrega la clase "justify-content-end" para alinear los botones a la derecha -->
+                <button type="button" data-rol="" id="eliminar_todo" class="btn btn-danger">Eliminar Todo</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
  <style>    
@@ -472,11 +516,17 @@ th, td {
 </style>
 <script>
 function agregar_modulo(){
-    modulos = <?php echo json_encode($modulos); ?>
+    roles = <?php echo json_encode($roles_modulos); ?>
+
+    modulos = <?php echo json_encode($modulos2); ?>
 
     agencias = <?php echo json_encode($agencias); ?>
 
-    console.log(agencias)
+    var option_roles = ''
+    $.each(roles, function(index, value){
+        option_roles += '<option value="'+value.id_rol+'">'+value.rol+'</option>';
+    });
+
     var option = '';
     $.each(modulos, function(index, value) {
       option += '<option value="' + value.id_historieta + '">' + value.historieta + '</option>';
@@ -490,6 +540,10 @@ function agregar_modulo(){
   title: 'Ingresar un modulo a un empleado',
 
   html:
+    '<select class="form-control" id="rol" onchange="select_roles()">'+
+    '<option selected disabled>Seleccionar un cargo</option>'+
+    option_roles+
+    '</select><br>'+
     '<select class="form-control" id="select1" >' +
     option+
     '</select>' +
@@ -509,6 +563,7 @@ function agregar_modulo(){
     const input1 = Swal.getPopup().querySelector('#select1').value;
     const input2 = Swal.getPopup().querySelector('#select2').value;
     const input3 = Swal.getPopup().querySelector('#empleados_list').value;
+    const input4 = Swal.getPopup().querySelector('#rol').value;
     console.log(input3)
     if (!input1 || !input2 || !input3 || input3== 'Selecciona un empleado' || input3== 0) {
       Swal.showValidationMessage('Por favor, completa ambos campos');
@@ -556,6 +611,29 @@ function agregar_modulo(){
   }
 });
 }
+function select_roles(){
+    id_rol= $('#rol').val();
+    $.ajax({
+        type : "POST",
+        url  : "<?php echo site_url('Empleado/get_empleados_agencia')?>",
+        dataType : "JSON",
+        data : { id_rol:id_rol},
+        success: function(data){
+            console.log(data)
+            $('#empleados_list').empty();
+            $('#empleados_list').append('<option value="0">Seleccione el empleado</option>');
+            for (var i = 0 ; i <data.length; i++) {
+                $('#empleados_list').append('<option value="'+data[i].id_empleado+'">'+data[i].nombre+" "+data[i].apellido+'</option>');
+            }
+        },
+        error: function(data){
+            var a =JSON.stringify(data['responseText']);
+            alert(a);
+        
+        }
+    });
+}
+
 function select_empleados(){
     id_agencia = $('#select2').val();
     $.ajax({
@@ -603,6 +681,7 @@ function get_modulos(){
 
 $(document).ready(function() {
   listar_examenes();
+  listar_pensum();
   listar_competencias();  
   listar_preguntas();
   listar_resultados();
@@ -901,6 +980,7 @@ $(document).ready(function() {
 
     function insertar_preguntas() {
         preguntas = document.getElementsByName('nombre_pregunta[]');
+        console.log(preguntas);
         respuestas = document.getElementsByName('respuesta_pregunta[]');
 
         respuesta_correcta = []
@@ -1461,29 +1541,242 @@ $(document).ready(function() {
                     }
     }
 
-    var contador = 1; // Variable para llevar el conteo de filas
-
     function agregarFila() {
-        // Clonar la fila con los elementos existentes
-        var filaExistente = document.querySelector('#container_filas');
-        var nuevaFila = filaExistente.cloneNode(true);
+        var opciones = <?= json_encode($modulos2); ?>
 
-        // Incrementar el contador y agregarlo a los nombres de los elementos
-        contador++;
-
-        // Restablecer los valores de los campos de la nueva fila (si es necesario)
-        var selectHistorietas = nuevaFila.querySelector('[name="historietas"]');
-        var selectNivel = nuevaFila.querySelector('[name="nivel"]');
-        selectHistorietas.value = ''; // Restablecer el valor de "historietas"
-        selectNivel.value = ''; // Restablecer el valor de "nivel"
-
-        // Agregar la nueva fila debajo de la última fila existente
-        
-        filaExistente.parentNode.appendChild(nuevaFila);
-
-        // Agregar un salto de línea (espacio) entre las filas
-        container.appendChild(document.createElement('br'));
-        
+        var select = ""
+        for(var i=0; i<opciones.length; i++){
+            select += '<option value="'+opciones[i].id_historieta+'">'+opciones[i].historieta+'</option>'
+        }
+        $('#container_filas').append('<div class="form-group col-md-2" style="width: 90px;">'+
+                    '<label >Historietas:</label></div>'+
+                    '<div class="form-group col-md-3" style="width: 250px;">'+
+                    '<select name="historietas[]" class="form-control">'+
+                    select + // Aquí concatenamos las opciones generadas por PHP
+                    '</select></div>'+
+                    '<div class="form-group col-md-3" style="width: 200px;">'+
+                    '<select name="nivel[]" class="form-control" >'+
+                            '<option disabled selected> Seleccione un nivel </option>'+
+                            '<option value="1"> basico </option>'+
+                            '<option value="2"> intermedio </option>'+
+                            '<option value="3"> avanzado </option>'+
+                    '</select></div>'+
+                    '<div class="form-group col-md-3" style="width: 200px;">'+
+                    '<button type="button" class="btn btn-primary" onclick="agregarFila()">+</button></div>'+
+                    '<div class="form-group col-md-3" style="width: 150px; height: 40px">'+
+                    '<input type="hidden" name="modulo[]" placeholder="Nº Modulo" class="form-control"></div>');
     }
 
-</script>
+    function listar_pensum(){
+            $.ajax({
+                type : "POST",
+                url  : "<?php echo site_url('Empleado/listado_pensum')?>",
+                dataType : "JSON",
+                success: function(data){
+                    $('#tabla_pensum').DataTable().destroy();
+                    $('#tabla_pensum #data_pensum').empty();
+                    if (data != null) {
+                        for (var i = 0 ; i <data.length; i++) {
+                            $('#data_pensum').append('<tr>'+
+                                                    '<td>'+data[i].rol+'</td>'+
+                                                    '<td>'+data[i].fecha_creacion+'</td>'+
+                                                    '<td>'+data[i].nombre_empleado+'</td>'+
+                                                    '<td>'+
+                                                        '<button type="button" title="Vista previa"  data-toggle="modal" data-target="#vista_historietas" onclick="ver_historietas('+data[i].id_rol+')" class="btn btn-success ver_examen"><span class="glyphicon glyphicon-eye-open"></span></button> '+
+                                                    '</td>'+
+
+                                                  '</tr>');
+                        }   
+                    }
+                    $('#tabla_pensum').DataTable({
+                        "bAutoWidth": false,
+                        "oLanguage": {
+                            "sSearch": "Buscador: "
+                          },
+                        "order": [[ 3, "desc" ]],
+                    });
+                },
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                
+                }
+            });
+    }
+
+    function insertar_historietas(){
+        modal = document.getElementById('Modal_historietas');
+        rol =  document.getElementById('roles').value
+        historieta_text = document.getElementsByName('historietas[]');
+        nivel_text = document.getElementsByName('nivel[]');
+        
+
+        historieta= []
+        nivel=[];
+        for (i = 0; i < historieta_text.length; i++) {
+            historieta[i] = historieta_text[i].value;
+        }
+        for (i = 0; i < nivel_text.length; i++) {
+            nivel[i] = nivel_text[i].value;
+        }
+
+        $.ajax({
+                type : "POST",
+                url  : "<?php echo site_url('Empleado/insertar_carrera')?>",
+                dataType : "JSON",
+                data : { rol:rol,historieta:historieta,nivel:nivel},
+                success: function(data){
+                    if(data!=null){
+                        //alert('Insercion correcta');
+                        Swal.fire(
+                            'Insercion correcta',
+                            '',
+                            'success'
+                        )
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de inserción',
+                            text: 'Por favor revise que haya ingresado todos los datos',
+                        })
+                        //alert('Por favor revise que haya ingresado todos los datos');
+                    }
+                },
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                
+                }
+            }); 
+    }
+
+    function ver_historietas(rol) {
+        $('#eliminar_todo').attr('data-rol',rol);
+
+        $.ajax({
+            type : "POST",
+            url  : "<?php echo site_url('Empleado/ver_historietas')?>",
+            dataType : "JSON",
+            data : { rol:rol},
+            success: function(data){
+                console.log(data)
+                $('#cargo').text(data.datos_empleados[0].rol);
+                $('#tabla_data_his').DataTable().destroy();
+                $('#tabla_data_his #data_historieta').empty(); 
+                if (data != null) {
+                    for (var i = 0 ; i <data.historietas.length; i++) {
+                        $('#data_historieta').append('<tr>'+
+                            '<td>'+data.historietas[i].historieta+'</td>'+
+                            '<td>'+data.historietas[i].id_nivel+'</td>'+
+                            // '<td>'+data.historietas[i].id_modulo+'</td>'+
+                            '<td><button type="button" title="Eliminar historieta" onclick="eliminar_historieta('+data.historietas[i].id_pensum+')" class="btn btn-danger eliminar_examen"><span class="glyphicon glyphicon-trash"></span></button></td>'+ 
+                            '</tr>');
+                    }   
+                }   
+            },
+            error: function(data){
+                var a =JSON.stringify(data['responseText']);
+                alert(a);
+            }
+        });
+    }
+
+    function eliminar_historieta(id_pensum){
+        var rol = null
+        Swal.fire({
+            title: 'Esta seguro de eliminar este registro?',
+            text: "Este proceso no se puede revertir!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si, eliminar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //luego de verificar eliminar examen
+                    $.ajax({
+                        type : "POST",
+                        url  : "<?php echo site_url('Empleado/eliminar_historieta_pensum')?>",
+                        dataType : "JSON",
+                        data : { id_pensum:id_pensum, rol:rol},
+                        success: function(data){
+                        //alert('Eliminacion correcta');
+                            if(data){
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'Eliminacion correcta.',
+                                    'success'
+                                ).then(function(){
+                                    window.location.href = "<?php echo site_url('Empleado/control_examenes')?>";
+                                });
+                                
+                            }else{
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error de eliminacion',
+                                    text: 'Este examen posee competencias',
+                                })
+                            }
+                        },
+                            error: function(data){
+                            var a =JSON.stringify(data['responseText']);
+                            alert(a);
+                        }
+                    });
+                }
+            })
+    }
+
+    $('#eliminar_todo').on('click', function(){
+        var rol = $(this).attr('data-rol')
+        var id_pensum =  null
+
+        Swal.fire({
+            title: 'Esta seguro de eliminar este registro?',
+            text: "Este proceso no se puede revertir!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si, eliminar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //luego de verificar eliminar examen
+                    $.ajax({
+                        type : "POST",
+                        url  : "<?php echo site_url('Empleado/eliminar_historieta_pensum')?>",
+                        dataType : "JSON",
+                        data : { id_pensum:id_pensum, rol:rol},
+                        success: function(data){
+                        //alert('Eliminacion correcta');
+                            if(data){
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'Eliminacion correcta.',
+                                    'success'
+                                ).then(function(){
+                                    window.location.href = "<?php echo site_url('Empleado/control_examenes')?>";
+                                });
+                                
+                            }else{
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error de eliminacion',
+                                    text: 'Este examen posee competencias',
+                                })
+                            }
+                        },
+                            error: function(data){
+                            var a =JSON.stringify(data['responseText']);
+                            alert(a);
+                        }
+                    });
+                }
+            })
+        
+    });
+
+
+</script><th

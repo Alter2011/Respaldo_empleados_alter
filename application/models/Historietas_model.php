@@ -40,6 +40,7 @@ class Historietas_model extends CI_Model{
         $query = $this->db->get();
         return $query->result();
     }
+    
     function traer_capitulos_historietas($historieta){
         $this->db->select('*');
         $this->db->from('capitulos');
@@ -69,13 +70,27 @@ class Historietas_model extends CI_Model{
         return null;
     }
 
-    function get_group(){
-        $this->db->select('DISTINCT (gp.nombre) as grupo, gp.modulo, perfil.nombre, gp.nivel');
-        $this->db->from('Grupos_capitulos gp');
-        $this->db->join('perfil', 'perfil.id_perfil = gp.id_cargo');
+    function get_group($rol){
+        $this->db->select('pem.id_pensum,pem.id_rol, his.historieta, pem.id_nivel, pem.estado');
+        $this->db->from('pensum_historietas as pem');
+        $this->db->join('historieta as his', 'his.id_historieta=pem.id_historieta');
+        $this->db->where('pem.id_rol',$rol);
+        $this->db->where('pem.estado',1);
 
         $result = $this->db->get();
         return $result->result();
+    }
+
+    function eliminar_historieta_pensum($id_pensum,$rol){
+        $this->db->set('estado',0);
+        if($id_pensum != null){
+            $this->db->where('id_pensum',$id_pensum);
+        }
+        if ($rol != null){
+            $this->db->where('id_rol',$rol);
+        }
+        $result =  $this->db->update('pensum_historietas');
+        return $result;
     }
 
 

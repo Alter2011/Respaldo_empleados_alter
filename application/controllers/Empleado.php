@@ -457,10 +457,13 @@ class Empleado extends Base{
         $data['activo'] = 'Examenes';
         $data['agencias'] = $this->prestamo_model->agencias_listas();
         $data['modulos'] = $this->historietas_model->ver_historietas();
+        $data['modulos2'] = $this->historietas_model->ver_historietas();
         $data['empleados'] = $this->empleado_model->listado_empleados();
         $data['roles']= $this->empleado_model->get_rol();
+        $data['roles_modulos']= $this->empleado_model->get_rol();
+
         // echo "<pre>";
-        // print_r($data['modulos']);
+        // print_r($data['roles']);
         
         $this->load->view('dashboard/header');
         $this->load->view('dashboard/menus',$data);
@@ -936,28 +939,23 @@ class Empleado extends Base{
 
     public function capacitaciones(){
         $data['activo'] = 'Examenes';
-        $data['modulos'] = $this->historietas_model->get_group();
+        $rol = $_SESSION['login']['id_perfil'];
+        $materias_asignadas = $this->historietas_model->get_group($rol);
 
-        $id_empleado = $_SESSION['login']['id_empleado'];
-        $materias_asignadas = $this->empleado_model->materias_asignadas($id_empleado,1);
-      
-        
         $data['basico'] = [];
         $data['intermedio'] = [];
         $data['avanzado'] = [];
        
         for($i=0; $i<count($materias_asignadas); $i++ ){
-            if ($materias_asignadas[$i]->nivel == 1){
+            if ($materias_asignadas[$i]->id_nivel == 1){
                 $data['basico'][$i] = $materias_asignadas[$i];
-            }else if ($materias_asignadas[$i]->nivel == 2){
+            }else if ($materias_asignadas[$i]->id_nivel == 2){
                 $data['intermedio'][$i] = $materias_asignadas[$i];
-            }else if ($materias_asignadas[$i]->nivel == 3){
+            }else if ($materias_asignadas[$i]->id_nivel == 3){
                 $data['avanzado'][$i] = $materias_asignadas[$i];
             }
         }
-        // echo "<pre>";
-        // print_r($data['intermedio']);
-        
+
         $this->load->view('dashboard/header');
 		$this->load->view('dashboard/menus',$data);
         $this->load->view('Examenes/capacitacion');
@@ -988,5 +986,73 @@ class Empleado extends Base{
         //$id_agencia = $this->input->post('id_agencia');
         $notas = $this->empleado_model->traer_notas();
         echo json_encode($notas);
+    }
+
+    public function listado_pensum(){
+        $pensum = $this->empleado_model->listado_pensum();
+        
+        echo json_encode($pensum);
+    }
+
+        //insertar historietas a un  grupo o carreras para pensum
+    public function insertar_carrera(){
+        $rol = $this->input->post('rol');
+        $historietas = $this->input->post('historieta');
+        $nivel = $this->input->post('nivel');
+        $fecha_creacion=date('Y-m-d');
+        // echo "<pre>";
+        // print_r($historietas);
+        
+        if (count($historietas) >0) {
+            for ($i=0; $i<count($historietas); $i++){
+                $data = array(
+                    'id_rol' => $rol,
+                    'id_historieta' => $historietas[$i],
+                    'id_nivel' => $nivel[$i],
+                    'fecha_creacion' => $fecha_creacion,
+                    'usuario_creador' => $_SESSION['login']['id_login'],
+                    'estado' =>1
+                );
+
+                $this->empleado_model->insertar_pensum($data);
+            }
+            echo json_encode(true);
+        }else{
+            echo json_encode(null);
+        }
+    }
+
+    public function ver_historietas(){
+        $rol = $this->input->post('rol');
+        
+        $data['datos_empleados']=$this->empleado_model->listado_pensum($rol);
+        $data['historietas'] = $this->historietas_model->get_group($rol);
+
+        for($i=0; $i<count($data['historietas']); $i++){
+            if ($data['historietas'][$i]->id_nivel == 1){
+                $data['historietas'][$i]->id_nivel = "Basico";
+            }else if ($data['historietas'][$i]->id_nivel == 2){
+                $data['historietas'][$i]->id_nivel = "Intermedio";
+            }else if ($data['historietas'][$i]->id_nivel == 3){
+                $data['historietas'][$i]->id_nivel = "Avanzado";
+            } 
+        }
+        echo json_encode($data);
+    } 
+
+        //eliminar examen
+    public function eliminar_historieta_pensum(){
+        $id_pensum = $this->input->post('id_pensum');
+        $rol = $this->input->post('rol');
+
+
+        $id_historieta=$this->historietas_model->eliminar_historieta_pensum($id_pensum,$rol);
+        // print_r($id_historieta);
+        
+         if (!empty($id_historieta)) {
+            echo json_encode(true);
+         }else{
+            echo json_encode(false);
+         }
     }
 }

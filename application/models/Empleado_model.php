@@ -644,13 +644,43 @@ function save_empleado($data){
     public function get_rol(){
         $this->db->db_select('Operaciones');
 
-        $this->db->select('rol');
+        $this->db->select('*');
         $this->db->from('roles');
 
         $result=$this->db->get();
         $this->db->db_select('tablero');
         return $result->result();
     }
+    
+    public function listado_pensum($rol=null){
+        $this->db->select('DISTINCT(roles.rol), pem.id_rol, pem.fecha_creacion, CONCAT(empleados.nombre," ",empleados.apellido) AS nombre_empleado');
+        $this->db->from('pensum_historietas as pem');
+        $this->db->join('Operaciones.roles AS roles', 'roles.id_rol = pem.id_rol');
+        $this->db->join('login', 'login.id_login = pem.usuario_creador');
+        $this->db->join('empleados', 'empleados.id_empleado = login.id_empleado');
+        $this->db->where('pem.estado', 1);
+        
+        // Subconsulta para obtener la fecha más reciente para cada rol con estado 1
+        $this->db->where('pem.fecha_creacion = (SELECT MAX(pem_inner.fecha_creacion) FROM pensum_historietas AS pem_inner WHERE pem_inner.id_rol = pem.id_rol AND pem_inner.estado = 1)');
+
+        if($rol != null){
+            $this->db->where('pem.id_rol',$rol);
+        }
+     
+
+        $result = $this->db->get();
+        return $result->result();
+    }
+
+    public function insertar_pensum($data){
+        $this->db->insert('pensum_historietas',$data);
+        return $this->db->insert_id();
+    }
+
+    public function get_modulo_rol($id_rol){
+        
+    }
+    
     
 
 }
