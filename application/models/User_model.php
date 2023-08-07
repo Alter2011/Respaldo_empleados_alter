@@ -367,6 +367,20 @@ class User_model extends CI_Model{
       return $result->result();
   }
 
+  public function get_telefonos(){
+    $this->db->select('emp.nombre_empresa, ag.agencia, ar.area, car.cargo,CONCAT(empl.nombre," ",empl.apellido) as empleado, tel.*');
+    $this->db->from('telefonos_empresariales as tel');
+    $this->db->join('empresa as emp','emp.id_empresa=tel.id_empresa');
+    $this->db->join('agencias as ag','ag.id_agencia=tel.id_agencia');
+    $this->db->join('area as ar','ar.id_area=tel.area');
+    $this->db->join('Operaciones.cargos as car','car.id_cargo=tel.id_cargo');
+    $this->db->join('empleados as empl','empl.id_empleado=tel.id_empleado');
+    $this->db->where('tel.estado',1);
+
+    $result = $this->db->get();
+    return $result->result();
+  }
+
 }
 
 ?>

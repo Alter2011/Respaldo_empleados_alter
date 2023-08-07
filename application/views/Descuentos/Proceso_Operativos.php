@@ -91,6 +91,22 @@
             </div>
         <?php } ?>
 
+        <?php if(isset($this->data["seccion_25"]) or isset($this->data["seccion_26"]) or isset($this->data["seccion_27"]) or isset($this->data["seccion_28"])){  ?>
+            <!--8.4 manual de empleados-->
+            <div class="panel-group col-sm-4">
+                <a href="<?= base_url();?>index.php/usuarios/telefonos_empresarial/">
+                    <div class="panel-info" role="button">
+                        <div class="panel-heading print-blue text-center" >
+                            <span class="glyphicon glyphicon glyphicon-phone fa-5x text-center"></span><br/>
+                        </div>
+                        <div class="panel-footer text-center">
+                        <label>Control Telefonos</label>
+                        </div>
+                    </div> 
+                </a>          
+            </div>
+        <?php } ?>
+
     
     </div>
 	</div>

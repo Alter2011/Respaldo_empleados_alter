@@ -527,4 +527,19 @@ class Usuarios extends Base{
         }
     }
 
+	public function telefonos_empresarial($data=null){
+		$data['activo'] = 'login';
+	
+	$this->load->view('dashboard/header');
+	$this->load->view('dashboard/menus',$data);
+	$this->load->view('Usuarios/telefonos_empresarial',$data);
+
+	}
+
+	public function get_telefonos(){
+		$data = $this->user_model->get_telefonos();
+
+		echo json_encode($data);
+	}
+
 }

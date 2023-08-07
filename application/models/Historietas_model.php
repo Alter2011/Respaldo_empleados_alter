@@ -71,7 +71,7 @@ class Historietas_model extends CI_Model{
     }
 
     function get_group($rol){
-        $this->db->select('pem.id_pensum,pem.id_rol, his.historieta, pem.id_nivel, pem.estado');
+        $this->db->select('pem.id_pensum,pem.id_rol, pem.id_historieta, his.historieta, pem.id_nivel, pem.estado');
         $this->db->from('pensum_historietas as pem');
         $this->db->join('historieta as his', 'his.id_historieta=pem.id_historieta');
         $this->db->where('pem.id_rol',$rol);
@@ -91,6 +91,19 @@ class Historietas_model extends CI_Model{
         }
         $result =  $this->db->update('pensum_historietas');
         return $result;
+    }
+
+    function resultados_examen_pensum($id_empleado,$id_historieta){
+        $this->db->select('ROUND(res.nota,2) as nota, res.fecha_creacion, exa.nombre_examen, his.id_historieta, his.historieta, cap.capitulo');
+        $this->db->from('respuestas_examen as res');
+        $this->db->join('examenes_empleados as exa','exa.id_examen=res.id_examen');
+        $this->db->join('capitulos as cap','cap.id_capitulos=exa.modulo');
+        $this->db->join('historieta as his','his.id_historieta=cap.id_historieta');
+        $this->db->where('res.id_empleado',$id_empleado);
+        $this->db->where('cap.id_historieta', $id_historieta);
+
+        $result = $this->db->get();
+        return $result->result();
     }
 
 

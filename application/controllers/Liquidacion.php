@@ -351,6 +351,7 @@ class Liquidacion extends Base {
 
         ///CALCULOS DE LA INDEMNIZACION PROPORCIONAL Y EL AGUINALDO 
         if($ultimoCont[0]->tipo_des_ren == 2){
+            echo ".";
             //se hace el calculo de la proporcionaliad de la indemnizacion
             $limiteI = $this->liquidacion_model->gestiones(2);
 

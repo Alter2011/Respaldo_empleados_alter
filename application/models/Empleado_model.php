@@ -678,7 +678,13 @@ function save_empleado($data){
     }
 
     public function get_modulo_rol($id_rol){
-        
+        $this->db->select('ph.id_historieta, his.historieta');
+        $this->db->from('pensum_historietas as ph');
+        $this->db->join('historieta as his','his.id_historieta=ph.id_historieta');
+        $this->db->where('ph.id_rol',$id_rol);
+
+        $result = $this->db->get();
+        return $result->result();
     }
     
     

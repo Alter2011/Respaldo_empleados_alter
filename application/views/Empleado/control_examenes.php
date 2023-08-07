@@ -527,10 +527,10 @@ function agregar_modulo(){
         option_roles += '<option value="'+value.id_rol+'">'+value.rol+'</option>';
     });
 
-    var option = '';
-    $.each(modulos, function(index, value) {
-      option += '<option value="' + value.id_historieta + '">' + value.historieta + '</option>';
-    });
+    // var option = '';
+    // $.each(modulos, function(index, value) {
+    //   option += '<option value="' + value.id_historieta + '">' + value.historieta + '</option>';
+    // });
     var option_agencias = '';
     $.each(agencias, function(index, value) {
         option_agencias += '<option value="' + value.id_agencia + '">' + value.agencia + '</option>';
@@ -545,7 +545,7 @@ function agregar_modulo(){
     option_roles+
     '</select><br>'+
     '<select class="form-control" id="select1" >' +
-    option+
+    '<option>Selecciona una historieta</option>'+
     '</select>' +
     '<br>'+
     '<select id="select2" class="form-control" onchange="select_empleados()">' +
@@ -615,15 +615,14 @@ function select_roles(){
     id_rol= $('#rol').val();
     $.ajax({
         type : "POST",
-        url  : "<?php echo site_url('Empleado/get_empleados_agencia')?>",
+        url  : "<?php echo site_url('Empleado/get_modulo_rol')?>",
         dataType : "JSON",
         data : { id_rol:id_rol},
         success: function(data){
-            console.log(data)
-            $('#empleados_list').empty();
-            $('#empleados_list').append('<option value="0">Seleccione el empleado</option>');
+            $('#select1').empty();
+            $('#select1').append('<option selected disabled value="0">Seleccione la historieta</option>');
             for (var i = 0 ; i <data.length; i++) {
-                $('#empleados_list').append('<option value="'+data[i].id_empleado+'">'+data[i].nombre+" "+data[i].apellido+'</option>');
+                $('#select1').append('<option value="'+data[i].id_historieta+'">'+data[i].historieta+'</option>');
             }
         },
         error: function(data){

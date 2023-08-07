@@ -940,6 +940,8 @@ class Empleado extends Base{
     public function capacitaciones(){
         $data['activo'] = 'Examenes';
         $rol = $_SESSION['login']['id_perfil'];
+        $empleado = $_SESSION['login']['id_empleado'];
+        
         $materias_asignadas = $this->historietas_model->get_group($rol);
 
         $data['basico'] = [];
@@ -955,6 +957,10 @@ class Empleado extends Base{
                 $data['avanzado'][$i] = $materias_asignadas[$i];
             }
         }
+
+        $data['id_empleado'] = $empleado;
+
+        // print_r($data);
 
         $this->load->view('dashboard/header');
 		$this->load->view('dashboard/menus',$data);
@@ -1054,5 +1060,31 @@ class Empleado extends Base{
          }else{
             echo json_encode(false);
          }
+    }
+
+    public function get_modulo_rol(){
+        $id_rol = $this->input->post('id_rol');
+
+        $data = $this->empleado_model->get_modulo_rol($id_rol);
+
+        echo json_encode($data);
+    }
+
+    public function resultados_examen_pensum(){
+        $id_empleado = $this->input->post('id_empleado');
+        $id_historieta = $this->input->post('idHistorieta');
+        $suma = 0;
+        $conteo = 0;
+
+        $data['resultados'] = $this->historietas_model->resultados_examen_pensum($id_empleado,$id_historieta);
+        
+        for($i=0; $i<count($data['resultados']); $i++){
+            $suma += $data['resultados'][$i]->nota;
+            $conteo ++;
+            $promedio = $suma / $conteo;
+        }
+        $data['promedio'] = $promedio;
+        
+        echo json_encode($data);
     }
 }
