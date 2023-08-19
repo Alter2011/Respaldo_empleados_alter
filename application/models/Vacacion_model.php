@@ -1,6 +1,17 @@
 
 <?php
 class Vacacion_model extends CI_Model{
+  //NO12082023 funcion para verificar si tiene vacacion
+  public function verificar_vacacion($id_contrato, $anio, $diaUno,$diaUltimo){
+    $this->db->select("*");
+    $this->db->from("vacaciones");
+    $this->db->where("id_contrato", $id_contrato);
+    $this->db->where('estado', 1);
+    $this->db->where('vacaciones.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
+    $result = $this->db->get();
+    return $result->result();
+
+  }
 //NO18052023 function para traer todos los empleados
 public function get_all_empleado_by_agencia($id_agencia = null, $id_empresa = null){
   $this->db->select('contrato.*, empleados.*, agencias.agencia');
@@ -859,7 +870,7 @@ where vacaciones.id_vacacion=211
         $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
         $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
         $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
-        $this->db->where('((va.aprobado = 0 and va.estado = 1) or (va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
+        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
         $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
         if($empresa != 'todo' && $empresa != null){
           $this->db->where('co.id_empresa',$empresa);

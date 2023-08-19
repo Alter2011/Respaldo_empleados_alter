@@ -2418,6 +2418,7 @@ class Planillas extends Base
 
                                 //Se buscan las incapacidades que posee el empleado
                                 $incapacidad = $this->Planillas_model->incapacidades($empleados[$i]->id_empleado);
+                              
                                 //recordatorio que el +1 es para que se tome en cuanta el dia de inicio en los conteos
                                 //de la diferencia de dias
                                 for ($k = 0; $k < count($incapacidad); $k++) {

@@ -66,6 +66,7 @@
                             <?php if($control == 1){ ?>
                                 <li><a data-toggle="tab" href="#menu2" id="pag3">Control vacaciones</a></li>
                             <?php } ?>
+                            <li><a data-toggle="tab" href="#menu5" id="pag6">Calendario vacaciones</a></li>
 
                             <!-- NO27042023 -->
                             <?php if($agendar == 1){ ?>
@@ -74,6 +75,8 @@
                             <?php if($guardar_vacaciones == 1){ ?>
                                 <li><a data-toggle="tab" href="#menu4" id="pag5">Aprobar vacaciones</a></li>
                             <?php } ?>
+
+                         
                               <!-- NO27042023 -->
 
                           </ul>  
@@ -396,6 +399,57 @@
 </table>
 </div><!--Fin menu4-->
 
+<!-- INICIO DE MENU 5 -->
+<div id="menu5" class="tab-pane fade"><br>
+<div class="form-row" id="reporte_vacacion">
+
+</div>
+<div class="col-sm-3" style="text-align: center;">
+                                        <label for="inputState">Quincena</label>
+                                            <select class="form-control" name="quincena_calendario" id="quincena_calendario" class="form-control">
+                                                <option value="1">Primera Quincena</option>
+                                                <option value="2">Segunda Quincena</option>
+                                            </select>
+                                    </div>
+                                    <div class="col-sm-3" style="text-align: center;">
+                                        <label for="inputState">Mes de vacación</label>
+                                        <input type="month" class="form-control" id="mes_calendario" name="mes_calendario" value="<?php echo date('Y-m')?>">
+                                    </div>
+<div class="form-row" id="reporte_agencia">
+
+</div>
+
+
+
+<div class="form-row" id="btn_aceptar">
+<div class="form-group col-md-2">
+    <center><a id="calendario_vaca" class="btn btn-primary btn-sm item_filtrar_dia" style="margin-top: 23px;" onclick="calendario_vacacion()">Aceptar</a></center>
+</div>
+</div>
+<table class="table table-striped table-bordered" id="calendario_vacacion">
+<thead>
+    <tr class="success">
+    <th style="text-align:center;">Nombre</th> 
+    <th style="text-align:center;">Agencia</th>
+    <th style="text-align:center;">Fecha de cumplimiento</th>
+    <th style="text-align:center;">Sueldo</th>
+    <th style="text-align:center;">Bono</th>
+    <th style="text-align:center;">Prima</th>
+    <th style="text-align:center;">Total devengado</th>
+    <th style="text-align:center;">Total descuentos de ley</th>
+    <th style="text-align:center;">Total descuentos varios</th>
+    <th style="text-align:center;">Total a pagar</th>
+
+
+    </tr>
+</thead>
+<tbody class="tabla_calendario">
+                    
+</tbody> 
+</table>
+</div><!--Fin menu5-->
+
+
 
 
 
@@ -500,6 +554,47 @@
 
 <script type="text/javascript">
     //NO27042023
+    function calendario_vacacion(){
+        mes = $("#mes_calendario").val()
+        quincena_calendario = $("#quincena_calendario").val()
+        $(".tabla_calendario").empty()
+        agencia = 1
+        $.ajax({
+                type  : 'POST',
+                url   : '<?php echo site_url('vacaciones/calendario_vacacion')?>',
+                dataType : 'JSON',
+                data : {mes:mes,quincena_calendario:quincena_calendario,agencia:agencia},
+                success : function(data){
+                    $.each(data.vacacion_guardar,function(key, registro){
+                        if(registro.guardado == 1){
+                            estado = 'Guardado'
+                        }else{
+                            estado = 'Pendiente'
+                        }
+                        $(".tabla_calendario").append('<tr>'+
+                        '<td>'+registro.empleado+'</td>'+
+                        '<td>'+registro.agencia+'</td>'+
+                        '<td>'+registro.fecha_vacacion+'</td>'+
+                        '<td>'+parseFloat(registro.sueldo_quin).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.comisiones).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.prima).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.total_pagar).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.isss + registro.afp + registro.renta).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.orden_descuento + registro.personal + registro.interno + registro.anticipos).toFixed(2)+'</td>'+
+                        '<td>'+parseFloat(registro.a_pagar).toFixed(2)+'</td>'+
+                        '</tr>'
+                        )
+
+                    });
+                   
+                },  
+                error: function(data){
+                    var a =JSON.stringify(data['responseText']);
+                    alert(a);
+                }
+            });
+      
+    }
     function eliminar_vacacion(id_vacacion){
         console.log(id_vacacion)
         $("#id_vacacion_eliminar").val(id_vacacion)
@@ -691,18 +786,23 @@
                 dataType : 'JSON',
                 data : {agencia:agencia, anio:anio},
                 success : function(data){
-                //    console.log(data)
+                   console.log(data)
                 // WM01062023 se modifico para obtenga datos de empleadosAgendar
-                   $.each(data.empleadosAgendar,function(key, registro){
+                   $.each(data.empleados_disponibles,function(key, registro){
+                    if(registro.disponible == 1){
+                            accion = "<td><p class='success'>Vacacion agendada</p></td>"
+                        }else{
+                            accion = "<td style='text-align:center;'>"+
+                                   '<a  class="btn btn-success btn-sm" data-id_contrato = '+registro.id_contrato+' data-id_empleado='+registro.id_empleado+' data-fecha_inicio = '+registro.fecha_inicio+' onclick="showAgendar(this)">Agendar vacacion</a>'+                                   
+                                "</td>"
+                        }
                         $('.tabla5').empty()
                         $('.tablaagendar').append(
                         '<tr>'+
                                 '<td>'+registro.nombre+'</td>'+
                                 '<td>'+registro.apellido+'</td>'+
                                 
-                                '<td style="text-align:center;">'+
-                                   '<a  class="btn btn-success btn-sm" data-id_contrato = '+registro.id_contrato+' data-id_empleado='+registro.id_empleado+' data-fecha_inicio = '+registro.fecha_inicio+' onclick="showAgendar(this)">Agendar vacacion</a>'+                                   
-                                '</td>'+
+                               accion+
                                 '</tr>'
                         );
                    });

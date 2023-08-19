@@ -457,7 +457,7 @@ function save_empleado($data){
                         JOIN contrato AS con ON con.id_empleado = em.id_empleado
                         WHERE con.id_agencia = '.$this->db->escape($agencia).' AND em.activo = 1) AS subquery');
         $this->db->where('rn', 1);
-        $this->db->order_by('subquery.fecha_inicio', 'ASC');
+        $this->db->order_by('subquery.fecha_inicio', 'DESC');
     
         $query = $this->db->get();
         $result = $query->result();

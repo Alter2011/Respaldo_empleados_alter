@@ -1418,7 +1418,7 @@ class Planillas_model extends CI_Model{
       $this->db->from('incapacidad inc'); 
       $this->db->join('contrato co', 'co.id_contrato=inc.id_contrato');
       $this->db->where('inc.estado', 1);
-      $this->db->where('inc.id_inca_exte IS null');
+     // $this->db->where('inc.id_inca_exte IS null');
       $this->db->where('co.id_empleado', $id_empleado);
 
       $result = $this->db->get();

@@ -16,44 +16,44 @@
 <?php 
     if(!empty($vacacion_guardar)){
         $vacaciones1=json_encode($vacacion_guardar);
-        print_r($vacaciones1);
+       // print_r($vacaciones1);
     }else{
         
         $vacaciones1="";
     }
     if(!empty($prestamo_interno)){
         $prestamo_interno1=json_encode($prestamo_interno);
-        print_r($prestamo_interno1);
+       // print_r($prestamo_interno1);
     }else{
         $prestamo_interno1="";
     }
     if(!empty($prestamo_per)){
         $prestamo_per1=json_encode($prestamo_per);
-        print_r($prestamo_per1);
+       // print_r($prestamo_per1);
     }else{
         $prestamo_per1="";
     }
     if(!empty($anticipo)){
         $anticipo1=json_encode($anticipo);
-         print_r($anticipo1);
+       //  print_r($anticipo1);
     }else{
         $anticipo1="";
     }
     if(!empty($descuenta_herramienta)){
         $descuenta_herramienta1=json_encode($descuenta_herramienta);
-         print_r($descuenta_herramienta1);
+       //  print_r($descuenta_herramienta1);
     }else{
         $descuenta_herramienta1="";
     }
     if(!empty($orden_descuento)){
         $orden_descuento1=json_encode($orden_descuento);
-        print_r($orden_descuento1);
+      //  print_r($orden_descuento1);
     }else{
         $orden_descuento1="";
     }
     if(!empty($prestamos_siga)){
         $prestamos_siga1=json_encode($prestamos_siga);
-         print_r($prestamos_siga1);
+     //    print_r($prestamos_siga1);
     }else{
         $prestamos_siga1="";
     }
