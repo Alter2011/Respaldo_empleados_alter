@@ -2204,6 +2204,7 @@ class Planillas extends Base
 
     public function generar_planilla()
     {
+        print_r($_SESSION['login']['id_empleado']);
         //en este metodo se generan las planillas
         //explicacion rapida de como funciona la logica
         //Se hacen los calculos de lo que se tiene que mostrar en planilla y se acumulan en los arreglos de abajo
@@ -2374,7 +2375,9 @@ class Planillas extends Base
                                 }
                                 //Se busca si el empleado tiene bosnos asignados
                                 //NO09012023 sacar las gratificaciones
-                                $bonos = $this->Planillas_model->bonoActual($primerDia, $ultimoDia, $empleados[$i]->id_empleado);
+                                $primerDiaMes = $anio.'-'.$mes1.'-01';
+                                $ultimoDiaMes = date('Y-m-d',mktime(0, 0, 0, $mes1+1, 0 , $anio));
+                                $bonos = $this->Planillas_model->bonoActual($primerDiaMes, $ultimoDiaMes, $empleados[$i]->id_empleado);
                                 for ($k = 0; $k < count($bonos); $k++) {
                                     $bonoSum += $bonos[$k]->cantidad;
                                     $bonos[$k]->id_empleado = $empleados[$i]->id_empleado;
