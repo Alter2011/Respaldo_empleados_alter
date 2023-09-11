@@ -150,7 +150,7 @@ class Permisos extends Base {
 			$agencia=$_SESSION['login']['agencia'];
 
 			$carteras_asignadas=$this->conteos_model->carteras_asignadas($_SESSION['login']['id_login']);//carteras que posee la persona
-			print_r($carteras_asignadas);
+			
 			if (count($carteras_asignadas)>1) {//si pose mas de una cartera entrara
 				$data['carteras_asignadas']=$carteras_asignadas;
 			}

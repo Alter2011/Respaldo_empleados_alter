@@ -2153,7 +2153,7 @@ $this->db->from('Operaciones.generales_produccion gp,tablero.asignar_agencias aa
         $this->db->from('usuario_cartera');
         $this->db->join('carteras', 'carteras.id_cartera=usuario_cartera.id_cartera');
         $this->db->join('agencias', 'agencias.id_agencia=carteras.id_agencia');
-
+        $this->db->where(", $id_usuario);
 
         $this->db->where("id_usuarios", $id_usuario);
 
