@@ -2946,11 +2946,28 @@ class Planillas extends Base
                                 if ($dias_viaticos < 0) {
                                     $dias_viaticos = 0;
                                 }
-
+                             
+                               
+                                $asuetos = $this->Planillas_model->get_asuetos($primerDia, $ultimoDia, $empleados[$i]->id_agencia);
+                                $dias_asueto = 0;
+                                if(!empty($asuetos)){
+                                    foreach($asuetos as $asueto){
+                                        
+                                        $inicio = new DateTime($asueto->fecha_inicio);
+                                        $fin = new DateTime($asueto->fecha_fin);
+                                        $intervalo = $inicio->diff($fin);
+                                        $diasCantidad = $intervalo->days;
+                                        $dias_asueto += $diasCantidad;
+                                    }
+                                }
+                                
+                                $dias_viaticos = $dias_viaticos - $dias_asueto;
+                               
                                 //VIATICOS QUE SE APLICARAN EN PLANILLA
                                 $viaticos = $this->Planillas_model->empleados_viaticos($empleados[$i]->id_empleado, $mes, $num_quincena);
                                 for ($k = 0; $k < count($viaticos); $k++) {
                                     $bandera = true;
+                                  
                                     //se verifica que clase de viatico es y se hacen los calculos necesario
                                     if ($viaticos[$k]->estado == 1 || $viaticos[$k]->estado == 2 || $viaticos[$k]->estado == 4 || $viaticos[$k]->estado == 9) {
                                         $consumo_ruta = ($viaticos[$k]->consumo_ruta / 15) * $dias_viaticos;

@@ -1,6 +1,20 @@
 <?php
 class Planillas_model extends CI_Model{
 
+  //NO14092023
+  public function get_asuetos($primerDia, $ultimoDia, $agencia){
+    $this->db->db_select('Operaciones');
+    $this->db->select('asuetos.*,agencias.agencia');
+    $this->db->from('asuetos');
+     $this->db->join('agencias', 'agencias.id_agencia = asuetos.id_agencia');
+    $this->db->where('asuetos.fecha_inicio >=', $primerDia);
+    $this->db->where('asuetos.fecha_inicio <=', $ultimoDia);
+    $this->db->where('asuetos.id_agencia', $agencia);
+    $this->db->where("asuetos.estado != 0");
+    $result = $this->db->get();
+    $this->db->db_select('tablero');
+    return $result->result();
+}
   function empresas_lista(){
     $this->db->select('*');
     $this->db->from('empresa'); 
