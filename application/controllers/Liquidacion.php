@@ -118,7 +118,7 @@ class Liquidacion extends Base {
         if($empresa == 'todas'){
             $empresa = null;
         }
-        $response = $this-> liquidacion_model->buscarRetencion($agencia,$empresa, $anio);
+        $response = $this-> liquidacion_model->buscarRetencion($agencia,$empresa, $anio, date('Y-m-d'));
         echo json_encode($response);
 
     }
@@ -188,7 +188,7 @@ class Liquidacion extends Base {
         if($agencia == 'todas' ||  is_null($agencia)){
             $agencia = null;
         }
-        $data = $this->liquidacion_model->getRetenidos($agencia);
+        $data = $this->liquidacion_model->getRetenidos($agencia, date('Y-m-d'));
         echo json_encode($data);
     }
  
@@ -552,7 +552,7 @@ class Liquidacion extends Base {
         if($diasLab < 0){
             $diasLab = 0;
         }
-        echo $diasLab;
+       
         //se saca el sueldo del dia 
         $sueldoDia = ($sueldoQuincena/15);
         //se hace la proporcionalidad del sueldo
@@ -3488,5 +3488,9 @@ class Liquidacion extends Base {
 
     function esBisiesto($anio=null) {
         return date('L',($anio==null) ? time(): strtotime($anio.'-01-01'));
+    }
+    //NO22092023
+    function guardar_pago_SIGA(){
+        
     }
 }

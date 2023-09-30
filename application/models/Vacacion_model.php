@@ -459,15 +459,15 @@ where vacaciones.id_vacacion=211
       $query = $this->db->get();
       return $query->result();
   }
-
+//NO22092023
   function verificacionVaca($code){
     //se trae el id  de la vacacion que esta activa
-     $this->db->select('va.id_vacacion');
+     $this->db->select('va.id_vacacion, va.fecha_aplicacion, co.id_agencia');
       $this->db->from('vacaciones va');
       $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
       $this->db->where('co.id_empleado', $code);
       $this->db->where('va.estado', 1);
-      $this->db->where('va.aprobado', 1);
+      $this->db->where('va.ingresado', 1);
       $this->db->order_by('va.fecha_aplicacion','DESC');
 
       $query = $this->db->get();
@@ -855,42 +855,42 @@ where vacaciones.id_vacacion=211
   }
     //NO28042023 vacaciones cancelar
     function cancelar_vacacion($id_vacacion){
-      $this->db->set('aprobado', 0);
+      $this->db->set('ingresado', 0);
       $this->db->set('estado', 0);
       $this->db->where('id_vacacion', $id_vacacion);
       $this->db->update('vacaciones');
       return null;
     }
 
-      //NO18052023 modificacion para traer la vacacion de 1 empleado
-      // WM01062023 se modifico el primer where para que regrese datos con aprobado 0 y estado 1
-      function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $id_empleado = null){
-        $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado, va.aprobado, va.id_vacacion');
-        $this->db->from('vacaciones va');
-        $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
-        $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
-        $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
-        $this->db->where('((va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
-        $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
-        if($empresa != 'todo' && $empresa != null){
-          $this->db->where('co.id_empresa',$empresa);
-        }
+ //NO18052023 modificacion para traer la vacacion de 1 empleado
+ function vacacionAnio($diaUno,$diaUltimo,$empresa,$agencia, $ag_admon, $id_empleado = null){
+  $this->db->select('va.id_vacacion, ag.agencia, em.nombre, em.apellido, va.fecha_aplicacion, co.id_empleado, va.aprobado, va.id_vacacion');
+  $this->db->from('vacaciones va');
+  $this->db->join('contrato co', 'co.id_contrato=va.id_contrato');
+  $this->db->join('agencias ag', 'ag.id_agencia=co.id_agencia');
+  $this->db->join('empleados em', 'em.id_empleado=co.id_empleado');
+ 
+  $this->db->where('((va.aprobado = 0 and va.estado = 1) or (va.aprobado = 1 and va.estado = 1) or (va.aprobado = 1 and va.estado = 2) or (va.aprobado = 1 and va.estado = 1))');
   
-        if($agencia != 'todas' && $agencia != null){
-          $this->db->where('co.id_agencia',$agencia);
-        }
-  
-        if($ag_admon != null){
-          $this->db->where('ag.id_agencia != 00');
-        }
-        if($id_empleado != null){
-          $this->db->where('em.id_empleado', $id_empleado);
-        }
-          
-        $query = $this->db->get();
-        return $query->result();
-        }
-  
+  $this->db->where('va.fecha_aplicacion BETWEEN"'.$diaUno.'" and "'.$diaUltimo.'"');
+  if($empresa != 'todo' && $empresa != null){
+    $this->db->where('co.id_empresa',$empresa);
+  }
+
+  if($agencia != 'todas' && $agencia != null){
+    $this->db->where('co.id_agencia',$agencia);
+  }
+
+  if($ag_admon != null){
+    $this->db->where('ag.id_agencia != 00');
+  }
+  if($id_empleado != null){
+    $this->db->where('em.id_empleado', $id_empleado);
+  }
+    
+  $query = $this->db->get();
+  return $query->result();
+  }
 
   function vacaAnterior($diaUno,$diaUltimo,$code){
       $this->db->select('COUNT(*) as conteo');

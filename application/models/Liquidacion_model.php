@@ -808,8 +808,8 @@ class Liquidacion_model extends CI_Model{
    
 
    //NO28122022 funcion para traer a los empleados que aplican a retencion 
-   function buscarRetencion($agencia = null, $empresa = null, $anio = null){
-    $this->db->select("emp.nombre_empresa,em.nombre, em.apellido, em.dui, ind.ingreso_empleado,ind.retencion_indem, TIMESTAMPDIFF(DAY, ind.ingreso_empleado, '2022-12-31') as antiguedad, categoria_cargo.sbase, ind.cantidad_bruto, ind.retencion, ind.cantidad_liquida, ind.anio_aplicar, ind.anticipo, ag.agencia, co.id_empleado,co.id_contrato, ind.retencion_indem, ind.id_indemnizacion");
+   function buscarRetencion($agencia = null, $empresa = null, $anio = null, $fecha){
+    $this->db->select("emp.nombre_empresa,em.nombre, em.apellido, em.dui, ind.ingreso_empleado,ind.retencion_indem, TIMESTAMPDIFF(DAY, ind.ingreso_empleado, '".$fecha."') as antiguedad, categoria_cargo.sbase, ind.cantidad_bruto, ind.retencion, ind.cantidad_liquida, ind.anio_aplicar, ind.anticipo, ag.agencia, co.id_empleado,co.id_contrato, ind.retencion_indem, ind.id_indemnizacion");
     $this->db->from("empleados em");
     $this->db->join("contrato co", 'co.id_empleado= em.id_empleado');
     $this->db->join('categoria_cargo', 'co.id_categoria=categoria_cargo.id_categoria');
@@ -828,7 +828,7 @@ class Liquidacion_model extends CI_Model{
     if($empresa != null){
         $this->db->where('emp.id_empresa', $empresa);
     }
-    $this->db->where('TIMESTAMPDIFF(DAY, ind.ingreso_empleado, "2022-12-31") <= 365');
+    $this->db->where('TIMESTAMPDIFF(DAY, ind.ingreso_empleado, "'.$fecha.'") <= 365');
     $result = $this->db->get();
     return $result->result();
    }
@@ -855,7 +855,7 @@ class Liquidacion_model extends CI_Model{
     if($anio != null){
         $this->db->where('tablero.indemnizacion.anio_aplicar', $anio);
     }
-    $this->db->where('substr(fecha_desembolso, 1, 10)>= "2022-01-01" and substr(fecha_desembolso,1,10) <= "2023-12-31"');
+    $this->db->where('substr(fecha_desembolso, 1, 10)>= "2022-01-01" and substr(fecha_desembolso,1,10) <= "2024-12-31"');
     $this->db->where('credito.estado = 1');
     $this->db->where('tablero.contrato.estado = 1 or tablero.contrato.estado = 3 or tablero.contrato.estado = 10');
     $this->db->where('tablero.indemnizacion.estado = 0');
@@ -919,8 +919,8 @@ class Liquidacion_model extends CI_Model{
     return $response->result();
    }
    //function para traer los empleados con retencion aprobadas NO030123
-   function getRetenidos($agencia = null){
-    $this->db->select('indemnizacion.*, agencias.agencia, empleados.nombre, empleados.apellido, categoria_cargo.Sbase, TIMESTAMPDIFF(DAY, indemnizacion.ingreso_empleado, "2022-12-31") as antiguedad');
+   function getRetenidos($agencia = null, $fecha){
+    $this->db->select('indemnizacion.*, agencias.agencia, empleados.nombre, empleados.apellido, categoria_cargo.Sbase, TIMESTAMPDIFF(DAY, indemnizacion.ingreso_empleado, "'.$fecha.'") as antiguedad');
     $this->db->from('indemnizacion');
     $this->db->join('contrato', 'contrato.id_contrato = indemnizacion.id_contrato');
     $this->db->join('agencias','agencias.id_agencia = contrato.id_agencia');
@@ -928,7 +928,7 @@ class Liquidacion_model extends CI_Model{
     $this->db->join('categoria_cargo', 'categoria_cargo.id_categoria = contrato.id_categoria');
     $this->db->where('indemnizacion.retencion_indem != 0');
     $this->db->where('indemnizacion.estado = 1');
-    $this->db->where('indemnizacion.anio_aplicar = 2022');
+    $this->db->where('indemnizacion.anio_aplicar > 2022');
     if($agencia != null){
     $this->db->where('agencias.id_agencia', $agencia);
     }

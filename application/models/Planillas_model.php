@@ -1547,7 +1547,7 @@ class Planillas_model extends CI_Model{
       $dias = "and tipo_credito.dias_interes >= 15";
     }
     $this->db->db_select('Operaciones');
-    $this->db->select('cliente.codigo, cliente_empleado.id_empleado, concat(cliente.nombre," ",cliente.apellido) as nombre, tipo_credito.interes_total, tipo_credito.interes_alter, tipo_credito.dias_interes, credito_empleado.codigo, credito_empleado.monto_pagar, substr(desembolso_empleado.fecha_desembolso, 1, 10) as fecha_desembolso, solicitud.monto, factibilidad.cuota_diaria,cuota_seguro_vida,cuota_seguro_deuda,cuota_vehicular');
+    $this->db->select('cliente.codigo, cliente_empleado.id_empleado, concat(cliente.nombre," ",cliente.apellido) as nombre, tipo_credito.interes_total, tipo_credito.interes_alter, tipo_credito.dias_interes, credito_empleado.codigo, credito_empleado.monto_pagar, substr(desembolso_empleado.fecha_desembolso, 1, 10) as fecha_desembolso, solicitud.monto, factibilidad.cuota_diaria,cuota_seguro_vida,cuota_seguro_deuda,cuota_vehicular, credito_empleado.agencia');
     $this->db->from('solicitud');
 
     $this->db->join('tipo_credito', 'tipo_credito.id_tipo_credito=solicitud.plazo');
