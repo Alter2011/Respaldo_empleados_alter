@@ -1,6 +1,39 @@
 <?php
 class Viaticos_model extends CI_Model{
+  // function llenado($id_agencia){
+  //   $data = array(
+  //     "id_agencia" => $id_agencia,
+  //     "limite_viaticos_extra" => 0
+  //   );
+  //   $this->db->insert("limite_viaticos_agencia",$data);
 
+
+  // }
+  function viaticos_total_agencia($agencia, $mes, $quincena){
+    $this->db->select("SUM(total) as total");
+    $this->db->from("viaticos_carteras");
+    $this->db->where("id_agencia", $agencia);
+    //$this->db->where("estado", 1);
+    $this->db->where("mes", $mes);
+    $this->db->where("quincena", $quincena);
+    $result = $this->db->get();
+    return $result->result();
+  }
+  function insertar_limite($agencia, $limite){
+    $data = array(
+      "limite_viaticos_extra" => $limite
+    );
+    $this->db->where("id_agencia", $agencia);
+    $this->db->update("limite_viaticos_agencia",$data);
+    
+  }
+  function limite_viaticos($agencia){
+    $this->db->select("limite_viaticos_extra");
+    $this->db->from("limite_viaticos_agencia");
+    $this->db->where("id_agencia", $agencia);
+    $result = $this->db->get();
+    return $result->result();
+  }
   function getContrato($code){
     $this->db->select('*');
     $this->db->from('contrato'); 

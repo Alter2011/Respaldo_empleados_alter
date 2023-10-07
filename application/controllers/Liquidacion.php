@@ -197,8 +197,6 @@ class Liquidacion extends Base {
         $this->load->view('dashboard/header');
         $data['activo'] = 'Liquidacion';
         $id_contrato = $this->uri->segment(3);
-
-        $traer_bono = $this->conteos_model->get_last_bono($id_contrato);
        
         $fecha_actual = date('d');
         $mes_anio = date('Y-m');
@@ -206,7 +204,11 @@ class Liquidacion extends Base {
 
 
         $data['bono'] = 0;
-        if(!empty($traer_bono)){
+        $traer_bono = $this->conteos_model->get_last_bono($id_contrato, $mes_anio);
+
+
+        $data['bono'] = 0;
+        if(!empty($traer_bono) && $traer_bono[0]->mes == $mes_anio){
             if($fecha_actual > 1 && $fecha_actual < 15 && ($mes_anio == $traer_bono[0]->mes)){
                 $quincena = 1;
             }else{
@@ -216,7 +218,10 @@ class Liquidacion extends Base {
             //YA PASO LA QUINCENA PARA PAGAR ESTE BONO
             $data['bono'] = 0;
         }else{
-            $data['bono'] = $traer_bono[0]->bono;
+            for($i = 0; $i < count($traer_bono); $i++){
+                    $data['bono'] += $traer_bono[$i]->bono;             
+            }
+          
         }
         }
 

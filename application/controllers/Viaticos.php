@@ -263,9 +263,11 @@ class Viaticos extends Base {
     }*/
 
     //VIATICOS SEGUN KM
+    //NO05102023
     function precio_gasolina(){
         $this->verificar_acceso($this->seccion_actual2["mantenimiento"]);
         $data['combustible'] = $this->viaticos_model->precio_gas();
+        $data['agencias'] = $this->prestamo_model->agencias_listas();
         for($i = 0; $i < count($data['combustible']); $i++){
             if($data['combustible'][$i]->zona == 1){
                 $data['combustible'][$i]->nombre_zona = 'Central';
@@ -282,7 +284,70 @@ class Viaticos extends Base {
         $this->load->view('dashboard/menus',$data);
         $this->load->view('Viaticos/precio_gasolina',$data);
     }
+    //NO05102023
+    function calcular_viatico_agencia(){
 
+        $agencia = $this->input->post("agencia");
+        //$agencia = 01;
+        $all_carteras = $this->viaticos_model->carteras_viaticos($agencia);
+        $moto = $this->viaticos_model->moto_base();
+        $item = $this->viaticos_model->depreciacion_motocicleta();
+        $tiempo_vida = $moto[0]->tiempo_vida*24;
+        $precios = $this->viaticos_model->precios_zona($agencia);
+        $data['limite_viaticos_extra'] = $this->viaticos_model->limite_viaticos($agencia);
+        
+        $data['totalViaticosAgencia'] = 0;
+       foreach($all_carteras as $cartera){
+            $consumo_ruta = 0;
+            $depreciacion = 0;
+            $llanta_del = 0;
+            $llanta_tra = 0;
+            $mont_gral = 0;
+            $aceite = 0;
+            $total = 0;
+            $km_totales = $cartera->KM;
+            $km_mes = 30*$km_totales;
+            $gal_consumidos = $km_mes/$moto[0]->consumo_gal;
+            $consumo_ruta = $gal_consumidos*$precios[0]->precio;
+            $porcentaje = $km_mes/(($moto[0]->km_uso/$moto[0]->tiempo_vida)/24);
+            $depreciacion = ($moto[0]->precio/$tiempo_vida)*$porcentaje;
+            $llanta_del = ($item[0]->mesual/2)*$porcentaje;
+            $llanta_tra = ($item[1]->mesual/2)*$porcentaje;
+            $mont_gral = ($item[2]->mesual/2)*$porcentaje;
+            $aceite = ($item[3]->mesual/2)*$porcentaje;
+            $total = $consumo_ruta+$depreciacion+$llanta_del+$llanta_tra+$mont_gral+$aceite;
+            $data['totalViaticosAgencia'] += $total;
+       }
+       $data['sumaTotal'] = $data['totalViaticosAgencia']  + $data['limite_viaticos_extra'][0]->limite_viaticos_extra;
+       echo json_encode($data);
+    }
+
+    function viaticos_total_agencia(){
+        $agencia = 01;
+        $mes = date("2023-05");
+        $quincena = 1;
+        $total_viaticos_agencia = $this->viaticos_model->viaticos_total_agencia($agencia, $mes, $quincena);
+        $total_viaticos_extra = $this->viaticos_model->limite_viaticos($agencia);
+        echo "<pre>";
+        print_r($total_viaticos_extra[0]->limite_viaticos_extra);
+        print_r($total_viaticos_agencia[0]->total);
+
+    }
+    //NO05102023
+    // function llenado(){
+    //     $agencias = $this->prestamo_model->agencias_listas();
+
+    //     foreach ($agencias as $agencia) {
+    //         $this->viaticos_model->llenado($agencia->id_agencia);
+    //     }
+    // }
+    function limite_viaticos(){
+        $agencia = $this->input->post("agencia");
+        $limiteViaticos = $this->input->post("limiteViaticos");
+        $this->viaticos_model->insertar_limite($agencia,$limiteViaticos);
+        echo json_encode(null);
+        
+    }
     function get_precios(){
         $precio=$this->input->post('precio');
 
@@ -1000,6 +1065,49 @@ class Viaticos extends Base {
                 $bandera = false;
                 $data .= 'La cantidad de viatico extra debe de ser mayor a cero<br>';
             }
+
+            $total_viaticos_agencia = $this->viaticos_model->viaticos_total_agencia($agencia, $mes, $quincena);
+            $total_viaticos_extra = $this->viaticos_model->limite_viaticos($agencia);
+
+            $all_carteras = $this->viaticos_model->carteras_viaticos($agencia);
+            $moto = $this->viaticos_model->moto_base();
+            $item = $this->viaticos_model->depreciacion_motocicleta();
+            $tiempo_vida = $moto[0]->tiempo_vida*24;
+            $precios = $this->viaticos_model->precios_zona($agencia);
+           
+            
+            $totalViaticosAgencia = 0;
+            foreach($all_carteras as $cartera){
+                    $consumo_ruta = 0;
+                    $depreciacion = 0;
+                    $llanta_del = 0;
+                    $llanta_tra = 0;
+                    $mont_gral = 0;
+                    $aceite = 0;
+                    $total = 0;
+                    $km_totales = $cartera->KM;
+                    $km_mes = 30*$km_totales;
+                    $gal_consumidos = $km_mes/$moto[0]->consumo_gal;
+                    $consumo_ruta = $gal_consumidos*$precios[0]->precio;
+                    $porcentaje = $km_mes/(($moto[0]->km_uso/$moto[0]->tiempo_vida)/24);
+                    $depreciacion = ($moto[0]->precio/$tiempo_vida)*$porcentaje;
+                    $llanta_del = ($item[0]->mesual/2)*$porcentaje;
+                    $llanta_tra = ($item[1]->mesual/2)*$porcentaje;
+                    $mont_gral = ($item[2]->mesual/2)*$porcentaje;
+                    $aceite = ($item[3]->mesual/2)*$porcentaje;
+                    $total = $consumo_ruta+$depreciacion+$llanta_del+$llanta_tra+$mont_gral+$aceite;
+                    $totalViaticosAgencia += $total;
+            }
+            $sumaTotal =  $totalViaticosAgencia  +  $total_viaticos_extra[0]->limite_viaticos_extra;
+            $total = str_replace(',','',$cantidad_dinero);
+
+            $totalViaticosIngresados = (double)$total_viaticos_agencia[0]->total + $total;
+
+            if($totalViaticosIngresados > $sumaTotal){
+                    $bandera = false;
+                    $data .= 'El total de viaticos ingresados supera el limite de viaticos de la agencia<br>';
+                }
+
         }
 
         if($tipo_viatico == 5){

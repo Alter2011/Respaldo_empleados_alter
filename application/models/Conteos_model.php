@@ -34,13 +34,14 @@
              }
          }
          //NO07062023 traer el ultimo bono que tiene
-         function get_last_bono($id_contrato){  
+         function get_last_bono($id_contrato, $mes){  
             $this->db->select("*");
             $this->db->from('bonificacion');
             $this->db->where('id_contrato', $id_contrato);
             $this->db->where('estado_control = 1');
+            $this->db->where('mes', $mes);
             $this->db->order_by('mes', 'desc');
-            $this->db->limit(1);
+            //$this->db->limit(1);
             $result = $this->db->get();
             return $result->result();
          }

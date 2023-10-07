@@ -215,5 +215,23 @@
             </div>
     <?php } ?>
 
+    <?php if(isset($this->data["seccion_171"])){  ?>
+        <!--5.13 manual de empleados-->
+         <div class="panel-group col-sm-4">
+                <a href="<?= base_url();?>index.php/Viaticos/precio_gasolina">
+                    <div class="panel-info" role="button">
+                        <div class="panel-heading print-blue text-center" >
+                            <span class="glyphicon glyphicon-wrench fa-5x text-center"></span><br/>
+                        </div>
+                        <div class="panel-footer text-center">
+                        <label>Mantenimientos de viaticos</label>
+                        </div>
+                    </div> 
+                </a>          
+            </div>
+    <?php } ?>
+
+    
+
     </div>
 	</div>

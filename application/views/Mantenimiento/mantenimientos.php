@@ -234,20 +234,7 @@
             </div>
     <?php } ?>
 
-    <?php if(isset($this->data["seccion_171"])){  ?>
-         <div class="panel-group col-sm-4">
-                <a href="<?= base_url();?>index.php/Contratacion/empleadosSalario">
-                    <div class="panel-info" role="button">
-                        <div class="panel-heading print-blue text-center" >
-                            <span class="fas fa-donate fa-5x text-center"></span><br/>
-                        </div>
-                        <div class="panel-footer text-center">
-                        <label>Mantenimiento de viaticos</label>
-                        </div>
-                    </div> 
-                </a>          
-            </div>
-    <?php } ?>
+   
 
     </div>
 	</div>
